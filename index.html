@@ -44,14 +44,15 @@ function closeImg(){
 </head>
 <body>
 
-  <script>
-  var password = prompt("Lütfen Erişim Şifresini Giriniz:");
-  if (password !== "1283") 
-    alert("Hatalı şifre! Sayfaya erişilemiyor.");
-    document.body.innerHTML = "<h1>Erişim Engellendi</h1>";
-    window.location.href = "about:blank"; // Yanlış şifrede boş sayfa açar
-  }
-</script>
+<body>
+    <script>
+        // Sayfa açılır açılmaz şifre sorar
+        var password = prompt("Lütfen Erişim Şifresini Giriniz:");
+        if (password !== "1234") { // "1234" yerine kendi şifreni yazabilirsin
+            alert("Hatalı şifre!");
+            window.location.href = "https://www.google.com"; // Yanlışsa başka yere atar
+        }
+    </script>
   
 <h1>Access Panel – A330 (A BKM GG-B)</h1>
 <input id="search" type="text" placeholder="Panel Numarası Ara" onkeyup="filterPanels()" />
@@ -207,4 +208,5 @@ Access Panels: 251AW, 251AX, 251BW, 251BX, 251CW, 251CX, 251DW, 251DX, 251EW, 25
 </body>
 
 </html>
+
 
