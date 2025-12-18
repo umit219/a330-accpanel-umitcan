@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<link rel="apple-touch-icon" href="images/icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="A330 Access Panel">
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Access Panel – A330 (A BKM GG-B)</title>
+<style>
+body{font-family:Arial,Helvetica,sans-serif;background:#f4f7f9;margin:0;padding:20px}
+h1{margin-bottom:10px}
+input{width:100%;padding:10px;margin-bottom:15px;font-size:16px}
+details{background:#fff;border-radius:8px;margin-bottom:10px;padding:10px}
+summary{font-weight:bold;cursor:pointer}
+.panels{margin-top:8px;font-size:14px;color:#333}
+.panel{padding:4px 0;border-bottom:1px dashed #ddd}
+button{margin-top:8px;padding:6px 12px;cursor:pointer}
+/* IMAGE MODAL */
+#imgModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;z-index:1000}
+#imgModal img{max-width:90%;max-height:90%;border-radius:8px;background:#fff}
+#closeBtn{position:absolute;top:20px;right:30px;font-size:24px;color:#fff;cursor:pointer}
+</style>
+<script>
+function filterPanels(){
+ const q = document.getElementById('search').value.toLowerCase();
+ document.querySelectorAll('details').forEach(d=>{
+   const match = d.innerText.toLowerCase().includes(q);
+   d.style.display = match ? 'block' : 'none';
+   if(!match) d.removeAttribute("open");
+ });
+}
+function openImg(n){
+ document.getElementById('modalImg').src='images/'+n+'.png';
+ document.getElementById('imgModal').style.display='flex';
+}
+function closeImg(){
+ document.getElementById('imgModal').style.display='none';
+}
+</script>
+</head>
+<body>
+
+<h1>Access Panel – A330 (A BKM GG-B)</h1>
+<input id="search" type="text" placeholder="Panel Numarası Ara" onkeyup="filterPanels()" />
+
+<!-- IMAGE MODAL -->
+<div id="imgModal">
+ <span id="closeBtn" onclick="closeImg()">✖</span>
+ <img id="modalImg" src="" />
+</div>
+
+<!-- 1 -->
+<details><summary>Access Panel Locations on the Left Side of the Vertical Stabilizer</summary><div class="panels">Access Panel: 321AL, 322AL, 322BL, 322CL, 322EL, 322FL, 323DL, 323EL, 324CT, 325LL, 325NL, 325SL, 325TL, 325UL, 325VL, 326AT, 326ML, 326NL, 326PL, 326QL</div><button onclick="openImg(1)">Görsel</button></details>
+<!-- 2 -->
+<details><summary>Access Panel Locations on the Lower Surface of the Horizontal Stabilizer</summary><div class="panels">Access Panels: 331AT, 332AB, 333AB, 333AT, 333BB, 333CB, 333DB, 333EB, 333FB, 333GB, 334AB, 334AZ, 334BB, 334CB, 334DB, 334EB, 334FB, 334GB, 335AB, 335BB, 335CB, 335DB, 335EB, 335FB, 341AT, 342AB, 343AB, 343AT, 343BB, 343CB, 343DB, 343EB, 343FB, 343GB, 344AB, 344BB, 344CB, 344DB, 344EB, 344FB, 344GB, 345AB, 345BB, 345CB, 345DB, 345EB, 345FB, 346AB
+</div><button onclick="openImg(2)">Görsel</button></details>
+<!-- 3 -->
+<details><summary>Access Panel Locations on the Right Side of the Vertical Stabilizer</summary><div class="panels">Access Panels: 323DR, 323ER, 325LR, 325NR, 325SR, 325TR, 325UR, 325VR
+</div><button onclick="openImg(3)">Görsel</button></details>
+<!-- 4 -->
+<details><summary>Access Panel Locations on the Upper Surface of the Horizontal Stabilizer and Aprons</summary><div class="panels">Access Panels: 319AL, 319AR, 319BL, 319DR, 331BT, 331CT, 331DT, 331ET, 332AT, 333AL, 333BL, 333CL, 333DL, 333EL, 334AT, 334BT, 334CT, 334DT, 334ET, 341BT, 341CT, 341DT, 341ET, 342AT, 343AR, 343BR, 343CR, 343DR, 343ER, 344AT, 344BT, 344CT, 344DT, 344ET
+
+</div><button onclick="openImg(4)">Görsel</button></details>
+<!-- 5 -->
+<details><summary>Access Panels - Flap Track Fairings - Left Wing</summary><div class="panels">Access Panels: 531AB, 531AL, 531AR, 531AT, 531BB, 531BL, 531BR, 531CB, 531CL, 531CR, 531DB, 531DR, 531EB, 531EL, 531FL, 531FR, 532AB, 532AL, 532AR, 532AT, 532BB, 532BL, 532BR, 532CB, 532CL, 532CR, 532DB, 532DL, 532EB, 532EL, 532FL, 532FR, 533AB, 533AL, 533AR, 533AT, 533BB, 533BL, 533BR, 533CB, 533CL, 533CR, 533DB, 533DL, 533EB, 533EL, 533FB, 533FL, 533FR, 534AB, 534AL, 534AR, 534AT, 534BB, 534BL, 534BR, 534CB, 534CL, 534CR, 534DB, 534DL, 534EB, 534EL, 534FL, 534FR
+
+</div><button onclick="openImg(5)">Görsel</button></details>
+<!-- 6 -->
+<details><summary>Access Panels - Flap Track Fairings - Right Wing</summary><div class="panels">Access Panels: 631AB, 631AL, 631AR, 631AT, 631BB, 631BL, 631BR, 631CB, 631CL, 631CR, 631DB, 631DL, 631EB, 631ER, 631FL, 631FR, 632AB, 632AL, 632AR, 632AT, 632BB, 632BL, 632BR, 632CB, 632CL, 632CR, 632DB, 632DR, 632EB, 632ER, 632FL, 632FR, 633AB, 633AL, 633AR, 633AT, 633BB, 633BL, 633BR, 633CB, 633CL, 633CR, 633DB, 633DR, 633EB, 633ER, 633FB, 633FL, 633FR, 633GB, 633GL, 633GR, 633HB, 633JR, 633SL, 634AB, 634AL, 634AR, 634AT, 634BB, 634BL, 634BR, 634CB, 634CL, 634CR, 634DB, 634DR, 634EB, 634ER, 634FL, 634FR</div><button onclick="openImg(6)">Görsel</button></details>
+<!-- 7 -->
+<details><summary>Access Panels - Left Wing Box Section, Wing Tip Lower Surface, Ribs and Center Spar</summary><div class="panels">Access Panels: 535AB, 535AZ, 535BB, 535BZ, 535CZ, 541AB, 541AZ, 541BB, 541BZ, 541CB, 541CZ, 541DB, 541DZ, 541EB, 541EZ, 541FB, 541FZ, 541GB, 541GZ, 541HB, 541JB, 541KB, 541LB, 541MB, 541NB, 541PB, 541QB, 541RB, 541SB, 542AB, 542BB, 542CB, 542DB, 542EB, 542FB, 542GB, 542HB, 542JB, 542KB, 550AB, 550BB, 550CB, 550DB, 550EB, 550FB
+</div><button onclick="openImg(7)">Görsel</button></details>
+<!-- 8 -->
+<details><summary>Access Panels - Left Wing Lower Surface Leading Edge</summary><div class="panels">Access Panels: 521AB, 521BB, 521CB, 521DB, 521EB, 521FB, 521GB, 521HB, 521JB, 522AB, 522BB, 522CB, 522DB, 522EB, 522GB, 522HB, 522JB, 522KB, 522LB, 522MB, 522NB, 522PB, 522RB, 522SB, 522TB, 522UB, 523CB, 523DB, 523EB, 523FB, 523GB, 523HB, 523JB, 523KB, 523LB, 523MB, 523NB, 523PB</div><button onclick="openImg(8)">Görsel</button></details>
+<!-- 9 -->
+<details><summary>Access Panels - Left Wing Lower Surface Trailing Edge</summary><div class="panels">Access Panels: 572AB, 572DB, 573AB, 573BB, 573CB, 573DB, 573EB, 573FB, 573GB, 574AB, 574BB, 574CB, 574DB, 574EB, 574FB, 574GB, 574HB, 574JB, 574KB, 574LB, 574MB, 574NB, 575AB, 575BB, 575CB, 575DB, 591AB, 591BB, 591CB, 591DB, 592AB, 592BB, 592CB, 592DB</div><button onclick="openImg(9)">Görsel</button></details>
+<!-- 10 -->
+<details><summary>Access Panels - Left Wing Upper Surface Leading Edge</summary><div class="panels">Access Panels: 522AT, 522BT, 522CT, 541AT
+</div><button onclick="openImg(10)">Görsel</button></details>
+<!-- 11 -->
+<details><summary>Access Panels - Left Wing Upper Surface Trailing Edge</summary><div class="panels">Access Panels: 574AT, 575AT, 575BT, 581AB, 583DB, 583EB, 583FB</div><button onclick="openImg(11)">Görsel</button></details>
+<!-- 12 -->
+<details><summary>Access Panels - Right Wing Box Section, Wing Tip Lower Surface, Ribs and Center Spar</summary><div class="panels">Access Panels: 635AB, 635AZ, 635BB, 635BZ, 635CZ, 641AB, 641AZ, 641BB, 641BZ, 641CB, 641CZ, 641DB, 641DZ, 641EB, 641EZ, 641FB, 641FZ, 641GB, 641GZ, 641HB, 641JB, 641KB, 641LB, 641MB, 641NB, 641PB, 641QB, 641RB, 641SB, 642AB, 642BB, 642CB, 642DB, 642EB, 642FB, 642GB, 642HB, 642JB, 642KB, 650AB, 650BB, 650CB, 650DB, 650EB, 650FB</div><button onclick="openImg(12)">Görsel</button></details>
+<!-- 13 -->
+<details><summary>Access Panels - Right Wing Lower Surface Leading Edge</summary><div class="panels">Access Panels: 621AB, 621BB, 621CB, 621DB, 621EB, 621FB, 621GB, 621HB, 621JB, 622AB, 622BB, 622CB, 622DB, 622EB, 622GB, 622HB, 622JB, 622KB, 622LB, 622MB, 622NB, 622PB, 622RB, 622SB, 622TB, 622UB, 623CB, 623DB, 623EB, 623FB, 623GB, 623HB, 623JB, 623KB, 623LB, 623MB, 623NB, 623PB</div><button onclick="openImg(13)">Görsel</button></details>
+<!-- 14 -->
+<details><summary>Access Panels - Right Wing Lower Surface Trailing Edge</summary><div class="panels">Access Panels: 672AB, 672DB, 673AB, 673BB, 673CB, 673DB, 673EB, 673FB, 673GB, 674AB, 674BB, 674CB, 674DB, 674EB, 674FB, 674GB, 674HB, 674JB, 674KB, 674LB, 674MB, 674NB, 675AB, 675BB, 675CB, 675DB, 691AB, 691BB, 691CB, 691DB, 692AB, 692BB, 692CB, 692DB
+</div><button onclick="openImg(14)">Görsel</button></details>
+<!-- 15 -->
+<details><summary>Access Panels - Right Wing Upper Surface Leading Edge</summary><div class="panels">Access Panels: 622AT, 622BT, 622CT, 641AT
+</div><button onclick="openImg(15)">Görsel</button></details>
+<!-- 16 -->
+<details><summary>Access Panels - Right Wing Upper Surface Trailing Edge</summary><div class="panels">Access Panels: 674AT, 675AT, 675BT, 681AB, 683DB, 683EB, 683FB</div><button onclick="openImg(16)">Görsel</button></details>
+<!-- 17 -->
+<details><summary>Access Panels of the Radome, Avionics Compartment, Nose Gear Well Zones 110-121-122-123</summary><div class="panels">Access Panels: 110AL, 121AL, 121CL, 121EL, 122CR, 122DR</div><button onclick="openImg(17)">Görsel</button></details>
+<!-- 18 -->
+<details><summary>Access Panels on the Cargo Compartment Doors, Zone 821, 822</summary><div class="panels">Access Panels: 821AR, 821BR, 821CR, 821DR, 822AR, 822BR, 822CR, 822DR</div><button onclick="openImg(18)">Görsel</button></details>
+<!-- 19 -->
+<details><summary>Access Panels on the Emergency Exit, Zone 834</summary><div class="panels">Access Panels: 834KZ, 834LZ, 834MZ, 834NZ, 834PZ, 834QZ</div><button onclick="openImg(19)">Görsel</button></details>
+<!-- 20 -->
+<details><summary>Access Panels on the Emergency Exit, Zone 844</summary><div class="panels">Access Panels: 844KZ, 844LZ, 844MZ, 844NZ, 844PZ, 844QZ</div><button onclick="openImg(20)">Görsel</button></details>
+<!-- 21 -->
+<details><summary>Aft Cargo-Compartment Ceiling-Panels Zones 151-152</summary><div class="panels">Access Panels: 151AC, 151BC, 151CC, 151DC, 151EC, 151FC, 151JC, 151KC, 151NC, 151PC, 152BC, 152DC, 152FC, 152LC, 152MC, 152QC, 152RC, 152TC, 152UC
+</div><button onclick="openImg(21)">Görsel</button></details>
+<!-- 22 -->
+<details><summary>Aft Cargo-Compartment Floor-Panels Zones 151-152</summary><div class="panels">Access Panels: 151AF, 151BF, 151CF, 151DF, 151NF, 151PF, 151PG, 151RG, 152AF, 152BF, 152CF, 152DF, 152JG, 152KG, 152LG, 152MG, 152NF, 152NG, 152PG, 152QF, 152QG
+</div><button onclick="openImg(22)">Görsel</button></details>
+<!-- 23 -->
+<details><summary>Aft Cargo-Compartment Partition-Panels, FR53-2 Zones 151-152</summary><div class="panels">Access Panels: 151AW, 151BW, 151CW, 152BW, 152CW, 152PW, 152QW, 152UW</div><button onclick="openImg(23)">Görsel</button></details>
+<!-- 24 -->
+<details><summary>Aft Cargo-Compartment Sidewall-Panels Zones 151-152</summary><div class="panels">Access Panels: 151DW, 151EW, 151FW, 151GW, 151HW, 151JW, 151QW, 151RW, 151SW, 151TW, 152DW, 152EW, 152FW, 152GW, 152HW, 152JW, 152MW, 152NW</div><button onclick="openImg(24)">Görsel</button></details>
+<!-- 25 -->
+<details><summary>Aft-Fuselage Lower-Section Access-Panels Zones 152-154-164-171</summary><div class="panels">Access Panels: 152AR, 152BR, 152CR, 152DR, 152ER, 152FR, 152GR, 152HR, 152JR, 152KR, 152LR, 152MR, 152NR, 154AR, 164AR, 171AL</div><button onclick="openImg(25)">Görsel</button></details>
+<!-- 26 -->
+<details><summary>Belly Fairing - Right-Side Access Panels Zones 148-149-192-196-198</summary><div class="panels">Access Panels: 148AB, 148AT, 148BB, 148BT, 149BB, 149CB, 192AT, 192BB, 192BT, 192BZ, 192CB, 192CT, 192CZ, 192DZ, 192EZ, 192GB, 192HB, 192JB, 192MB, 192NB, 192PB, 192QB, 192RB, 192SB, 196AZ, 196BB, 196EB, 196GB, 196HB, 198AT, 198BB, 198DB, 198EB, 198GB, 198HB</div><button onclick="openImg(26)">Görsel</button></details>
+<!-- 27 -->
+<details><summary>Belly-Fairing - Left-Side Access-Panels Zones 147-191-193-195-197</summary><div class="panels">Access Panels: 147AB, 147AT, 147BB, 147BT, 149AB, 149AZ, 191AB, 191AT, 191AZ, 191BB, 191BT, 191CB, 191CT, 191DB, 191DZ, 191EB, 191FB, 191HB, 191KB, 191LB, 191QB, 191RB, 193AB, 193BB, 193CB, 193DB, 193EB, 193FB, 195BB, 195CB, 195DB, 197AB, 197AT, 197BB, 197CB, 197EB, 197FB, 197GB, 197HB</div><button onclick="openImg(27)">Görsel</button></details>
+<!-- 28 -->
+<details><summary>Bulk Cargo-Compartment Ceiling-Panels Zones 161-162</summary><div class="panels">Access Panels: 161AC, 161BC, 161DC, 161EC, 162CC, 162FC</div><button onclick="openImg(28)">Görsel</button></details>
+<!-- 29 -->
+<details><summary>Bulk Cargo-Compartment Floor-Panels, Zones 161-162-171</summary><div class="panels">Access Panels: 161AF, 161CF, 161EF, 162BF, 162DF, 162EF, 171AF, 171BF, 171CF, 171DF, 171EF, 171FF, 171GF
+</div><button onclick="openImg(29)">Görsel</button></details>
+<!-- 30 -->
+<details><summary>Bulk Cargo-Compartment Partition-Panels, FR73 Zones 161-162</summary><div class="panels">Access Panels: 161XW, 161YW, 162YW, 162ZW</div><button onclick="openImg(30)">Görsel</button></details>
+<!-- 31 -->
+<details><summary>Bulk Cargo-Compartment Sidewall-Panels Zones 161-162</summary><div class="panels">Access Panels: 161AW, 161BW, 161CW, 161MW, 161NW, 161PW, 162AX, 162BX, 162CX, 162DW, 162DX, 162EW, 162FW, 162GW, 162HW, 162JW, 162KW, 162LW, 162QW, 162RW, 162SW, 162TW, 162UW, 162VW, 162WW</div><button onclick="openImg(31)">Görsel</button></details>
+<!-- 32 -->
+<details><summary>Cockpit and Avionics-Compartment Floor-Panels Zones 121-122</summary><div class="panels">Access Panels: 121AF, 121BF, 121CF, 121DF, 121EF, 121FF, 121GF, 121HF, 121KF, 122CF, 122DF, 122FF, 122GF, 122HF, 122JF, 122KF, 122LF, 122NF, 122PF</div><button onclick="openImg(32)">Görsel</button></details>
+<!-- 33 -->
+<details><summary>Cockpit Ceiling and Sidewall Panels</summary><div class="panels">Access Panels: 211AC, 211AW, 211BC, 211BW, 211CC, 211CW, 211DC, 211DW, 211EC, 211EW, 211FW, 211GC, 211GW, 211HC, 211HW, 211JC, 211JW, 211KC, 211KW, 211LC, 211LW, 211MC, 211MW, 211NW, 211PW, 212BC, 212CC, 212CW, 212DC, 212DW, 212EW, 212FC, 212FW, 212GC, 212GW, 212HC, 212HW, 212JC, 212JW, 212KW, 212LW, 212MW, 212NC, 212NW, 212QW
+</div><button onclick="openImg(33)">Görsel</button></details>
+<!-- 34 -->
+<details><summary>Cockpit Floor-Panels Zones 211-212</summary><div class="panels">Access Panels: 211AF, 211BF, 211CF, 211DF, 211EF, 211FF, 211GF, 211JF, 212AF, 212BF, 212CF, 212DF, 212HF, 212KF</div><button onclick="openImg(34)">Görsel</button></details>
+<!-- 35 -->
+<details><summary>Emergency-Exit Frame Lining-Panels Zone 261</summary><div class="panels">Access Panels: 261LE, 261ME, 261NE, 261RX, 261SX, 261TX, 261UX, 261VX, 261WX, 261XX, 261Y</div><button onclick="openImg(35)">Görsel</button></details>
+<!-- 36 -->
+<details><summary>Emergency-Exit Frame Lining-Panels Zone 262</summary><div class="panels">Access Panels: 262LE, 262ME, 262NE, 262RX, 262SX, 262TX, 262UX, 262VX, 262WX, 262XX, 262YX</div><button onclick="openImg(36)">Görsel</button></details>
+<!-- 37 -->
+<details><summary>Forward Cargo-Compartment Ceiling-Panels Zones 131-132</summary><div class="panels">Access Panels: 131AC, 131BC, 131EC, 131FC, 131NC, 131PC, 131QC, 131RC, 131SC, 131TC, 131UC, 131VC, 131WC, 131XC, 132CC, 132DC, 132GC, 132HC, 132PC, 132RC, 132TC, 132VC, 132XC</div><button onclick="openImg(37)">Görsel</button></details>
+<!-- 38 -->
+<details><summary>Forward Cargo-Compartment Floor-Panels - FR20 to FR25 Zones 131-132</summary><div class="panels">Access Panels: 131CF, 131DF, 131EF, 131FF, 131GF, 131HF, 131JF, 131KF, 131MG, 131NG, 131PG, 131QG, 131RG, 131SG, 131TG, 132CF, 132DF, 132EF, 132FF, 132GF, 132HF, 132JF, 132KF, 132MG, 132NG, 132PG, 132QG, 132RG, 132SG, 132TG, 132UG, 132VG</div><button onclick="openImg(38)">Görsel</button></details>
+<!-- 39 -->
+<details><summary>Forward Cargo-Compartment Floor-Panels Zones 131-132</summary><div class="panels">Access Panels: 131CG, 131DG, 131EG, 131FG, 131GG, 131HG, 131JG, 131KG, 131LG, 131VF, 132CG, 132DG, 132EG, 132FG, 132GG, 132HG, 132JG, 132KG</div><button onclick="openImg(39)">Görsel</button></details>
+<!-- 40 -->
+<details><summary>Forward Cargo-Compartment Partition-Panels, FR20 Zones 131-132</summary><div class="panels">Access Panels: 131AW, 131BW, 132AZ, 132CW, 132DW, 132EW, 132NW</div><button onclick="openImg(40)">Görsel</button></details>
+<!-- 41 -->
+<details><summary>Forward Cargo-Compartment Partition-Panels, FR39-2 Zones 131-132</summary><div class="panels">Access Panels: 131BX, 131CX, 131DX, 132CX, 132DX</div><button onclick="openImg(41)">Görsel</button></details>
+<!-- 42 -->
+<details><summary>Forward Cargo-Compartment Sidewall-Panels Zones 131-132</summary><div class="panels">Access Panels: 131AX, 131EX, 131FX, 131GW, 131HW, 131JW, 131KW, 131TW, 131UW, 131VW, 131WW, 131XW, 131YW, 131ZW, 132AX, 132EX, 132FX, 132LW, 132MW, 132TW, 132UW, 132VW, 132WW, 132XW, 132YW, 132ZW</div><button onclick="openImg(42)">Görsel</button></details>
+<!-- 43 -->
+<details><summary>Forward-Fuselage Lower Section Zones 131-132-133-134</summary><div class="panels">Access Panels: 132AR, 132BR, 132CR, 132DR, 132ER, 132FR, 132GR, 132HR, 132JR, 132KR, 132LR, 133AL, 133BL
+</div><button onclick="openImg(43)">Görsel</button></details>
+<!-- 44 -->
+<details><summary>Fuselage Tail Cone, APU Compartment Zones 313 to 317</summary><div class="panels">Access Panels: 313AL, 315AL, 316AR, 317AL</div><button onclick="openImg(44)">Görsel</button></details>
+<!-- 45 -->
+<details><summary>Fuselage Upper-Section Ceiling-Panels Zones 221-222</summary><div class="panels">Access Panels: 221AC, 221AZ, 221BC, 221BZ, 221CC, 221DC, 221EC, 221FC, 221GC, 222AZ, 222BC, 222BZ, 222CC, 222DC, 222EC, 222FC</div><button onclick="openImg(45)">Görsel</button></details>
+<!-- 46 -->
+<details><summary>Fuselage Upper-Section Ceiling-Panels Zones 231-232</summary><div class="panels">Access Panels: 231AC, 231BC, 231CC, 231DC, 231HC, 231JC, 232AC, 232BC, 232CC, 232DC, 232HC, 232JC</div><button onclick="openImg(46)">Görsel</button></details>
+<!-- 47 -->
+<details><summary>Fuselage Upper-Section Ceiling-Panels Zones 241-242</summary><div class="panels">Access Panels: 241AC, 241BC, 241CC, 242AC, 242BC, 242CC</div><button onclick="openImg(47)">Görsel</button></details>
+<!-- 48 -->
+<details><summary>Fuselage Upper-Section Ceiling-Panels Zones 251-252</summary><div class="panels">Access Panels: 251AC, 251BC, 251CC, 251DC, 251EC, 251FC, 251GC, 251HC, 251JC, 251KC, 251LC, 251MC, 251NC, 251PC, 251QC, 252AC, 252BC, 252CC, 252DC, 252EC, 252FC, 252GC, 252HC, 252JC, 252KC, 252LC, 252MC, 252NC, 252PC, 252QC</div><button onclick="openImg(48)">Görsel</button></details>
+<!-- 49 -->
+<details><summary>Fuselage Upper-Section Ceiling-Panels Zones 261-262</summary><div class="panels">Access Panels: 261AC, 261BC, 261CC, 261DC, 261EC, 261HC, 261JC, 261KC, 261LC, 261MC, 261NC, 262AC, 262BC, 262CC, 262DC, 262EC, 262HC, 262JC, 262KC, 262LC, 262MC, 262NC</div><button onclick="openImg(49)">Görsel</button></details>
+<!-- 50 -->
+<details><summary>Fuselage Upper-Section Ceiling-Panels Zones 271-272</summary><div class="panels">Access Panels: 271AC, 271AZ, 271BC, 271BZ, 271CC, 271CZ, 271DC, 271EC, 271FC, 271GC, 272AC, 272AZ, 272BC, 272BZ, 272CC, 272CZ, 272DC, 272EC, 272FC, 272GC</div><button onclick="openImg(50)">Görsel</button></details>
+<!-- 51 -->
+<details><summary>Fuselage Upper-Section Floor-Panels Zones 221-222</summary><div class="panels">Access Panels: 221AF, 221BF, 221CF, 221EF, 221GF, 221HF, 221JF, 221KF, 222DF, 222GF, 222HF, 222JF, 222KF</div><button onclick="openImg(51)">Görsel</button></details>
+<!-- 52 -->
+<details><summary>Fuselage Upper-Section Floor-Panels Zones 231-232</summary><div class="panels">Access Panels: 231AF, 231BF, 231CF, 231EF, 231FF, 231FG, 231GF, 231GG, 231HF, 231HG, 231JF, 231JG, 231KF, 231KG, 231LF, 231LG, 231MF, 231MG, 231NF, 231PF, 232BF, 232DF, 232FF, 232GF, 232GG, 232HF, 232HG, 232JF, 232JG, 232KG, 232LF, 232LG, 232MF, 232MG, 232NF, 232PF
+</div><button onclick="openImg(52)">Görsel</button></details>
+<!-- 53 -->
+<details><summary>Fuselage Upper-Section Floor-Panels Zones 241-242</summary><div class="panels">Access Panels: 241AF, 241BF, 241CF, 241DF, 241EF, 241FF, 241GF, 241HF, 241LF, 241PF, 241QF, 241RF, 241SF, 242BF, 242CF, 242DF, 242EF, 242GF, 242HF, 242LF, 242PF, 242QF, 242RF, 242SF
+</div><button onclick="openImg(53)">Görsel</button></details>
+<!-- 54 -->
+<details><summary>Fuselage Upper-Section Floor-Panels Zones 251-252</summary><div class="panels">Access Panels: 251AF, 251AG, 251BF, 251BG, 251CF, 251CG, 251DF, 251DG, 251EF, 251EG, 251FF, 251FG, 251GF, 251GG, 251HF, 251HG, 251JF, 251JG, 251KF, 251KG, 251LF, 251LG, 251MF, 251MG, 251NF, 251NG, 251PF, 251PG, 251QF, 251QG, 251RF, 251RG, 251SF, 251SG, 251TF, 251TG, 251UF, 251UG, 251VF, 251VG, 251WF, 251WG, 251XF, 251XG, 251YF, 251ZF, 252AG, 252BF, 252CF, 252CG, 252DF, 252DG, 252EF, 252EG, 252FG, 252GF, 252HF, 252HG, 252JF, 252JG, 252KF, 252KG, 252LG, 252MF, 252MG, 252NF, 252PF, 252PG, 252QF, 252QG, 252RG, 252SF, 252SG, 252TF, 252UF, 252UG, 252VF, 252VG, 252WG, 252XF, 252XG, 252YF, 252ZF</div><button onclick="openImg(54)">Görsel</button></details>
+<!-- 55 -->
+<details><summary>Fuselage Upper-Section Floor-Panels Zones 261-262</summary><div class="panels">Access Panels: 261AF, 261AG, 261BF, 261BG, 261CF, 261CH, 261DF, 261DH, 261EF, 261EG, 261EH, 261FF, 261FG, 261FH, 261GF, 261GG, 261GH, 261HF, 261HH, 261JF, 261JH, 261KF, 261KG, 261KH, 261LF, 261LG, 261LH, 261MF, 261MG, 261MH, 261NF, 261NH, 261PF, 261QF, 261QG, 261RF, 261SG, 261TG, 261UF, 261UG, 261VF, 261VG, 261WF, 261WG, 261XG, 261YG, 261ZF, 261ZG, 262BF, 262BG, 262CF, 262CH, 262DF, 262DH, 262EF, 262EG, 262EH, 262FF, 262FH, 262GG, 262GH, 262HF, 262HH, 262JF, 262JH, 262KG, 262KH, 262LF, 262LH, 262MF, 262MG, 262NF, 262PF, 262QG, 262RF, 262SG, 262TG, 262UF, 262UG, 262VG, 262WF, 262XG, 262YG, 262ZF, 262ZG</div><button onclick="openImg(55)">Görsel</button></details>
+<!-- 56 -->
+<details><summary>Fuselage Upper-Section Floor-Panels Zones 271-272</summary><div class="panels">Access Panels: 271AF, 271BF, 271CF, 271DF, 271EF, 271FF, 271GF, 271HF, 271JF, 271KF, 271LF, 271MF, 271NF, 271PF, 271QF, 272BF, 272CF, 272DF, 272EF, 272GF, 272HF, 272JF, 272KF, 272LF, 272NF, 272QF</div><button onclick="openImg(56)">Görsel</button></details>
+<!-- 57 -->
+<details><summary>Fuselage Upper-Section Sidewall-Panels Zones 231-232</summary><div class="panels">Access Panels: 231AW, 231BW, 231CW, 231DW, 231EW, 231FW, 231GW, 231HW, 231QW, 231RW, 231SW, 231UW, 232AW, 232BW, 232CW, 232DW, 232EW, 232FW, 232GW, 232HW, 232QW, 232RW, 232SW, 232UW
+</div><button onclick="openImg(57)">Görsel</button></details>
+<!-- 58 -->
+<details><summary>Fuselage Upper-Section Sidewall-Panels Zones 251-252</summary><div class="panels">
+Access Panels: 251AW, 251AX, 251BW, 251BX, 251CW, 251CX, 251DW, 251DX, 251EW, 251EX, 251FW, 251FX, 251GW, 251HW, 251JW, 251JX, 251KW, 251KX, 251LW, 251MW, 251NW, 251PW, 251QW, 251RW, 251SW, 251TW, 251UW, 251VW, 251WW, 251XW, 251YW, 251ZW, 252AW, 252AX, 252BW, 252BX, 252CW, 252CX, 252DW, 252DX, 252EW, 252EX, 252FW, 252FX, 252GW, 252HW, 252JW, 252JX, 252KW, 252KX, 252LW, 252MW, 252NW, 252PW, 252QW, 252RW, 252SW, 252TW, 252UW, 252VW, 252WW, 252XW, 252YW, 252ZW</div><button onclick="openImg(58)">Görsel</button></details>
+<!-- 59 -->
+<details><summary>Fuselage Upper-Section Sidewall-Panels Zones 261-262</summary><div class="panels">Access Panels: 261BX, 261CX, 261DX, 261EX, 261FX, 261GX, 261HX, 261JX, 261KX, 261LX, 261MX, 261NX, 261PW, 261PX, 261QW, 261QX, 261RW, 261SW, 261TW, 261UW, 261VW, 261WW, 262BX, 262CX, 262DX, 262EX, 262FX, 262GX, 262HX, 262JX, 262KX, 262LX, 262MX, 262NX, 262PW, 262PX, 262QW, 262QX, 262RW, 262SW, 262TW, 262UW, 262VW, 262WW</div><button onclick="openImg(59)">Görsel</button></details>
+<!-- 60 -->
+<details><summary>Rear Fuselage Access-Panels Zones 311-312</summary><div class="panels">Access Panels: 311AL, 311AZ, 311BZ, 312AR</div><button onclick="openImg(60)">Görsel</button></details>
+<!-- 61 -->
+<details><summary>Wing Center-Box Access-Panels Zones 141-142</summary><div class="panels">Access Panels: 147AZ, 148AZ</div><button onclick="openImg(61)">Görsel</button></details>
+
+</body>
+</html>
