@@ -46,13 +46,19 @@ function closeImg(){
 
 <body>
     <script>
-        // Sayfa açılır açılmaz şifre sorar
-        var password = prompt("Lütfen Erişim Şifresini Giriniz:");
-        if (password !== "1283") { // "1234" yerine kendi şifreni yazabilirsin
-            alert("Hatalı şifre!");
-            window.location.href = "https://www.google.com"; // Yanlışsa başka yere atar
-        }
-    </script>
+    // Şifreyi girerken iPhone'un ilk harfi büyük yapma ihtimaline karşı 
+    // girilen metni tamamen küçük harfe çevirip kontrol ederiz.
+    
+    var sifre = prompt("Erişim Şifresini Giriniz:");
+    
+    // Eğer şifren "a330" ise, kullanıcı "A330" veya "a330" yazsa da kabul eder.
+    if (sifre && sifre.toLowerCase() === "1283") { 
+        alert("Giriş Başarılı!");
+    } else {
+        alert("Hatalı şifre girdiniz!");
+        window.location.href = "https://nolur.com/";
+    }
+</script>
   
 <h1>Access Panel – A330 (A BKM GG-B)</h1>
 <input id="search" type="text" placeholder="Panel Numarası Ara" onkeyup="filterPanels()" />
@@ -208,6 +214,7 @@ Access Panels: 251AW, 251AX, 251BW, 251BX, 251CW, 251CX, 251DW, 251DX, 251EW, 25
 </body>
 
 </html>
+
 
 
 
