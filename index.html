@@ -1,4 +1,12 @@
 <!DOCTYPE html>
+<script>
+  var password = prompt("Lütfen Erişim Şifresini Giriniz:");
+  if (password !== "1283") 
+    alert("Hatalı şifre! Sayfaya erişilemiyor.");
+    document.body.innerHTML = "<h1>Erişim Engellendi</h1>";
+    window.location.href = "about:blank"; // Yanlış şifrede boş sayfa açar
+  }
+</script>
 <link rel="apple-touch-icon" href="images/icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -195,4 +203,5 @@ Access Panels: 251AW, 251AX, 251BW, 251BX, 251CW, 251CX, 251DW, 251DX, 251EW, 25
 <details><summary>Wing Center-Box Access-Panels Zones 141-142</summary><div class="panels">Access Panels: 147AZ, 148AZ</div><button onclick="openImg(61)">Görsel</button></details>
 
 </body>
+
 </html>
