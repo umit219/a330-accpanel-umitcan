@@ -45,28 +45,7 @@ function closeImg(){
 <body>
 
 <body>
- <script>
-    // Bir döngü oluşturuyoruz: Şifre doğru olana kadar dönmeye devam eder.
-    var dogruSifre = "1283"; // Buraya istediğin şifreyi (küçük harfle) yaz.
-    var girilen = "";
-
-    while (girilen !== dogruSifre) {
-        girilen = prompt("Lütfen Erişim Şifresini Giriniz:");
-        
-        // Eğer kullanıcı "İptal" tuşuna basarsa veya boş bırakırsa döngü kırılmasın diye kontrol:
-        if (girilen === null || girilen === "") {
-            girilen = "";
-        } else {
-            // iPhone hatalarını önlemek için küçük harfe çevirip boşlukları siliyoruz
-            girilen = girilen.toLowerCase().trim();
-        }
-
-        if (girilen !== dogruSifre) {
-            alert("Hatalı şifre! Lütfen tekrar deneyin.");
-        }
-    }
-    // Döngüden çıkıldıysa şifre doğrudur, sayfa yüklenir.
-</script>
+ 
   
 <h1>Access Panel – A330 (A BKM GG-B)</h1>
 <input id="search" type="text" placeholder="Panel Numarası Ara" onkeyup="filterPanels()" />
@@ -222,6 +201,7 @@ Access Panels: 251AW, 251AX, 251BW, 251BX, 251CW, 251CX, 251DW, 251DX, 251EW, 25
 </body>
 
 </html>
+
 
 
 
