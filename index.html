@@ -76,24 +76,31 @@
 <body>
 
 <script>
-    // Güvenli Giriş Sistemi
-    if (sessionStorage.getItem("girisYapildi") !== "evet") {
-        var dogruSifre = "1283"; 
-        var girilen = "";
-        while (girilen !== dogruSifre) {
-            girilen = prompt("Lütfen Erişim Şifresini Giriniz:");
-            if (girilen === null) {
-                document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px;'>Erişim Engellendi.</h2>";
-                break;
-            }
-            girilen = girilen.toLowerCase().trim();
-            if (girilen === dogruSifre) {
-                sessionStorage.setItem("girisYapildi", "evet");
-            } else {
-                alert("Hatalı şifre!");
+    (function() {
+        var dogruSifre = "1283";
+        
+        if (sessionStorage.getItem("girisYapildi") !== "evet") {
+            var girisBasarili = false;
+            
+            while (!girisBasarili) {
+                var girilen = prompt("Lütfen giriş şifresini yazınız:");
+                
+                // İPTAL veya VAZGEÇ denirse girilen 'null' olur
+                if (girilen === null) {
+                    // Sayfayı boşalt ve kodun devam etmesini engelle
+                    document.documentElement.innerHTML = "<body style='background:#f0f2f5; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif;'><h2>Erişim Engellendi. Giriş yapmak için sayfayı yenileyin.</h2></body>";
+                    throw new Error("Giriş iptal edildi."); 
+                }
+
+                if (girilen.trim().toLowerCase() === dogruSifre) {
+                    sessionStorage.setItem("girisYapildi", "evet");
+                    girisBasarili = true;
+                } else {
+                    alert("Hatalı şifre!");
+                }
             }
         }
-    }
+    })();
 </script>
 
 <div class="content">
@@ -125,5 +132,6 @@
 </body>
 
 </html>
+
 
 
