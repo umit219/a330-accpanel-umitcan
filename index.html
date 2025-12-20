@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A330 - A BKM GG B EKİBİ</title>
+    <style>
+        /* Sayfa genel ayarları */
+        body { 
+            font-family: sans-serif; 
+            background: #f0f2f5; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; /* Sayfayı en az ekran boyu kadar yapar */
+        }
+
+        /* İçerik alanı (Footer'ı aşağı itmek için flex-grow kullandık) */
+        .content {
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .menu-container { 
+            width: 100%; 
+            max-width: 500px; 
+            text-align: center; 
+        }
+
+        h1 { color: #2c3e50; margin-bottom: 30px; font-size: 24px; }
+
+        /* Buton Stilleri */
+        .menu-btn { 
+            display: block; 
+            background: white; 
+            border: 2px solid #0056b3; 
+            color: #0056b3; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            border-radius: 12px; 
+            text-decoration: none; 
+            transition: 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .menu-btn:hover { background: #0056b3; color: white; }
+
+        /* Footer Stili */
+        footer { 
+            width: 100%; 
+            padding: 20px 0; 
+            border-top: 1px solid #ccc; 
+            text-align: center; 
+            color: #7f8c8d; 
+            font-size: 14px;
+            background: #f0f2f5;
+        }
+
+        .warning-box {
+            background-color: #fff3f3; 
+            padding: 15px; 
+            border-radius: 8px; 
+            border: 1px solid #ffcccc; 
+            display: inline-block; 
+            max-width: 90%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    // Güvenli Giriş Sistemi
+    if (sessionStorage.getItem("girisYapildi") !== "evet") {
+        var dogruSifre = "1283"; 
+        var girilen = "";
+        while (girilen !== dogruSifre) {
+            girilen = prompt("Lütfen Erişim Şifresini Giriniz:");
+            if (girilen === null) {
+                document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px;'>Erişim Engellendi.</h2>";
+                break;
+            }
+            girilen = girilen.toLowerCase().trim();
+            if (girilen === dogruSifre) {
+                sessionStorage.setItem("girisYapildi", "evet");
+            } else {
+                alert("Hatalı şifre!");
+            }
+        }
+    }
+</script>
+
+<div class="content">
+    <div class="menu-container">
+        <h1>A330 - A BKM GG B EKİBİ</h1>
+        
+        <a href="bilgiler.html" class="menu-btn">ℹ️ BİLGİLER (YAKINDA)</a>
+        
+        <a href="index2.html" class="menu-btn">⚡ CIRCUIT BREAKERS (YAKINDA)</a>
+        
+        <a href="index.html" class="menu-btn">🔍 ACCESS PANELS</a>
+    </div>
+</div>
+
+<footer>
+    <p>Hata veya güncelleme için iletişim:</p>
+    <a href="mailto:umit219@gmail.com" style="color: #0056b3; text-decoration: none; font-weight: bold;">
+        umit219@gmail.com
+    </a>
+    <br><br>
+    <div class="warning-box">
+        <p style="color: #c0392b; font-weight: bold; margin: 0;">⚠️ Bu içerik teknik doküman yerine geçmez!</p>
+        <p style="color: #c0392b; font-size: 12px; margin-top: 5px; margin-bottom: 0;">Yapılacak tüm işlemler, ilgili uçağın güncel ve yetkili teknik dokümanları referans alınarak teyit edilmelidir!</p>
+    </div>
+</footer>
+
+</body>
+</html>
