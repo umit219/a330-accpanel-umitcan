@@ -5,76 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A330 - A BKM GG B EKİBİ</title>
     <style>
-        /* Sayfa genel ayarları */
+        /* Modern Görsel Tasarım */
         body { 
-            font-family: sans-serif; 
-            background: #f0f2f5; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f0f2f5; 
             margin: 0; 
-            padding: 0; 
+            padding: 20px; 
             display: flex; 
             flex-direction: column; 
-            min-height: 100vh; /* Sayfayı en az ekran boyu kadar yapar */
-        }
-
-        /* İçerik alanı (Footer'ı aşağı itmek için flex-grow kullandık) */
-        .content {
-            flex: 1; 
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            min-height: 100vh;
         }
 
-        .menu-container { 
-            width: 100%; 
+        .container { 
             max-width: 500px; 
-            text-align: center; 
-        }
-
-        h1 { color: #2c3e50; margin-bottom: 30px; font-size: 24px; }
-
-        /* Buton Stilleri */
-        .menu-btn { 
-            display: block; 
+            width: 100%;
             background: white; 
-            border: 2px solid #0056b3; 
-            color: #0056b3; 
-            padding: 20px; 
+            padding: 40px 30px; 
+            border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 { 
+            color: #1a3a5a; 
+            font-size: 22px; 
+            margin-bottom: 35px; 
+            font-weight: bold;
+        }
+
+        /* Menü Butonları */
+        .menu-btn { 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff; 
+            color: #2c3e50; 
+            padding: 18px; 
             margin-bottom: 15px; 
-            font-size: 18px; 
-            font-weight: bold; 
-            border-radius: 12px; 
             text-decoration: none; 
-            transition: 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 15px; 
+            font-weight: 600; 
+            font-size: 15px;
+            border: 1px solid #eee;
+            border-left: 5px solid #3498db;
+            transition: all 0.3s ease;
         }
-        .menu-btn:hover { background: #0056b3; color: white; }
 
-        /* Footer Stili */
+        .menu-btn:hover { 
+            transform: translateX(5px); 
+            border-left-color: #e67e22;
+            background: #fcfcfc;
+        }
+
+        /* Alt Alan */
         footer { 
-            width: 100%; 
-            padding: 20px 0; 
-            border-top: 1px solid #ccc; 
-            text-align: center; 
-            color: #7f8c8d; 
-            font-size: 14px;
-            background: #f0f2f5;
+            margin-top: 30px; 
+            padding-top: 20px; 
+            border-top: 1px solid #eee; 
+            font-size: 13px; 
+            color: #888; 
         }
-
-        .warning-box {
-            background-color: #fff3f3; 
-            padding: 15px; 
-            border-radius: 8px; 
-            border: 1px solid #ffcccc; 
-            display: inline-block; 
-            max-width: 90%;
-            margin-top: 10px;
+        
+        .custom-warning {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #fdf2f2;
+            border-radius: 12px;
         }
     </style>
-</head>
-<body>
-
+    
 <script>
     (function() {
         var dogruSifre = "1283";
@@ -101,41 +103,31 @@
             }
         }
     })();
-</script>
+    </script>
+</head>
+<body>
 
-<div class="content">
-    <div class="menu-container">
-        <h1>A330 - A BKM GG B EKİBİ</h1>
-        
-        <a href="bilgiler.html" class="menu-btn">ℹ️ BİLGİLER (YAKINDA)</a>
-        
-        <a href="circuit.html" class="menu-btn">⚡ CIRCUIT BREAKERS (YAKINDA)</a>
-
-        <a href="sematik.html" class="menu-btn">📐 SİSTEM ŞEMATİKLERİ</a>
-
-        <a href="kisaltmalar.html" class="menu-btn">📖 HAVACILIK KISALTMALARI</a>
-        
-        <a href="panels.html" class="menu-btn">🔍 ACCESS PANELS</a>
+<div class="container">
+    <h1>A330 - A BKM GG B EKİBİ</h1>
+    
+    <div class="menu-list">
+        <a href="bilgiler.html" class="menu-btn">ℹ️BİLGİLER (YAKINDA)</a>
+        <a href="circuit.html" class="menu-btn">⚡CIRCUIT BREAKERS (YAKINDA)</a>
+        <a href="sematik.html" class="menu-btn">📐SİSTEM ŞEMATİKLERİ</a>
+        <a href="kisaltmalar.html" class="menu-btn">📖HAVACILIK KISALTMALARI</a>
+        <a href="panels.html" class="menu-btn">🔍ACCESS PANELS</a>
     </div>
-</div>
 
-<footer>
-    <p>Hata veya güncelleme için iletişim:</p>
-    <a href="mailto:umit219@gmail.com" style="color: #0056b3; text-decoration: none; font-weight: bold;">
-        umit219@gmail.com
-    </a>
-    <br><br>
-    <div class="warning-box">
+    <div class="custom-warning">
         <p style="color: #c0392b; font-weight: bold; margin: 0;">⚠️ Bu içerik teknik doküman yerine geçmez!</p>
         <p style="color: #c0392b; font-size: 12px; margin-top: 5px; margin-bottom: 0;">Yapılacak tüm işlemler, ilgili uçağın güncel ve yetkili teknik dokümanları referans alınarak teyit edilmelidir!</p>
     </div>
-</footer>
+
+    <footer>
+        <p>Hata veya güncelleme için iletişim:</p>
+        <a href="mailto:umit219@gmail.com" style="color: #0056b3; text-decoration: none; font-weight: bold;">umit219@gmail.com</a>
+    </footer>
+</div>
 
 </body>
-
 </html>
-
-
-
-
-
