@@ -6,149 +6,53 @@
     <title>A330 CB Search & Panels</title>
     <style>
         /* KISALTMALAR.HTML İLE BİREBİR AYNI TASARIM */
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f0f2f5; 
-            margin: 0; 
-            padding: 20px; 
-            display: flex;
-            justify-content: center;
-        }
-
-        .container { 
-            max-width: 550px; 
-            width: 100%;
-            background: white; 
-            padding: 30px; 
-            border-radius: 25px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            min-height: 450px;
-        }
-
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { max-width: 550px; width: 100%; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); min-height: 450px; }
         h1 { color: #1a3a5a; text-align: center; font-size: 22px; margin-bottom: 5px; }
         p.subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; }
-
-        /* Ana Menü Butonu */
-        .back-link {
-            text-decoration: none;
-            color: #666;
-            font-size: 14px;
-            display: inline-block;
-            margin-bottom: 20px;
-            transition: 0.3s;
-        }
+        .back-link { text-decoration: none; color: #666; font-size: 14px; display: inline-block; margin-bottom: 20px; transition: 0.3s; }
         .back-link:hover { color: #0056b3; }
 
-        /* Arama Kutusu */
-        #search { 
-            width: 100%; 
-            padding: 15px; 
-            margin-bottom: 10px; 
-            border: 2px solid #eee; 
-            border-radius: 15px; 
-            font-size: 16px;
-            box-sizing: border-box;
-            outline: none;
-            transition: 0.3s;
-        }
+        #search { width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #eee; border-radius: 15px; font-size: 16px; box-sizing: border-box; outline: none; transition: 0.3s; }
         #search:focus { border-color: #0056b3; box-shadow: 0 0 8px rgba(0,86,179,0.2); }
+
+        /* Tüm Panelleri Göster Butonu (Koyu Gri/Mavi Stil) */
+        .all-panels-btn {
+            width: 100%; padding: 14px; margin-bottom: 20px; background-color: #34495e; color: white;
+            border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 13px;
+            transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .all-panels-btn:hover { background-color: #2c3e50; transform: translateY(-2px); }
 
         .info-text { text-align: center; color: #888; font-size: 13px; margin-bottom: 20px; }
 
-        /* Liste Elemanları (CB Kartları) */
-        details { 
-            background: #fdfdfd; 
-            border-radius: 12px; 
-            margin-bottom: 12px; 
-            padding: 12px; 
-            border: 1px solid #eee; 
-            transition: 0.3s;
-        }
+        /* CB Kart Stilleri */
+        details { background: #fdfdfd; border-radius: 12px; margin-bottom: 12px; padding: 12px; border: 1px solid #eee; transition: 0.3s; }
         details[open] { border: 1px solid #0056b3; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        
-        summary { 
-            font-weight: 600; 
-            cursor: pointer; 
-            color: #333; 
-            list-style: none; 
-            position: relative;
-            padding-right: 25px;
-        }
+        summary { font-weight: 600; cursor: pointer; color: #333; list-style: none; position: relative; padding-right: 25px; }
         summary::after { content: '▶'; position: absolute; right: 5px; color: #0056b3; font-size: 12px; transition: 0.3s; }
         details[open] summary::after { transform: rotate(90deg); content: '▼'; }
 
         .cb-box { padding: 15px 5px 5px 5px; font-size: 15px; color: #444; line-height: 1.6; }
-        
-        .location-tag { 
-            color: #c0392b; 
-            font-weight: bold; 
-            display: block; 
-            margin-top: 12px; 
-            background: #fff5f5; 
-            padding: 8px 12px; 
-            border-radius: 10px; 
-            border: 1px dashed #c0392b; 
-        }
-        
-        /* Görsel Butonu */
-        .view-btn { 
-            margin-top: 15px; 
-            width: 100%; 
-            padding: 12px; 
-            background-color: #0056b3; /* Kısaltmalar sayfası ana rengi */
-            color: white; 
-            border: none; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            font-weight: bold;
-            font-size: 14px;
-            transition: 0.3s;
-        }
-        .view-btn:hover { background-color: #004494; transform: translateY(-2px); }
-        
-        /* Resim Modal (Geliştirilmiş X butonlu) */
+        .location-tag { color: #c0392b; font-weight: bold; display: block; margin-top: 12px; background: #fff5f5; padding: 8px 12px; border-radius: 10px; border: 1px dashed #c0392b; }
+        .view-btn { margin-top: 15px; width: 100%; padding: 12px; background-color: #0056b3; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
+
+        /* Modal ve Çoklu Resim Yapısı */
         #imgModal { 
-            display: none; 
-            position: fixed; 
-            z-index: 9999; 
-            left: 0; top: 0; 
-            width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.95); 
-            justify-content: center; 
-            align-items: center; 
+            display: none; position: fixed; z-index: 9999; left: 0; top: 0; 
+            width: 100%; height: 100%; background: rgba(0,0,0,0.95); 
+            overflow-y: auto; padding: 60px 0; flex-direction: column; align-items: center;
         }
         
-        /* X Kapatma Butonu */
         .close-x {
-            position: absolute;
-            top: 20px;
-            right: 25px;
-            color: white;
-            font-size: 45px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 10000;
-            user-select: none;
-            line-height: 1;
+            position: fixed; top: 15px; right: 25px; color: white; font-size: 50px;
+            font-weight: bold; cursor: pointer; z-index: 10000; line-height: 1;
         }
         .close-x:hover { color: #ff4d4d; }
 
-        #modalImg { 
-            max-width: 95%; 
-            max-height: 85%; 
-            border-radius: 15px; 
-            border: 2px solid rgba(255,255,255,0.2); 
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        }
-
-        .close-hint { 
-            position: absolute; 
-            bottom: 20px; 
-            color: rgba(255,255,255,0.5); 
-            font-size: 12px; 
-            letter-spacing: 1px;
-        }
-
+        .modal-content-wrapper { display: flex; flex-direction: column; align-items: center; gap: 30px; width: 100%; }
+        .modal-img { max-width: 90%; border-radius: 15px; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .img-caption { color: #3498db; margin-bottom: -20px; font-weight: bold; font-size: 18px; text-transform: uppercase; background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -159,25 +63,39 @@
     <p class="subtitle"></p>
     
     <input type="text" id="search" onkeyup="renderList()" placeholder="FIN, Tanım veya Panel ara..." autocomplete="off">
-    <p id="counter" class="info-text">Aramaya başlamak için en az 2 karakter yazın.</p>
+    
+    <button class="all-panels-btn" onclick="openAllPanels()">🗺️ TÜM PANEL KONUMLARINI GÖSTER (10 GÖRSEL)</button>
 
+    <p id="counter" class="info-text">Aramaya başlamak için en az 2 karakter yazın.</p>
     <div id="cb-list-container"></div>
 </div>
 
 <div id="imgModal">
     <span class="close-x" onclick="closeImg()">&times;</span>
-    <img id="modalImg" src="" alt="Panel Şeması" onclick="event.stopPropagation()">
-    <span class="close-hint">Kapatmak için X butonuna veya dışarıya tıklayın</span>
+    <div id="modalWrapper" class="modal-content-wrapper"></div>
 </div>
 
 <script src="data.js"></script>
 
 <script>
+    // 10 ADET GENEL GÖRSELİN LİSTESİ
+    const allPanelImages = [
+        { name: "", file: "all1.png" },
+        { name: "", file: "all2.png" },
+        { name: "", file: "all3.png" },
+        { name: "", file: "all4.png" },
+        { name: "", file: "all5.png" },
+        { name: "", file: "all6.png" },
+        { name: "", file: "all7.png" },
+        { name: "", file: "all8.png" },
+        { name: "", file: "all9.png" },
+        { name: "", file: "all10.png" }
+    ];
+
     function renderList() {
         const searchTerm = document.getElementById('search').value.toLowerCase();
         const container = document.getElementById('cb-list-container');
         const counter = document.getElementById('counter');
-        
         container.innerHTML = '';
 
         if (searchTerm.length < 2) {
@@ -185,7 +103,6 @@
             return;
         }
 
-        // Filtreleme (data.js dosyasından çeker)
         const filteredData = cbData.filter(item => 
             item.fin.toLowerCase().includes(searchTerm) || 
             item.desc.toLowerCase().includes(searchTerm) || 
@@ -195,51 +112,54 @@
         counter.innerText = filteredData.length + " sonuç listelendi.";
 
         filteredData.forEach(item => {
-            const html = `
+            container.insertAdjacentHTML('beforeend', `
                 <details>
                     <summary>${item.fin} - ${item.desc}</summary>
                     <div class="cb-box">
                         <b>Tanım:</b> ${item.desc}<br>
                         <b>FIN:</b> ${item.fin}<br>
                         <span class="location-tag">📍 Panel: ${item.panel} | Konum: ${item.loc}</span>
-                        <button class="view-btn" onclick="openImg('${item.panel}')">🖼️ ${item.panel} ŞEMASINI GÖR</button>
+                        <button class="view-btn" onclick="openSingleImg('${item.panel}')">🖼️ ${item.panel} ŞEMASINI GÖR</button>
                     </div>
                 </details>
-            `;
-            container.insertAdjacentHTML('beforeend', html);
+            `);
         });
     }
 
-    function openImg(panelName) {
-        // Dosya ismini normalize et (Boşlukları sil, küçük harf yap)
+    function openSingleImg(panelName) {
         const fileName = panelName.toLowerCase().replace(/\s+/g, '');
-        const imgSrc = "cbs/" + fileName + ".png";
-        
-        const modal = document.getElementById('imgModal');
-        const img = document.getElementById('modalImg');
-        
-        img.src = imgSrc;
-        modal.style.display = "flex";
+        showModal([{ name: "Panel " + panelName.toUpperCase(), file: fileName + ".png" }]);
+    }
 
-        img.onerror = function() {
-            alert("Görsel bulunamadı: " + imgSrc + "\nLütfen 'cbs' klasöründe bu isimde bir .png dosyası olduğundan emin olun.");
-            closeImg();
-        };
+    function openAllPanels() {
+        showModal(allPanelImages);
+    }
+
+    function showModal(imgs) {
+        const wrapper = document.getElementById('modalWrapper');
+        wrapper.innerHTML = '';
+        
+        imgs.forEach(imgData => {
+            wrapper.innerHTML += `
+                <span class="img-caption">${imgData.name}</span>
+                <img src="cbs/${imgData.file}" class="modal-img" onerror="this.src='https://via.placeholder.com/500x300?text=${imgData.file}+Bulunamadi'">
+            `;
+        });
+
+        document.getElementById('imgModal').style.display = "flex";
+        document.body.style.overflow = "hidden"; // Arka plan kaymasını engeller
     }
 
     function closeImg() {
         document.getElementById('imgModal').style.display = "none";
+        document.body.style.overflow = "auto";
     }
 
-    // Modalın dışına (siyah alana) tıklandığında kapanma özelliği
-    window.onclick = function(event) {
-        const modal = document.getElementById('imgModal');
-        if (event.target == modal) {
-            closeImg();
-        }
+    // Modal dışına tıklayınca kapatma
+    document.getElementById('imgModal').onclick = function(e) {
+        if(e.target == this) closeImg();
     }
 </script>
 
 </body>
-
 </html>
