@@ -27,6 +27,20 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             text-align: center;
             box-sizing: border-box;
+            /* Logo konumlandırma için gerekli */
+            position: relative; 
+            overflow: hidden;
+        }
+
+        /* SAĞ ÜST KÖŞE LOGO AYARI */
+        .top-right-logo {
+            position: absolute;
+            top: 15px;      /* Kartın üstünden boşluk */
+            right: 15px;    /* Kartın sağından boşluk */
+            width: 65px;    /* Logonun genişliği */
+            height: auto;
+            opacity: 0.9;
+            z-index: 10;
         }
 
         h1 { 
@@ -34,6 +48,8 @@
             font-size: 22px; 
             margin-bottom: 35px; 
             font-weight: bold;
+            /* Başlığın logoya çok yaklaşmaması için */
+            padding-top: 20px; 
         }
 
         /* Menü Butonları */
@@ -77,7 +93,7 @@
         }
     </style>
     
-<script>
+    <script>
     (function() {
         var dogruSifre = "1283";
         
@@ -87,9 +103,7 @@
             while (!girisBasarili) {
                 var girilen = prompt("Lütfen giriş şifresini yazınız:");
                 
-                // İPTAL veya VAZGEÇ denirse girilen 'null' olur
                 if (girilen === null) {
-                    // Sayfayı boşalt ve kodun devam etmesini engelle
                     document.documentElement.innerHTML = "<body style='background:#f0f2f5; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif;'><h2>Erişim Engellendi. Giriş yapmak için sayfayı yenileyin.</h2></body>";
                     throw new Error("Giriş iptal edildi."); 
                 }
@@ -108,6 +122,8 @@
 <body>
 
 <div class="container">
+    <img src="logo.png" alt="Logo" class="top-right-logo">
+
     <h1>A330 - A BKM GG B EKİBİ</h1>
     
     <div class="menu-list">
@@ -133,8 +149,3 @@
 
 </body>
 </html>
-
-
-
-
-
