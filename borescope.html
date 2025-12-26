@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A330 - BORESCOPE LOCATIONS</title>
+    <style>
+        /* ANA TASARIM (DİĞER SAYFALARLA UYUMLU) */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { max-width: 550px; width: 100%; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); min-height: 450px; }
+        h1 { color: #1a3a5a; text-align: center; font-size: 22px; margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; }
+        .back-link { text-decoration: none; color: #666; font-size: 14px; display: inline-block; margin-bottom: 20px; transition: 0.3s; }
+        .back-link:hover { color: #0056b3; }
+        
+        /* Motor Seçim Sekmeleri */
+        .engine-tabs { display: flex; gap: 8px; margin-bottom: 25px; }
+        .engine-btn { 
+            flex: 1; padding: 12px 5px; border: 2px solid #eee; border-radius: 12px; 
+            background: #fdfdfd; cursor: pointer; font-weight: bold; color: #555; 
+            font-size: 12px; transition: 0.3s; text-align: center; line-height: 1.4;
+        }
+        .engine-btn.active { border-color: #0056b3; color: #0056b3; background: #f0f7ff; box-shadow: 0 4px 10px rgba(0,86,179,0.1); }
+
+        /* Ana Aksiyon Butonu */
+        .main-action-box { text-align: center; padding: 40px 20px; background: #fafafa; border-radius: 20px; border: 1px dashed #ccc; }
+        .view-all-btn { 
+            width: 100%; padding: 18px; background-color: #0056b3; color: white; 
+            border: none; border-radius: 15px; cursor: pointer; font-weight: bold; 
+            font-size: 15px; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,86,179,0.3);
+        }
+        .view-all-btn:hover { background-color: #004494; transform: translateY(-3px); }
+
+        /* Modal ve Kaydırma Alanı */
+        #imgModal { 
+            display: none; position: fixed; z-index: 9999; left: 0; top: 0; 
+            width: 100%; height: 100%; background: rgba(0,0,0,0.95); 
+            overflow-y: auto; padding: 80px 0; flex-direction: column; align-items: center;
+        }
+        
+        /* Sabit X Butonu */
+        .close-x { position: fixed; top: 20px; right: 25px; color: white; font-size: 50px; font-weight: bold; cursor: pointer; z-index: 10001; line-height: 1; }
+        
+        .modal-content-wrapper { display: flex; flex-direction: column; align-items: center; gap: 40px; width: 100%; }
+        .modal-img { max-width: 90%; height: auto; border-radius: 15px; border: 2px solid rgba(255,255,255,0.2); }
+        .img-caption { color: #3498db; margin-bottom: -10px; font-weight: bold; font-size: 16px; text-transform: uppercase; background: rgba(0,0,0,0.7); padding: 8px 15px; border-radius: 10px; }
+
+        .engine-section { display: none; }
+        .engine-section.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="back-link">← Ana Menü</a>
+    <h1>BORESCOPE LOCATIONS</h1>
+    <p class="subtitle">A330 ENGINES BORESCOPE LOCATIONS</p>
+
+    <div class="engine-tabs">
+        <button class="engine-btn active" onclick="showEngine('rr')">RR<br>Trent 700</button>
+        <button class="engine-btn" onclick="showEngine('cf6')">GE<br>CF6-80E1</button>
+        <button class="engine-btn" onclick="showEngine('pw')">PW<br>PW4000</button>
+    </div>
+
+    <div id="rr" class="engine-section active">
+        <div class="main-action-box">
+            <p style="color:#555; margin-bottom: 20px; font-weight: 500;">Tüm Trent 700 borescope tapa yerleri:</p>
+            <button class="view-all-btn" onclick="openEngineImgs('rr')">🖼️ RR GÖRSELLERİNİ AÇ (8 RESİM)</button>
+        </div>
+    </div>
+
+    <div id="cf6" class="engine-section">
+        <div class="main-action-box">
+            <p style="color:#555; margin-bottom: 20px; font-weight: 500;">Tüm CF6-80E1 borescope tapa yerleri:</p>
+            <button class="view-all-btn" onclick="openEngineImgs('cf6')">🖼️ GE GÖRSELLERİNİ AÇ (17 RESİM)</button>
+        </div>
+    </div>
+
+    <div id="pw" class="engine-section">
+        <div class="main-action-box">
+            <p style="color:#555; margin-bottom: 20px; font-weight: 500;">Tüm PW4000 borescope tapa yerleri:</p>
+            <button class="view-all-btn" onclick="openEngineImgs('pw')">🖼️ PW GÖRSELLERİNİ AÇ (12 RESİM)</button>
+        </div>
+    </div>
+</div>
+
+<div id="imgModal">
+    <span class="close-x" onclick="closeImg()">&times;</span>
+    <div id="modalWrapper" class="modal-content-wrapper"></div>
+</div>
+
+<script>
+    // TÜM GÖRSEL İSİMLERİ BURADA TANIMLI
+    const engineData = {
+        'rr': [
+            { name: "RR T700", file: "rr1.png" }, { name: "RR T700", file: "rr2.png" },
+            { name: "RR T700", file: "rr3.png" }, { name: "RR T700", file: "rr4.png" },
+            { name: "RR T700", file: "rr5.png" }, { name: "RR T700", file: "rr6.png" },
+            { name: "RR T700", file: "rr7.png" }, { name: "RR T700", file: "rr8.png" }
+        ],
+        'cf6': [
+            { name: "GE CF61", file: "cf1.png" }, { name: "GE CF6", file: "cf2.png" },
+            { name: "GE CF6", file: "cf3.png" }, { name: "GE CF6", file: "cf4.png" },
+            { name: "GE CF6", file: "cf5.png" }, { name: "GE CF6", file: "cf6.png" },
+            { name: "GE CF6", file: "cf7.png" }, { name: "GE CF6", file: "cf8.png" },
+            { name: "GE CF6", file: "cf9.png" }, { name: "GE CF6", file: "cf10.png" },
+            { name: "GE CF6", file: "cf11.png" }, { name: "GE CF6", file: "cf12.png" },
+            { name: "GE CF6", file: "cf13.png" }, { name: "GE CF6", file: "cf14.png" },
+            { name: "GE CF6", file: "cf15.png" }, { name: "GE CF6", file: "cf16.png" },
+            { name: "GE CF6", file: "cf17.png" }
+        ],
+        'pw': [
+            { name: "PW4000", file: "pw1.png" }, { name: "PW4000", file: "pw2.png" },
+            { name: "PW4000", file: "pw3.png" }, { name: "PW4000", file: "pw4.png" },
+            { name: "PW4000", file: "pw5.png" }, { name: "PW4000", file: "pw6.png" },
+            { name: "PW4000", file: "pw7.png" }, { name: "PW4000", file: "pw8.png" },
+            { name: "PW4000", file: "pw9.png" }, { name: "PW4000", file: "pw10.png" },
+            { name: "PW4000", file: "pw11.png" }, { name: "PW4000", file: "pw12.png" }
+        ]
+    };
+
+    function showEngine(engineId) {
+        document.querySelectorAll('.engine-btn').forEach(btn => btn.classList.remove('active'));
+        if (event) event.currentTarget.classList.add('active');
+
+        document.querySelectorAll('.engine-section').forEach(sec => sec.classList.remove('active'));
+        document.getElementById(engineId).classList.add('active');
+    }
+
+    function openEngineImgs(engineKey) {
+        const wrapper = document.getElementById('modalWrapper');
+        const modal = document.getElementById('imgModal');
+        const images = engineData[engineKey];
+
+        wrapper.innerHTML = '';
+        
+        images.forEach(img => {
+            wrapper.innerHTML += `
+                <span class="img-caption">${img.name}</span>
+                <img src="boro/${img.file}" class="modal-img" onerror="this.src='https://via.placeholder.com/500x300?text=${img.file}+Bulunamadi'">
+            `;
+        });
+
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeImg() {
+        document.getElementById('imgModal').style.display = "none";
+        document.body.style.overflow = "auto";
+    }
+
+    window.onclick = function(e) {
+        if(e.target == document.getElementById('imgModal')) closeImg();
+    }
+</script>
+
+</body>
+</html>
