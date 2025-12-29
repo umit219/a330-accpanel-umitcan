@@ -159,6 +159,35 @@
     document.getElementById('imgModal').onclick = function(e) {
         if(e.target == this) closeImg();
     }
+
+
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('search');
+
+    if (searchQuery) {
+        const cbSearchInput = document.getElementById("search"); 
+        if (cbSearchInput) {
+            // 100 milisaniye bekle (sayfa fonksiyonları kendine gelsin)
+            setTimeout(() => {
+                // Değeri yaz
+                cbSearchInput.value = searchQuery;
+                
+                // Arama sistemini tetikleyen tüm olayları gönder
+                cbSearchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                cbSearchInput.dispatchEvent(new Event('keyup', { bubbles: true }));
+                cbSearchInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+                // Focus yapıp tekrar çıkarak "hareket varmış" gibi gösterelim
+                cbSearchInput.focus();
+                cbSearchInput.blur(); 
+                
+                console.log("Arama tetiklendi: " + searchQuery);
+            }, 200); 
+        }
+    }
+}
+
 </script>
 
 </body>
