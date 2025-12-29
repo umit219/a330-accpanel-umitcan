@@ -15,7 +15,7 @@
             justify-content: center;
         }
 
-        /* BEYAZ ŞABLON (Birebir bilgiler.html ölçüleri) */
+        /* BEYAZ ŞABLON */
         .container { 
             max-width: 500px; 
             width: 100%;
@@ -26,18 +26,17 @@
             position: relative;
         }
 
-        /* ÜST MENÜ LİNKİ (Birebir bilgiler.html stili) */
+        /* ÜST MENÜ LİNKİ */
         .back-link {
             text-decoration: none;
             color: #666;
             font-size: 14px;
             display: block;
-            text-align: left; /* Sola hizalı */
+            text-align: left;
             margin-bottom: 30px;
             transition: 0.3s;
             cursor: pointer;
         }
-        /* Bilgiler.html'deki hover rengi #3498db (Mavi) idi, onu uyguladım */
         .back-link:hover { color: #3498db; }
 
         h1 { 
@@ -80,10 +79,43 @@
         .ata-tag { position: absolute; top: 15px; right: 15px; background:#1a3a5a; color:#fff; padding:5px 9px; border-radius:8px; font-size: 11px; font-weight: bold; }
         .warning-msg { color:#c0392b; font-weight:bold; font-size:16px; margin-right: 50px; display: block; }
         .reset-proc { background:#f8f9fa; border: 1px dashed #ccc; padding: 10px; border-radius: 10px; margin-top: 10px; font-size: 14px; line-height: 1.6; color: #333; }
-        .cb-loc { font-size: 13px; color: #3498db; margin-top: 10px; font-weight: 600; }
+        .cb-loc { font-size: 13px; color: #7f8c8d; margin-top: 10px; font-weight: 600; }
+        
+        .cb-link {
+            color: #3498db;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-right: 5px;
+        }
 
-        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); justify-content:center; align-items:center; z-index:999; }
-        .modal img { max-width:90%; max-height:90%; border-radius:12px; }
+        /* MODAL VE X BUTONU TASARIMI */
+        .modal { 
+            display:none; 
+            position:fixed; 
+            inset:0; 
+            background:rgba(0,0,0,0.9); 
+            justify-content:center; 
+            align-items:center; 
+            z-index:999; 
+        }
+        .modal img { 
+            max-width:90%; 
+            max-height:85%; 
+            border-radius:12px; 
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 45px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            line-height: 1;
+        }
+        .close-btn:hover { color: #e67e22; }
     </style>
 </head>
 <body>
@@ -105,7 +137,8 @@
 </div>
 
 <div id="panelModal" class="modal" onclick="closePanel()">
-    <img id="panelImage" src="">
+    <span class="close-btn">&times;</span>
+    <img id="panelImage" src="" onclick="event.stopPropagation()">
 </div>
 
 <script src="resetData.js"></script>
@@ -139,16 +172,19 @@
         counter.innerText = results.length + " sonuç bulundu";
 
         results.forEach(r => {
+            const cbArray = r.cbs.split(',');
+            const cbLinks = cbArray.map(cb => {
+                const trimmedCB = cb.trim();
+                return `<a href="cb.html?search=${encodeURIComponent(trimmedCB)}" class="cb-link">${trimmedCB}</a>`;
+            }).join(', ');
+
             resultsContainer.innerHTML += `
             <div class="reset-card">
                 <span class="ata-tag">ATA ${r.ata}</span>
                 <span class="warning-msg">${r.msg}</span>
                 <div style="font-size:12px; color:#7f8c8d; font-style:italic; margin:5px 0;">📌DISPATCH: ${r.condition}</div>
                 <div class="reset-proc"><b>Reset:</b><br>${r.reset}</div>
-             
-<div class="cb-loc">
-        📍CBs: <a href="cb.html?search=${encodeURIComponent(r.cbs)}" style="color: #3498db; text-decoration: underline; cursor: pointer;">${r.cbs}</a>
-   
+                <div class="cb-loc">📍CBs: ${cbLinks}</div>
             </div>`;
         });
     });
@@ -156,9 +192,11 @@
     function openPanel(p) {
         document.getElementById("panelImage").src = p === "lh" ? "lh1.png" : "rh2.png";
         document.getElementById("panelModal").style.display = "flex";
+        document.body.style.overflow = "hidden"; // Arka plan kaymasını engeller
     }
     function closePanel() {
         document.getElementById("panelModal").style.display = "none";
+        document.body.style.overflow = "auto"; // Kaymayı geri açar
     }
 </script>
 
