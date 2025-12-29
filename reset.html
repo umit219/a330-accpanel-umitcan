@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A330 - ECAM RESET GUIDE</title>
+    <style>
+        /* BİLGİLER.HTML ANA TASARIMI */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f0f2f5; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex;
+            justify-content: center;
+        }
+
+        /* BEYAZ ŞABLON (Birebir bilgiler.html ölçüleri) */
+        .container { 
+            max-width: 500px; 
+            width: 100%;
+            background: white; 
+            padding: 40px 30px; 
+            border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* ÜST MENÜ LİNKİ (Birebir bilgiler.html stili) */
+        .back-link {
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+            display: block;
+            text-align: left; /* Sola hizalı */
+            margin-bottom: 30px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        /* Bilgiler.html'deki hover rengi #3498db (Mavi) idi, onu uyguladım */
+        .back-link:hover { color: #3498db; }
+
+        h1 { 
+            text-align: center;
+            color: #1a3a5a; 
+            font-size: 24px; 
+            margin-bottom: 20px; 
+            margin-top: 0;
+        }
+
+        .panel-buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .panel-btn { background:#1a3a5a; color:#fff; border:none; padding:10px 15px; border-radius:12px; cursor:pointer; font-weight: bold; }
+
+        #search { 
+            width: 100%; 
+            padding: 14px; 
+            border-radius: 15px; 
+            border: 2px solid #eee; 
+            font-size: 15px; 
+            margin-bottom: 10px; 
+            box-sizing: border-box; 
+            outline: none;
+            transition: 0.3s;
+        }
+        #search:focus { border-color: #3498db; }
+
+        .info-text { text-align: center; font-size: 13px; color: #7f8c8d; margin-bottom: 15px; }
+
+        /* KARTLARIN TASARIMI */
+        .reset-card { 
+            border: 1px solid #eee; 
+            border-left: 5px solid #e67e22; 
+            padding: 18px; 
+            border-radius: 15px; 
+            margin-bottom: 15px; 
+            position: relative; 
+            background: #fff;
+            text-align: left;
+        }
+        .ata-tag { position: absolute; top: 15px; right: 15px; background:#1a3a5a; color:#fff; padding:5px 9px; border-radius:8px; font-size: 11px; font-weight: bold; }
+        .warning-msg { color:#c0392b; font-weight:bold; font-size:16px; margin-right: 50px; display: block; }
+        .reset-proc { background:#f8f9fa; border: 1px dashed #ccc; padding: 10px; border-radius: 10px; margin-top: 10px; font-size: 14px; line-height: 1.6; color: #333; }
+        .cb-loc { font-size: 13px; color: #3498db; margin-top: 10px; font-weight: 600; }
+
+        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); justify-content:center; align-items:center; z-index:999; }
+        .modal img { max-width:90%; max-height:90%; border-radius:12px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="back-link" onclick="resetApp()">← Ana Menü</a>
+
+    <h1>A330 - ECAM WARNING RESET</h1>
+
+    <div class="panel-buttons">
+        <button class="panel-btn" onclick="openPanel('lh')">LH RESET PANEL</button>
+        <button class="panel-btn" onclick="openPanel('rh')">RH RESET PANEL</button>
+    </div>
+
+    <input id="search" type="text" placeholder="Mesaj veya ATA ara...">
+    <div id="counter" class="info-text">Yazmaya başlayın...</div>
+
+    <div id="results-container"></div>
+</div>
+
+<div id="panelModal" class="modal" onclick="closePanel()">
+    <img id="panelImage" src="">
+</div>
+
+<script src="resetData.js"></script>
+
+<script>
+    const searchInput = document.getElementById("search");
+    const resultsContainer = document.getElementById("results-container");
+    const counter = document.getElementById("counter");
+
+    function resetApp() {
+        searchInput.value = "";
+        resultsContainer.innerHTML = "";
+        counter.innerText = "Yazmaya başlayın...";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    searchInput.addEventListener("input", function() {
+        const q = this.value.trim().toUpperCase();
+        resultsContainer.innerHTML = "";
+
+        if (q.length < 2) {
+            counter.innerText = "En az 2 karakter girin";
+            return;
+        }
+
+        const results = resetData.filter(r => 
+            r.msg.toUpperCase().includes(q) || 
+            r.ata.toString().includes(q)
+        );
+
+        counter.innerText = results.length + " sonuç bulundu";
+
+        results.forEach(r => {
+            resultsContainer.innerHTML += `
+            <div class="reset-card">
+                <span class="ata-tag">ATA ${r.ata}</span>
+                <span class="warning-msg">${r.msg}</span>
+                <div style="font-size:12px; color:#7f8c8d; font-style:italic; margin:5px 0;">📌DISPATCH: ${r.condition}</div>
+                <div class="reset-proc"><b>Reset:</b><br>${r.reset}</div>
+             
+<div class="cb-loc">
+        📍CBs: <a href="cb.html?search=${encodeURIComponent(r.cbs)}" style="color: #3498db; text-decoration: underline; cursor: pointer;">${r.cbs}</a>
+   
+            </div>`;
+        });
+    });
+
+    function openPanel(p) {
+        document.getElementById("panelImage").src = p === "lh" ? "lh1.png" : "rh2.png";
+        document.getElementById("panelModal").style.display = "flex";
+    }
+    function closePanel() {
+        document.getElementById("panelModal").style.display = "none";
+    }
+</script>
+
+</body>
+</html>
