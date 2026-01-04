@@ -3,14 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- PWA Meta Etiketleri -->
+    <meta name="theme-color" content="#1a3a5a">
+    <meta name="description" content="A330 Teknik Referans - BKM GG B Ekibi">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="A330 Panel">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="330.png">
+    
     <title>A330 - A BKM GG B EKİBİ</title>
     <style>
-        /* Modern Görsel Tasarım */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: #f0f2f5; 
             margin: 0; 
-            padding: 20px; 
+            padding: 15px; 
             display: flex; 
             flex-direction: column; 
             align-items: center;
@@ -22,77 +37,288 @@
             max-width: 500px; 
             width: 100%;
             background: white; 
-            padding: 40px 30px; 
+            padding: 30px 20px; 
             border-radius: 25px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             text-align: center;
-            box-sizing: border-box;
-            /* Logo konumlandırma için gerekli */
             position: relative; 
             overflow: hidden;
         }
 
-        /* SAĞ ÜST KÖŞE LOGO AYARI */
+        /* Logo Ayarları */
         .top-right-logo {
             position: absolute;
-            top: 15px;      /* Kartın üstünden boşluk */
-            right: 15px;    /* Kartın sağından boşluk */
-            width: 65px;    /* Logonun genişliği */
+            top: 15px;
+            right: 15px;
+            width: 55px;
             height: auto;
             opacity: 0.9;
             z-index: 10;
+            transition: transform 0.3s ease;
+        }
+
+        .top-right-logo:hover {
+            transform: scale(1.1);
         }
 
         h1 { 
             color: #1a3a5a; 
-            font-size: 22px; 
-            margin-bottom: 35px; 
+            font-size: 20px; 
+            margin-bottom: 30px; 
             font-weight: bold;
-            /* Başlığın logoya çok yaklaşmaması için */
-            padding-top: 20px; 
+            padding-top: 15px;
+            line-height: 1.3;
         }
 
         /* Menü Butonları */
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .menu-btn { 
             display: flex;
             align-items: center;
             justify-content: center;
             background: #fff; 
             color: #2c3e50; 
-            padding: 18px; 
-            margin-bottom: 15px; 
+            padding: 16px 15px; 
             text-decoration: none; 
             border-radius: 15px; 
             font-weight: 600; 
-            font-size: 15px;
+            font-size: 14px;
             border: 1px solid #eee;
             border-left: 5px solid #3498db;
             transition: all 0.3s ease;
+            text-align: center;
+            line-height: 1.4;
         }
 
         .menu-btn:hover { 
             transform: translateX(5px); 
             border-left-color: #e67e22;
             background: #fcfcfc;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
         }
 
-        /* Alt Alan */
+        .menu-btn:active {
+            transform: translateX(3px) scale(0.98);
+        }
+
+        /* Uyarı Kutusu */
+        .custom-warning {
+            margin-top: 25px;
+            padding: 15px;
+            background: #fdf2f2;
+            border-radius: 12px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .custom-warning p {
+            margin: 0;
+        }
+
+        .warning-title {
+            color: #c0392b; 
+            font-weight: bold; 
+            margin-bottom: 8px !important;
+            font-size: 14px;
+        }
+
+        .warning-text {
+            color: #c0392b; 
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* Footer */
         footer { 
-            margin-top: 30px; 
+            margin-top: 25px; 
             padding-top: 20px; 
             border-top: 1px solid #eee; 
             font-size: 13px; 
             color: #888; 
         }
-        
-        .custom-warning {
-            margin-bottom: 25px;
-            padding: 15px;
-            background: #fdf2f2;
-            border-radius: 12px;
+
+        footer p {
+            margin: 5px 0;
+        }
+
+        footer a {
+            color: #0056b3; 
+            text-decoration: none; 
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #003d82;
+            text-decoration: underline;
+        }
+
+        /* Tablet için (768px ve altı) */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 25px 18px;
+                border-radius: 20px;
+            }
+
+            .top-right-logo {
+                width: 50px;
+                top: 12px;
+                right: 12px;
+            }
+
+            h1 {
+                font-size: 18px;
+                margin-bottom: 25px;
+                padding-top: 10px;
+            }
+
+            .menu-btn {
+                font-size: 13px;
+                padding: 14px 12px;
+            }
+
+            .custom-warning {
+                padding: 12px;
+            }
+
+            .warning-title {
+                font-size: 13px;
+            }
+
+            .warning-text {
+                font-size: 11px;
+            }
+        }
+
+        /* Mobil için (480px ve altı) */
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+
+            .container {
+                padding: 20px 15px;
+                border-radius: 18px;
+            }
+
+            .top-right-logo {
+                width: 45px;
+                top: 10px;
+                right: 10px;
+            }
+
+            h1 {
+                font-size: 16px;
+                margin-bottom: 20px;
+                padding-top: 8px;
+                padding-right: 50px;
+            }
+
+            .menu-list {
+                gap: 10px;
+            }
+
+            .menu-btn {
+                font-size: 12px;
+                padding: 13px 10px;
+                border-radius: 12px;
+            }
+
+            .menu-btn:hover {
+                transform: translateX(3px);
+            }
+
+            .custom-warning {
+                margin-top: 20px;
+                padding: 10px;
+            }
+
+            .warning-title {
+                font-size: 12px;
+            }
+
+            .warning-text {
+                font-size: 10px;
+            }
+
+            footer {
+                font-size: 12px;
+                margin-top: 20px;
+                padding-top: 15px;
+            }
+        }
+
+        /* Çok küçük ekranlar için (360px ve altı) */
+        @media screen and (max-width: 360px) {
+            .container {
+                padding: 18px 12px;
+            }
+
+            h1 {
+                font-size: 15px;
+            }
+
+            .menu-btn {
+                font-size: 11px;
+                padding: 12px 8px;
+            }
+
+            .top-right-logo {
+                width: 40px;
+            }
+        }
+
+        /* Landscape mod için */
+        @media screen and (max-height: 600px) and (orientation: landscape) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+                max-width: 600px;
+            }
+
+            h1 {
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+
+            .menu-list {
+                gap: 8px;
+            }
+
+            .menu-btn {
+                padding: 10px;
+            }
+
+            .custom-warning {
+                margin-top: 15px;
+                padding: 10px;
+            }
+
+            footer {
+                margin-top: 15px;
+            }
+        }
+
+        /* Touch cihazlar için daha büyük tıklama alanı */
+        @media (hover: none) and (pointer: coarse) {
+            .menu-btn {
+                min-height: 48px;
+            }
         }
     </style>
     
+    <!-- Şifre Koruması -->
     <script>
     (function() {
         var dogruSifre = "1283";
@@ -104,7 +330,7 @@
                 var girilen = prompt("Lütfen giriş şifresini yazınız:");
                 
                 if (girilen === null) {
-                    document.documentElement.innerHTML = "<body style='background:#f0f2f5; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif;'><h2>Erişim Engellendi. Giriş yapmak için sayfayı yenileyin.</h2></body>";
+                    document.documentElement.innerHTML = "<body style='background:#f0f2f5; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; padding:20px; text-align:center;'><h2 style='max-width:500px;'>Erişim Engellendi. Giriş yapmak için sayfayı yenileyin.</h2></body>";
                     throw new Error("Giriş iptal edildi."); 
                 }
 
@@ -118,38 +344,46 @@
         }
     })();
     </script>
+
+    <!-- PWA Service Worker Kaydı -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker kayıtlı'))
+                    .catch(err => console.log('Service Worker hatası:', err));
+            });
+        }
+    </script>
 </head>
 <body>
 
 <div class="container">
-    <img src="330.png" alt="Logo" class="top-right-logo">
+    <img src="330.png" alt="A330 Logo" class="top-right-logo">
 
     <h1>A330 - A BKM GG B EKİBİ</h1>
     
     <div class="menu-list">
-        <a href="bilgiler.html" class="menu-btn">ℹ️BİLGİLER (YAKINDA)</a>
-         <a href="reset.html" class="menu-btn">⚠️ ECAM WARNING RESET</a>
-        <a href="borescope.html" class="menu-btn">📍BORESCOPE TAPALARI</a>
-        <a href="cb.html" class="menu-btn">⚡CIRCUIT BREAKERS</a>
-        <a href="sematik.html" class="menu-btn">📐SİSTEM ŞEMATİKLERİ</a>
-        <a href="kisaltmalar.html" class="menu-btn">📖HAVACILIK KISALTMALARI</a>
-        <a href="panels.html" class="menu-btn">🔍ACCESS PANELS</a>
+        <a href="bilgiler.html" class="menu-btn">ℹ️ BİLGİLER (YAKINDA)</a>
+        <a href="reset.html" class="menu-btn">⚠️ ECAM WARNING RESET</a>
+        <a href="borescope.html" class="menu-btn">📍 BORESCOPE TAPALARI</a>
+        <a href="cb.html" class="menu-btn">⚡ CIRCUIT BREAKERS</a>
+        <a href="sematik.html" class="menu-btn">📐 SİSTEM ŞEMATİKLERİ</a>
+        <a href="kisaltmalar.html" class="menu-btn">📖 HAVACILIK KISALTMALARI</a>
+        <a href="panels.html" class="menu-btn">🔍 ACCESS PANELS</a>
     </div>
 
     <div class="custom-warning">
-        <p style="color: #c0392b; font-weight: bold; margin: 0;">⚠️ Bu içerik teknik doküman yerine geçmez!</p>
-        <p style="color: #c0392b; font-size: 12px; margin-top: 5px; margin-bottom: 0;">Yapılacak tüm işlemler, ilgili uçağın güncel ve yetkili teknik dokümanları referans alınarak teyit edilmelidir!</p>
+        <p class="warning-title">⚠️ Bu içerik teknik doküman yerine geçmez!</p>
+        <p class="warning-text">Yapılacak tüm işlemler, ilgili uçağın güncel ve yetkili teknik dokümanları referans alınarak teyit edilmelidir!</p>
     </div>
 
     <footer>
         <p>Hata veya güncelleme için iletişim:</p>
-        <a href="mailto:umit219@gmail.com" style="color: #0056b3; text-decoration: none; font-weight: bold;">umit219@gmail.com</a>
+        <a href="mailto:umit219@gmail.com">umit219@gmail.com</a>
         <p>Ümitcan ERDOĞAN</p>
     </footer>
 </div>
 
 </body>
 </html>
-
-
-
