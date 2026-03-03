@@ -46,9 +46,9 @@
     <div id="cb-list-container"></div>
 </div>
 
-<div id="imgModal" class="modal"  onclick="closeImg()">
-    <span class="modal-close" onclick="closeImg()" style="position:fixed;">&times;</span>
-    <div id="modalWrapper" style="display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;padding:70px 20px 40px;" onclick="event.stopPropagation()"></div>
+<div id="imgModal" class="modal" onclick="closeImg()">
+    <span class="modal-close" onclick="closeImg()">&times;</span>
+    <div id="modalWrapper" onclick="event.stopPropagation()"></div>
 </div>
 
 <div class="offline-bar" id="offlineBar">📡 Çevrimdışı mod</div>
@@ -96,7 +96,7 @@ function openAllPanels() {
 function showModal(files) {
     const wrapper = document.getElementById('modalWrapper');
     wrapper.innerHTML = files.map(f =>
-        `<img src="cbs/${f}" style="max-width:90%;border-radius:10px;">`
+        `<img src="cbs/${f}" style="max-width:100%;border-radius:10px;display:block;">`
     ).join('');
     document.getElementById('imgModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
