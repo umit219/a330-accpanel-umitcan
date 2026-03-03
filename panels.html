@@ -107,7 +107,7 @@
 
 <div id="imgModal" class="modal" onclick="closeImg()">
     <span class="modal-close" onclick="closeImg()">&times;</span>
-    <img id="modalImg" src="" style="max-width:95%;max-height:90%;border-radius:8px;" onclick="event.stopPropagation()">
+    <img id="modalImg" src="" style="max-width:95%;height:auto;border-radius:8px;display:block;margin:60px auto 20px;" onclick="event.stopPropagation()">
 </div>
 
 <div class="offline-bar" id="offlineBar">📡 Çevrimdışı mod</div>
@@ -123,7 +123,7 @@ function filterPanels() {
 }
 function openImg(n) {
     document.getElementById('modalImg').src = 'images/' + n + '.png';
-    document.getElementById('imgModal').style.display = 'flex';
+    document.getElementById('imgModal').style.display = 'block';
     document.body.style.overflow = 'hidden';
 }
 function closeImg() {
