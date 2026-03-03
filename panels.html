@@ -1,77 +1,53 @@
 <!DOCTYPE html>
-<html lang="tr" data-theme="dark">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <title>A330 - Access Panels</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        /* TEMEL STİLLER (theme.css yerine) */
         :root {
             --bg: #121212;
             --surface: #1e1e1e;
             --text: #ffffff;
-            --text-muted: #b0b0b0;
-            --border: #333;
             --accent: #3498db;
-            --card-border-left: #3498db;
+            --border: #333;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: -apple-system, system-ui, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0;
         }
 
-        .page-wrap { padding: 20px; max-width: 800px; margin: 0 auto; }
-
-        .page-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .back-link { color: var(--accent); text-decoration: none; font-size: 14px; }
-        .page-title { font-weight: 600; font-size: 18px; }
+        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .back-link { color: var(--accent); text-decoration: none; font-size: 15px; }
 
         .search-input {
             width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
-            background: var(--surface); color: var(--text); margin-bottom: 20px; box-sizing: border-box;
+            background: var(--surface); color: var(--text); margin-bottom: 20px; font-size: 16px;
         }
 
-        details {
-            background: var(--surface); border: 1px solid var(--border);
-            border-left: 3px solid var(--card-border-left);
-            border-radius: 10px; margin-bottom: 8px; overflow: hidden;
-        }
-        details[open] { border-color: var(--accent); }
-        summary {
-            padding: 13px 16px; font-weight: 600; font-size: 13px;
-            cursor: pointer; color: var(--text); list-style: none;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        summary::after { content: '›'; color: var(--text-muted); font-size: 18px; }
-        details[open] summary::after { transform: rotate(90deg); display: inline-block; }
-
-        .cb-box {
-            padding: 12px 16px 14px; border-top: 1px solid var(--border);
-            font-size: 12px; color: var(--text-muted); line-height: 1.8;
-            background: var(--bg); word-break: break-word;
-        }
-
+        details { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; }
+        summary { padding: 15px; cursor: pointer; font-weight: 600; }
+        .cb-box { padding: 15px; border-top: 1px solid var(--border); font-size: 14px; line-height: 1.6; }
+        
         .btn {
-            background: var(--accent); color: white; border: none; padding: 10px;
-            border-radius: 6px; cursor: pointer; font-weight: 500; margin-top: 10px;
+            background: var(--accent); color: white; border: none; padding: 12px;
+            width: 100%; border-radius: 8px; font-weight: 600; margin-top: 10px;
         }
 
-        /* MODAL VE GÖRSEL DÜZELTMELERİ */
+        /* 🚀 SAFARI GÖRSEL HATASINI ÇÖZEN MODAL KODU */
         .modal {
-            display: none;
+            display: none; /* JS ile 'flex' yapılacak */
             position: fixed;
-            inset: 0; /* Ekranın her köşesine sıfırla */
+            top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.95);
-            z-index: 9999;
+            z-index: 10000;
+            /* İçeriği her zaman ortalar */
             align-items: center;
             justify-content: center;
             padding: 20px;
@@ -79,48 +55,43 @@
         }
 
         #modalImg {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain; /* Oranı koru ve ekrana sığdır */
+            /* Safari'de devasa olmasını engelleyen kısımlar */
+            max-width: 100% !important;
+            max-height: 100% !important;
+            object-fit: contain !important; /* Resmin oranını korur, ekrana sığdırır */
             border-radius: 8px;
-            box-shadow: 0 5px 30px rgba(0,0,0,0.5);
-            -webkit-user-select: none; /* Safari'de uzun basınca kaydetme menüsünü engellemez ama kaymaları azaltır */
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            /* Donanım ivmelendirmesi (Safari titremesini önler) */
+            -webkit-transform: translateZ(0);
         }
 
         .modal-close {
             position: absolute;
-            top: env(safe-area-inset-top, 20px);
+            top: calc(env(safe-area-inset-top) + 20px);
             right: 20px;
             font-size: 40px;
             color: white;
             cursor: pointer;
-            z-index: 10000;
-            line-height: 1;
-        }
-
-        .offline-bar {
-            position: fixed; bottom: 0; left: 0; right: 0; background: #e74c3c;
-            color: white; text-align: center; padding: 5px; font-size: 12px;
-            display: none;
+            z-index: 10001;
         }
     </style>
 </head>
 <body>
-<div class="page-wrap">
-    <div class="page-header">
-        <a href="index.html" class="back-link">← Ana Menü</a>
-        <span class="page-title">Access Panels</span>
-        <button class="btn" style="margin:0; padding: 5px 10px;" onclick="toggleTheme()">🌙</button>
+
+<div class="container">
+    <div class="header">
+        <a href="index.html" class="back-link">← Ana Sayfa</a>
+        <h2>Access Panels</h2>
     </div>
 
-    <input type="text" id="search" class="search-input" placeholder="Panel, Zone veya bölge ara..." onkeyup="filterPanels()">
+    <input type="text" id="search" class="search-input" placeholder="Panel ara..." onkeyup="filter()">
 
-    <div id="panelList">
-        <details class="panel-item">
+    <div id="list">
+        <details class="item">
             <summary>Engine #1 Pylon</summary>
             <div class="cb-box">
-                Access Panel: 451AL, 451BL, 451BR, 451CL, 451CR, 451DL, 451DR, 452AL, 452BL, 452BR, 452CL, 452CR, 453AL, 453AR, 453AZ, 453BL, 453BR, 453CL, 453CR, 454AL, 454BL, 454BR, 454CL, 454EL, 454ER, 454GL, 454GR, 454HL, 454HR, 454JL, 454KL, 454KR, 454ML, 454MR, 454NR
-                <button class="btn" style="width:100%;" onclick="openImg(62)">Görseli Aç</button>
+                Panels: 451AL, 451BL, 451BR...
+                <button class="btn" onclick="openImg('62')">Görseli Aç</button>
             </div>
         </details>
         </div>
@@ -128,39 +99,36 @@
 
 <div id="imgModal" class="modal" onclick="closeImg()">
     <span class="modal-close" onclick="closeImg()">&times;</span>
-    <img id="modalImg" src="" onclick="event.stopPropagation()">
+    <img id="modalImg" src="" alt="Yükleniyor...">
 </div>
 
-<div class="offline-bar" id="offlineBar">📡 Çevrimdışı mod</div>
-
 <script>
-function filterPanels() {
-    const q = document.getElementById('search').value.toLowerCase();
-    document.querySelectorAll('.panel-item').forEach(d => {
-        const match = d.innerText.toLowerCase().includes(q);
-        d.style.display = match ? '' : 'none';
-        if (!match) d.removeAttribute('open');
-    });
-}
+    function openImg(n) {
+        const modal = document.getElementById('imgModal');
+        const img = document.getElementById('modalImg');
+        
+        // Resim yolunu ayarla
+        img.src = 'images/' + n + '.png';
+        
+        // Safari'de düzgün merkezleme için FLEX kullanıyoruz
+        modal.style.display = 'flex';
+        
+        // Sayfanın arkada kaymasını durdur
+        document.body.style.overflow = 'hidden';
+    }
 
-function openImg(n) {
-    const modal = document.getElementById('imgModal');
-    const img = document.getElementById('modalImg');
-    img.src = 'images/' + n + '.png';
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden'; // Arka plan kaymasını engelle
-}
+    function closeImg() {
+        document.getElementById('imgModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
 
-function closeImg() {
-    document.getElementById('imgModal').style.display = 'none';
-    document.body.style.overflow = 'auto'; // Kaydırmayı geri aç
-}
-
-function toggleTheme() {
-    const html = document.documentElement;
-    const current = html.getAttribute('data-theme');
-    html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
-}
+    function filter() {
+        let q = document.getElementById('search').value.toLowerCase();
+        document.querySelectorAll('.item').forEach(item => {
+            item.style.display = item.innerText.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
 </script>
+
 </body>
 </html>
