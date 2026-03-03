@@ -1,89 +1,30 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A330 - Circuit Breakers</title>
-    <style>
-        /* Sayfanın Ana Tasarımı */
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f0f2f5; 
-            margin: 0; 
-            padding: 20px; 
-            display: flex;
-            justify-content: center;
-            align-items: center; /* Dikeyde de ortalar */
-            min-height: 90vh;
-        }
-
-        /* Beyaz Kart (Container) */
-        .container { 
-            max-width: 500px; 
-            width: 100%;
-            background: white; 
-            padding: 40px 30px; 
-            border-radius: 25px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        /* Üst Menü Linki */
-        .back-link {
-            text-decoration: none;
-            color: #666;
-            font-size: 14px;
-            display: block;
-            text-align: left;
-            margin-bottom: 30px;
-            transition: 0.3s;
-        }
-        .back-link:hover { color: #3498db; }
-
-        /* İçerik Alanı */
-        .icon {
-            font-size: 60px;
-            margin-bottom: 20px;
-            display: block;
-        }
-
-        h1 { 
-            color: #1a3a5a; 
-            font-size: 24px; 
-            margin-bottom: 10px; 
-        }
-
-        p { 
-            color: #7f8c8d; 
-            font-size: 16px; 
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        /* Süsleme Çizgisi */
-        .divider {
-            width: 50px;
-            height: 4px;
-            background: #3498db;
-            margin: 20px auto;
-            border-radius: 2px;
-        }
-    </style>
+    <title>A330 - Circuit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="theme.css">
 </head>
 <body>
-
-<div class="container">
-    <a href="index.html" class="back-link">← Ana Menü</a>
-    
-    <span class="icon">🛠️</span>
-    <h1>Yakında Güncellenecek</h1>
-    <div class="divider"></div>
-    <p>
-        Bu bölüm şu anda hazırlık aşamasındadır.<br>
-        En kısa sürede teknik veriler eklenecektir.
-    </p>
-
+<div class="page-wrap" style="display:flex;align-items:center;justify-content:center;min-height:80vh;">
+    <div style="width:100%;">
+        <div class="page-header">
+            <a href="index.html" class="back-link">← Ana Menü</a>
+            <span class="page-title">Circuit</span>
+            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+        </div>
+        <div class="card" style="text-align:center;padding:40px 20px;">
+            <div style="font-size:48px;margin-bottom:16px;">🛠️</div>
+            <div class="card-title" style="font-size:16px;margin-bottom:8px;">Yakında Güncellenecek</div>
+            <div style="width:40px;height:3px;background:var(--accent);border-radius:2px;margin:16px auto;"></div>
+            <p class="card-sub" style="font-style:normal;">Bu bölüm şu anda hazırlık aşamasındadır.<br>En kısa sürede teknik veriler eklenecektir.</p>
+        </div>
+    </div>
 </div>
-
+<div class="offline-bar" id="offlineBar">📡 Çevrimdışı mod</div>
+<script src="theme.js"></script>
 </body>
 </html>

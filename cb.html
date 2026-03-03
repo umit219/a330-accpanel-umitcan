@@ -1,194 +1,123 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A330 CB Search & Panels</title>
+    <title>A330 - Circuit Breakers</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="theme.css">
     <style>
-        /* KISALTMALAR.HTML İLE BİREBİR AYNI TASARIM */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { max-width: 550px; width: 100%; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); min-height: 450px; }
-        h1 { color: #1a3a5a; text-align: center; font-size: 22px; margin-bottom: 5px; }
-        p.subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; }
-        .back-link { text-decoration: none; color: #666; font-size: 14px; display: inline-block; margin-bottom: 20px; transition: 0.3s; }
-        .back-link:hover { color: #0056b3; }
-
-        #search { width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #eee; border-radius: 15px; font-size: 16px; box-sizing: border-box; outline: none; transition: 0.3s; }
-        #search:focus { border-color: #0056b3; box-shadow: 0 0 8px rgba(0,86,179,0.2); }
-
-        /* Tüm Panelleri Göster Butonu (Koyu Gri/Mavi Stil) */
-        .all-panels-btn {
-            width: 100%; padding: 14px; margin-bottom: 20px; background-color: #34495e; color: white;
-            border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 13px;
-            transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        details {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; margin-bottom: 8px; overflow: hidden;
         }
-        .all-panels-btn:hover { background-color: #2c3e50; transform: translateY(-2px); }
-
-        .info-text { text-align: center; color: #888; font-size: 13px; margin-bottom: 20px; }
-
-        /* CB Kart Stilleri */
-        details { background: #fdfdfd; border-radius: 12px; margin-bottom: 12px; padding: 12px; border: 1px solid #eee; transition: 0.3s; }
-        details[open] { border: 1px solid #0056b3; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        summary { font-weight: 600; cursor: pointer; color: #333; list-style: none; position: relative; padding-right: 25px; }
-        summary::after { content: '▶'; position: absolute; right: 5px; color: #0056b3; font-size: 12px; transition: 0.3s; }
-        details[open] summary::after { transform: rotate(90deg); content: '▼'; }
-
-        .cb-box { padding: 15px 5px 5px 5px; font-size: 15px; color: #444; line-height: 1.6; }
-        .location-tag { color: #c0392b; font-weight: bold; display: block; margin-top: 12px; background: #fff5f5; padding: 8px 12px; border-radius: 10px; border: 1px dashed #c0392b; }
-        .view-btn { margin-top: 15px; width: 100%; padding: 12px; background-color: #0056b3; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
-
-        /* Modal ve Çoklu Resim Yapısı */
-        #imgModal { 
-            display: none; position: fixed; z-index: 9999; left: 0; top: 0; 
-            width: 100%; height: 100%; background: rgba(0,0,0,0.95); 
-            overflow-y: auto; padding: 60px 0; flex-direction: column; align-items: center;
+        details[open] { border-color: var(--accent); }
+        summary {
+            padding: 14px 16px; font-weight: 600; font-size: 13px;
+            cursor: pointer; color: var(--text); list-style: none;
+            display: flex; align-items: center; justify-content: space-between;
         }
-        
-        .close-x {
-            position: fixed; top: 15px; right: 25px; color: white; font-size: 50px;
-            font-weight: bold; cursor: pointer; z-index: 10000; line-height: 1;
+        summary::after { content: '›'; color: var(--text-muted); font-size: 18px; }
+        details[open] summary::after { transform: rotate(90deg); display: inline-block; }
+        .cb-box { padding: 12px 16px 16px; font-size: 13px; color: var(--text); line-height: 1.7; border-top: 1px solid var(--border); }
+        .location-tag {
+            display: block; margin-top: 10px; padding: 8px 12px;
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--danger); font-weight: 600; font-size: 12px;
         }
-        .close-x:hover { color: #ff4d4d; }
-
-        .modal-content-wrapper { display: flex; flex-direction: column; align-items: center; gap: 30px; width: 100%; }
-        .modal-img { max-width: 90%; border-radius: 15px; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-        .img-caption { color: #3498db; margin-bottom: -20px; font-weight: bold; font-size: 18px; text-transform: uppercase; background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 10px; }
     </style>
 </head>
 <body>
+<div class="page-wrap">
+    <div class="page-header">
+        <a href="index.html" class="back-link">← Ana Menü</a>
+        <span class="page-title">Circuit Breakers</span>
+        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    </div>
 
-<div class="container">
-    <a href="index.html" class="back-link">← Ana Menü</a>
-    <h1>CIRCUIT BREAKERS</h1>
-    <p class="subtitle"></p>
-    
-    <input type="text" id="search" onkeyup="renderList()" placeholder="FIN, Tanım veya Panel ara..." autocomplete="off">
-    
-    <button class="all-panels-btn" onclick="openAllPanels()">🗺️ TÜM PANEL KONUMLARINI GÖSTER (10 GÖRSEL)</button>
+    <input type="text" id="search" class="search-input" onkeyup="renderList()" placeholder="FIN, Tanım veya Panel ara..." autocomplete="off">
 
-    <p id="counter" class="info-text">Aramaya başlamak için en az 2 karakter yazın.</p>
+    <div class="btn-group" style="margin-bottom:16px;">
+        <button class="btn" onclick="openAllPanels()">🗺️ Tüm Panel Konumları (10 Görsel)</button>
+    </div>
+
+    <p id="counter" class="info-text">En az 2 karakter yazın.</p>
     <div id="cb-list-container"></div>
 </div>
 
-<div id="imgModal">
-    <span class="close-x" onclick="closeImg()">&times;</span>
-    <div id="modalWrapper" class="modal-content-wrapper"></div>
+<div id="imgModal" class="modal" onclick="closeImg()">
+    <span class="modal-close" onclick="closeImg()">&times;</span>
+    <div id="modalWrapper" style="display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;padding:60px 0;overflow-y:auto;" onclick="event.stopPropagation()"></div>
 </div>
 
+<div class="offline-bar" id="offlineBar">📡 Çevrimdışı mod</div>
+
 <script src="data.js"></script>
-
 <script>
-    // 10 ADET GENEL GÖRSELİN LİSTESİ
-    const allPanelImages = [
-        { name: "", file: "all1.png" },
-        { name: "", file: "all2.png" },
-        { name: "", file: "all3.png" },
-        { name: "", file: "all4.png" },
-        { name: "", file: "all5.png" },
-        { name: "", file: "all6.png" },
-        { name: "", file: "all7.png" },
-        { name: "", file: "all8.png" },
-        { name: "", file: "all9.png" },
-        { name: "", file: "all10.png" }
-    ];
+const allPanelImages = ['all1','all2','all3','all4','all5','all6','all7','all8','all9','all10'];
 
-    function renderList() {
-        const searchTerm = document.getElementById('search').value.toLowerCase();
-        const container = document.getElementById('cb-list-container');
-        const counter = document.getElementById('counter');
-        container.innerHTML = '';
+function renderList() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const container = document.getElementById('cb-list-container');
+    const counter = document.getElementById('counter');
+    container.innerHTML = '';
+    if (q.length < 2) { counter.innerText = 'En az 2 karakter yazın.'; return; }
 
-        if (searchTerm.length < 2) {
-            counter.innerText = "Aramaya başlamak için en az 2 karakter yazın.";
-            return;
-        }
+    const filtered = cbData.filter(item =>
+        item.fin.toLowerCase().includes(q) ||
+        item.desc.toLowerCase().includes(q) ||
+        item.panel.toLowerCase().includes(q)
+    );
 
-        const filteredData = cbData.filter(item => 
-            item.fin.toLowerCase().includes(searchTerm) || 
-            item.desc.toLowerCase().includes(searchTerm) || 
-            item.panel.toLowerCase().includes(searchTerm)
-        );
-
-        counter.innerText = filteredData.length + " sonuç listelendi.";
-
-        filteredData.forEach(item => {
-            container.insertAdjacentHTML('beforeend', `
-                <details>
-                    <summary>${item.fin} - ${item.desc}</summary>
-                    <div class="cb-box">
-                        <b>Tanım:</b> ${item.desc}<br>
-                        <b>FIN:</b> ${item.fin}<br>
-                        <span class="location-tag">📍 Panel: ${item.panel} | Konum: ${item.loc}</span>
-                        <button class="view-btn" onclick="openSingleImg('${item.panel}')">🖼️ ${item.panel} ŞEMASINI GÖR</button>
-                    </div>
-                </details>
-            `);
-        });
-    }
-
-    function openSingleImg(panelName) {
-        const fileName = panelName.toLowerCase().replace(/\s+/g, '');
-        showModal([{ name: "Panel " + panelName.toUpperCase(), file: fileName + ".png" }]);
-    }
-
-    function openAllPanels() {
-        showModal(allPanelImages);
-    }
-
-    function showModal(imgs) {
-        const wrapper = document.getElementById('modalWrapper');
-        wrapper.innerHTML = '';
-        
-        imgs.forEach(imgData => {
-            wrapper.innerHTML += `
-                <span class="img-caption">${imgData.name}</span>
-                <img src="cbs/${imgData.file}" class="modal-img" onerror="this.src='https://via.placeholder.com/500x300?text=${imgData.file}+Bulunamadi'">
-            `;
-        });
-
-        document.getElementById('imgModal').style.display = "flex";
-        document.body.style.overflow = "hidden"; // Arka plan kaymasını engeller
-    }
-
-    function closeImg() {
-        document.getElementById('imgModal').style.display = "none";
-        document.body.style.overflow = "auto";
-    }
-
-    // Modal dışına tıklayınca kapatma
-    document.getElementById('imgModal').onclick = function(e) {
-        if(e.target == this) closeImg();
-    }
-
-
-window.onload = function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchQuery = urlParams.get('search');
-
-    if (searchQuery) {
-        const cbSearchInput = document.getElementById("search"); 
-        if (cbSearchInput) {
-            // 100 milisaniye bekle (sayfa fonksiyonları kendine gelsin)
-            setTimeout(() => {
-                // Değeri yaz
-                cbSearchInput.value = searchQuery;
-                
-                // Arama sistemini tetikleyen tüm olayları gönder
-                cbSearchInput.dispatchEvent(new Event('input', { bubbles: true }));
-                cbSearchInput.dispatchEvent(new Event('keyup', { bubbles: true }));
-                cbSearchInput.dispatchEvent(new Event('change', { bubbles: true }));
-
-                // Focus yapıp tekrar çıkarak "hareket varmış" gibi gösterelim
-                cbSearchInput.focus();
-                cbSearchInput.blur(); 
-                
-                console.log("Arama tetiklendi: " + searchQuery);
-            }, 200); 
-        }
-    }
+    counter.innerText = filtered.length + ' sonuç listelendi.';
+    filtered.forEach(item => {
+        container.insertAdjacentHTML('beforeend', `
+        <details>
+            <summary>${item.fin} — ${item.desc}</summary>
+            <div class="cb-box">
+                <b>FIN:</b> ${item.fin}<br>
+                <b>Tanım:</b> ${item.desc}<br>
+                <span class="location-tag">📍 Panel: ${item.panel} | Konum: ${item.loc}</span>
+                <button class="btn" style="margin-top:12px;width:100%;" onclick="openSingleImg('${item.panel}')">🖼️ ${item.panel} Şemasını Gör</button>
+            </div>
+        </details>`);
+    });
 }
 
-</script>
+function openSingleImg(panel) {
+    showModal([panel.toLowerCase().replace(/\s+/g,'') + '.png']);
+}
 
+function openAllPanels() {
+    showModal(allPanelImages.map(f => f + '.png'));
+}
+
+function showModal(files) {
+    const wrapper = document.getElementById('modalWrapper');
+    wrapper.innerHTML = files.map(f =>
+        `<img src="cbs/${f}" style="max-width:90%;border-radius:10px;">`
+    ).join('');
+    document.getElementById('imgModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeImg() {
+    document.getElementById('imgModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+window.onload = function() {
+    const q = new URLSearchParams(window.location.search).get('search');
+    if (q) {
+        setTimeout(() => {
+            const el = document.getElementById('search');
+            el.value = q;
+            renderList();
+        }, 200);
+    }
+};
+</script>
+<script src="theme.js"></script>
 </body>
 </html>
