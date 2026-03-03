@@ -1,4 +1,4 @@
-const CACHE_NAME = 'a330-panel-v5';
+const CACHE_NAME = 'a330-panel-v6';
 const BASE = '/a330-accpanel-umitcan';
 
 const urlsToCache = [
