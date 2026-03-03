@@ -2,7 +2,7 @@
   "name": "A330 Teknik Panel",
   "short_name": "A330 Panel",
   "description": "A330 Teknik Referans ve Access Panel Rehberi",
-  "start_url": "/",
+  "start_url": "/a330-accpanel-umitcan/",
   "display": "standalone",
   "background_color": "#f0f2f5",
   "theme_color": "#1a3a5a",
@@ -31,4 +31,5 @@
       "type": "image/png"
     }
   ]
+
 }
