@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A330 - Borescope Locations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="theme.css">
+    <style>
+        .engine-tabs { display:flex; gap:8px; margin-bottom:20px; }
+        .engine-btn {
+            flex:1; padding:12px 5px; border:1px solid var(--border);
+            border-radius:10px; background:var(--surface); cursor:pointer;
+            font-family:'Inter',sans-serif; font-size:12px; font-weight:600;
+            color:var(--text-muted); transition:0.2s; text-align:center; line-height:1.4;
+        }
+        .engine-btn.active { border-color:var(--accent); color:var(--accent); }
+        .engine-section { display:none; }
+        .engine-section.active { display:block; }
+        .action-box { text-align:center; padding:32px 20px; background:var(--bg); border:1px solid var(--border); border-radius:12px; }
+        .action-box p { color:var(--text-muted); font-size:13px; margin-bottom:16px; }
+    </style>
+</head>
+<body>
+<div class="page-wrap">
+    <div class="page-header">
+        <a href="index.html" class="back-link">← Ana Menü</a>
+        <span class="page-title">Borescope Locations</span>
+        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    </div>
+
+    <div class="engine-tabs">
+        <button class="engine-btn active" onclick="showEngine('rr', this)">RR<br>Trent 700</button>
+        <button class="engine-btn" onclick="showEngine('cf6', this)">GE<br>CF6-80E1</button>
+        <button class="engine-btn" onclick="showEngine('pw', this)">PW<br>PW4000</button>
+    </div>
+
+    <div id="rr" class="engine-section active">
+        <div class="action-box">
+            <p>Tüm Trent 700 borescope tapa yerleri</p>
+            <button class="btn" onclick="openEngineImgs('rr')">🖼️ RR Görsellerini Aç (8 Resim)</button>
+        </div>
+    </div>
+    <div id="cf6" class="engine-section">
+        <div class="action-box">
+            <p>Tüm CF6-80E1 borescope tapa yerleri</p>
+            <button class="btn" onclick="openEngineImgs('cf6')">🖼️ GE Görsellerini Aç (17 Resim)</button>
+        </div>
+    </div>
+    <div id="pw" class="engine-section">
+        <div class="action-box">
+            <p>Tüm PW4000 borescope tapa yerleri</p>
+            <button class="btn" onclick="openEngineImgs('pw')">🖼️ PW Görsellerini Aç (12 Resim)</button>
+        </div>
+    </div>
+</div>
+
+<div id="imgModal" class="modal" onclick="closeImg()">
+    <span class="modal-close" onclick="closeImg()">&times;</span>
+    <div id="modalWrapper" style="display:flex;flex-direction:column;align-items:center;gap:32px;width:100%;padding:60px 0;overflow-y:auto;" onclick="event.stopPropagation()"></div>
+</div>
+
+<div class="offline-bar" id="offlineBar">📡 Çevrimdışı mod</div>
+
+<script>
+const engineData = {
+    'rr': [{file:'rr1.png'},{file:'rr2.png'},{file:'rr3.png'},{file:'rr4.png'},{file:'rr5.png'},{file:'rr6.png'},{file:'rr7.png'},{file:'rr8.png'}],
+    'cf6': [{file:'cf1.png'},{file:'cf2.png'},{file:'cf3.png'},{file:'cf4.png'},{file:'cf5.png'},{file:'cf6.png'},{file:'cf7.png'},{file:'cf8.png'},{file:'cf9.png'},{file:'cf10.png'},{file:'cf11.png'},{file:'cf12.png'},{file:'cf13.png'},{file:'cf14.png'},{file:'cf15.png'},{file:'cf16.png'},{file:'cf17.png'}],
+    'pw': [{file:'pw1.png'},{file:'pw2.png'},{file:'pw3.png'},{file:'pw4.png'},{file:'pw5.png'},{file:'pw6.png'},{file:'pw7.png'},{file:'pw8.png'},{file:'pw9.png'},{file:'pw10.png'},{file:'pw11.png'},{file:'pw12.png'}]
+};
+
+function showEngine(id, btn) {
+    document.querySelectorAll('.engine-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.engine-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function openEngineImgs(key) {
+    const wrapper = document.getElementById('modalWrapper');
+    wrapper.innerHTML = engineData[key].map(img =>
+        `<img src="boro/${img.file}" style="max-width:90%;border-radius:10px;">`
+    ).join('');
+    document.getElementById('imgModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeImg() {
+    document.getElementById('imgModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

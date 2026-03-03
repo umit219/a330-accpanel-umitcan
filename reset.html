@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A330 - ECAM Reset</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+
+<div class="page-wrap">
+
+    <div class="page-header">
+        <a href="index.html" class="back-link">← Ana Menü</a>
+        <span class="page-title">ECAM Warning Reset</span>
+        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn" onclick="openPanel('lh')">LH Reset Panel</button>
+        <button class="btn" onclick="openPanel('rh')">RH Reset Panel</button>
+    </div>
+
+    <input id="search" class="search-input" type="text" placeholder="Mesaj veya ATA ara...">
+    <div id="counter" class="info-text">Yazmaya başlayın...</div>
+
+    <div id="results-container"></div>
+
+</div>
+
+<div id="panelModal" class="modal" onclick="closePanel()">
+    <span class="modal-close" onclick="closePanel()">&times;</span>
+    <img id="panelImage" src="" onclick="event.stopPropagation()">
+</div>
+
+<div class="offline-bar" id="offlineBar">📡 Çevrimdışı mod</div>
+
+<script src="resetData.js"></script>
+<script src="theme.js"></script>
+<script>
+    const searchInput = document.getElementById("search");
+    const resultsContainer = document.getElementById("results-container");
+    const counter = document.getElementById("counter");
+
+    searchInput.addEventListener("input", function() {
+        const q = this.value.trim().toUpperCase();
+        resultsContainer.innerHTML = "";
+
+        if (q.length < 2) {
+            counter.innerText = "En az 2 karakter girin";
+            return;
+        }
+
+        const results = resetData.filter(r =>
+            r.msg.toUpperCase().includes(q) ||
+            r.ata.toString().includes(q)
+        );
+
+        counter.innerText = results.length + " sonuç bulundu";
+
+        results.forEach(r => {
+            const cbLinks = r.cbs.split(',').map(cb => {
+                const t = cb.trim();
+                return `<a href="cb.html?search=${encodeURIComponent(t)}" class="cb-link">${t}</a>`;
+            }).join(', ');
+
+            resultsContainer.innerHTML += `
+            <div class="card">
+                <span class="card-tag">ATA ${r.ata}</span>
+                <div class="card-title">${r.msg}</div>
+                <div class="card-sub">📌 DISPATCH: ${r.condition}</div>
+                <div class="card-body"><b>Reset:</b><br>${r.reset}</div>
+                <div class="card-footer">📍 CBs: ${cbLinks}</div>
+            </div>`;
+        });
+    });
+
+    function openPanel(p) {
+        document.getElementById("panelImage").src = p === "lh" ? "lh1.png" : "rh2.png";
+        document.getElementById("panelModal").style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+
+    function closePanel() {
+        document.getElementById("panelModal").style.display = "none";
+        document.body.style.overflow = "auto";
+    }
+</script>
+</body>
+</html>
