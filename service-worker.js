@@ -1,4 +1,4 @@
-const CACHE_NAME = 'a330-panel-v7';
+const CACHE_NAME = 'a330-panel-v8';
 const BASE = '/a330-accpanel-umitcan';
 
 const urlsToCache = [
@@ -97,22 +97,29 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request).then(response => {
-        if (!response || response.status !== 200 || event.request.method !== 'GET') {
-          return response;
+  const url = event.request.url;
+  const isPage = /\.(html|js|css)(\?|$)/.test(url) || url.endsWith('/');
+
+  if (isPage) {
+    event.respondWith(
+      fetch(event.request).then(response => {
+        if (response && response.status === 200 && event.request.method === 'GET') {
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, response.clone()));
         }
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         return response;
-      }).catch(() => {
-        return new Response('Cevrimdisi - Bu icerik onbellekte bulunamadi.', {
-          status: 503,
-          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-        });
-      });
-    })
-  );
+      }).catch(() => caches.match(event.request))
+    );
+  } else {
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        if (cached) return cached;
+        return fetch(event.request).then(response => {
+          if (response && response.status === 200 && event.request.method === 'GET') {
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, response.clone()));
+          }
+          return response;
+        }).catch(() => caches.match(event.request));
+      })
+    );
+  }
 });
