@@ -24,7 +24,6 @@
         .app-title { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: 0.2px; }
         .header-right { display: flex; gap: 8px; align-items: center; }
 
-        /* Grid butonlar */
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -57,7 +56,6 @@
             padding: 1px 5px; letter-spacing: 0.5px;
         }
 
-        /* Uyarı kutusu */
         .warning-box {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -71,7 +69,6 @@
         }
         .warning-box strong { color: var(--danger); display: block; margin-bottom: 3px; }
 
-        /* Footer */
         .footer {
             margin-top: 16px;
             text-align: center;
@@ -97,15 +94,6 @@
             }
         }
     })();
-
-    // Service Worker
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(r => console.log('SW kayıtlı:', r.scope))
-                .catch(e => console.log('SW hatası:', e));
-        });
-    }
     </script>
 </head>
 <body>
@@ -164,5 +152,19 @@
 
 <div class="offline-bar" id="offlineBar">📡 Çevrimdışı mod</div>
 <script src="theme.js"></script>
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'activated') {
+                        window.location.reload();
+                    }
+                });
+            });
+        });
+    }
+</script>
 </body>
 </html>
