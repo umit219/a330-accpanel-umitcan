@@ -1,81 +1,62 @@
-const CACHE_NAME = 'a330-panel-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/bilgiler.html',
-  '/reset.html',
-  '/borescope.html',
-  '/cb.html',
-  '/sematik.html',
-  '/kisaltmalar.html',
-  '/panels.html',
-  '/330.png'
-];
+const CACHE_NAME = 'a330-panel-v3';
 
-// Kurulum - Cache'e dosyaları ekle
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Cache açıldı');
-        return cache.addAll(urlsToCache);
-      })
-  );
-});
-
-// Aktifleştirme - Eski cache'leri temizle
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Eski cache siliniyor:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll([
+        '/',
+        '/index.html',
+        '/bilgiler.html',
+        '/reset.html',
+        '/borescope.html',
+        '/cb.html',
+        '/sematik.html',
+        '/kisaltmalar.html',
+        '/panels.html',
+        '/circuit.html',
+        '/data.js',
+        '/resetData.js',
+        '/330.png',
+        '/lh1.png',
+        '/rh2.png'
+      ]);
     })
   );
+  self.skipWaiting(); // ← Hemen aktifleş, bekleme
 });
 
-// Fetch - Cache-first stratejisi
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames =>
+      Promise.all(
+        cacheNames.map(name => {
+          if (name !== CACHE_NAME) return caches.delete(name);
+        })
+      )
+    )
+  );
+  self.clients.claim(); // ← Hemen kontrolü al
+});
+
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache'de varsa onu döndür
-        if (response) {
+    caches.match(event.request).then(cached => {
+      if (cached) return cached;
+
+      return fetch(event.request).then(response => {
+        // Sadece geçerli GET isteklerini cache'le
+        if (!response || response.status !== 200 || event.request.method !== 'GET') {
           return response;
         }
-        
-        // Yoksa internetten al
-        return fetch(event.request).then(response => {
-          // Geçerli bir response değilse cache'leme
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-
-          // Response'u klonla (bir kere kullanılabilir)
-          const responseToCache = response.clone();
-
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
-
-          return response;
-        });
-      })
-      .catch(() => {
-        // Offline ise ve sayfa bulunamazsa
-        return new Response('Çevrimdışı moddasınız. Bu sayfa cache\'de yok.', {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        return response;
+      }).catch(() => {
+        return new Response('Çevrimdışı - Bu sayfa önbellekte bulunamadı.', {
           status: 503,
-          statusText: 'Service Unavailable',
-          headers: new Headers({
-            'Content-Type': 'text/plain'
-          })
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
         });
-      })
+      });
+    })
   );
 });
