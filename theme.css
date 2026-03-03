@@ -193,16 +193,19 @@ body {
     margin-bottom: 16px;
 }
 
-/* Modal - FIXED */
+/* Modal */
 .modal {
     display: none;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.92);
     z-index: 999;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    padding: 20px;
+    justify-content: flex-start;
+    padding: 70px 20px 40px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .modal img {
@@ -213,6 +216,7 @@ body {
     object-fit: contain;
     border-radius: 10px;
     display: block;
+    flex-shrink: 0;
 }
 
 .modal-close {
