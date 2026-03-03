@@ -98,7 +98,7 @@ function showModal(files) {
     wrapper.innerHTML = files.map(f =>
         `<img src="cbs/${f}" style="max-width:90%;border-radius:10px;">`
     ).join('');
-    document.getElementById('imgModal').style.display = 'block';
+    document.getElementById('imgModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
 }
 
