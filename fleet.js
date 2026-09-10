@@ -1,4 +1,4 @@
-const fleet = [
+const fleetData = [
 
   // =========================
   // A330-200
