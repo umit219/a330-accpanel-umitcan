@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f1117">
+
+    <title>Technical Converter</title>
+
+    <link rel="stylesheet" href="theme.css">
+
+    <style>
+        .unit-converter {
+            margin-top: 10px;
+        }
+
+        .converter-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr);
+            gap: 12px;
+            align-items: end;
+        }
+
+        .converter-field {
+            min-width: 0;
+        }
+
+        .field-label {
+            display: block;
+            height: 16px;
+            margin-bottom: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            color: var(--text-muted);
+        }
+
+        .converter-field .search-input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .value-input {
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+
+        .result-box {
+            width: 100%;
+            height: 44px;
+            box-sizing: border-box;
+            margin-top: 10px;
+            padding: 11px 12px;
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            background: var(--bg);
+            color: var(--text);
+
+            font-size: 16px;
+            line-height: 20px;
+
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .swap-button {
+            width: 42px;
+            height: 44px;
+            padding: 0;
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            background: var(--surface);
+            color: var(--text);
+
+            font-size: 20px;
+            line-height: 1;
+
+            cursor: pointer;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .swap-button:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .clear-container {
+            margin-top: 14px;
+        }
+
+        .clear-container .btn {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 400px) {
+            .converter-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .swap-button {
+                width: 100%;
+                height: 38px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page-wrap">
+
+    <header class="page-header">
+
+        <a href="index.html" class="back-link">← Ana Menü</a>
+
+        <div class="header-actions">
+
+            <h1 class="page-title">
+                Unit Converter
+            </h1>
+
+            <button
+                class="theme-btn"
+                id="themeBtn"
+                type="button"
+                aria-label="Toggle theme">
+                ☼
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <!-- CATEGORY -->
+
+        <div class="card">
+
+            <div class="field-label">
+                KATEGORİ
+            </div>
+
+            <select
+                id="category"
+                class="search-input">
+            </select>
+
+        </div>
+
+
+        <!-- CONVERTER -->
+
+        <div class="card unit-converter">
+
+            <div class="converter-row">
+
+                <!-- FROM -->
+
+                <div class="converter-field">
+
+                    <div class="field-label">
+                        FROM
+                    </div>
+
+                    <select
+                        id="fromUnit"
+                        class="search-input">
+                    </select>
+
+                    <input
+                        id="fromValue"
+                        class="search-input value-input"
+                        type="number"
+                        step="any"
+                        inputmode="decimal"
+                        placeholder="0">
+
+                </div>
+
+
+                <!-- SWAP -->
+
+                <button
+                    id="swapBtn"
+                    class="swap-button"
+                    type="button"
+                    aria-label="Birimleri değiştir">
+
+                    ⇄
+
+                </button>
+
+
+                <!-- TO -->
+
+                <div class="converter-field">
+
+                    <div class="field-label">
+                        TO
+                    </div>
+
+                    <select
+                        id="toUnit"
+                        class="search-input">
+                    </select>
+
+                    <div
+                        id="result"
+                        class="result-box">
+
+                        0
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- CLEAR -->
+
+            <div class="clear-container">
+
+                <button
+                    id="clearBtn"
+                    class="btn"
+                    type="button">
+
+                    CLEAR
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+
+
+</div>
+
+
+<script src="theme.js"></script>
+<script src="unit.js"></script>
+
+</body>
+</html>
