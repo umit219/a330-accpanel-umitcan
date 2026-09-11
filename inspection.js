@@ -1,18 +1,23 @@
 /* =====================================================
-   A330 INSPECTION NOTES
-   Local-only IndexedDB storage
+   A330 INSPECTION RECORDER
+   LOCAL ONLY
+   IndexedDB
 ===================================================== */
 
 
 const DB_NAME = "A330InspectionDB";
+
 const DB_VERSION = 1;
 
 const INSPECTIONS_STORE = "inspections";
+
 const FINDINGS_STORE = "findings";
+
 
 let db = null;
 
 let currentInspectionId = null;
+
 
 
 /* =====================================================
@@ -22,29 +27,38 @@ let currentInspectionId = null;
 const app =
     document.getElementById("app");
 
+
 const inspectionModal =
     document.getElementById("inspectionModal");
+
 
 const findingModal =
     document.getElementById("findingModal");
 
+
 const aircraftInput =
     document.getElementById("aircraftInput");
+
 
 const inspectionType =
     document.getElementById("inspectionType");
 
+
 const findingLocation =
     document.getElementById("findingLocation");
+
 
 const findingText =
     document.getElementById("findingText");
 
+
 const findingPhoto =
     document.getElementById("findingPhoto");
 
+
 const photoModal =
     document.getElementById("photoModal");
+
 
 const photoPreview =
     document.getElementById("photoPreview");
@@ -57,186 +71,231 @@ const photoPreview =
 
 function openDatabase() {
 
-    return new Promise((resolve, reject) => {
+    return new Promise(
+        (resolve, reject) => {
 
-        const request =
-            indexedDB.open(
-                DB_NAME,
-                DB_VERSION
-            );
-
-
-        request.onupgradeneeded = function(event) {
-
-            const database =
-                event.target.result;
+            const request =
+                indexedDB.open(
+                    DB_NAME,
+                    DB_VERSION
+                );
 
 
-            if (
-                !database.objectStoreNames.contains(
-                    INSPECTIONS_STORE
-                )
-            ) {
+            request.onupgradeneeded =
+                function(event) {
 
-                const inspections =
-                    database.createObjectStore(
-                        INSPECTIONS_STORE,
-                        {
-                            keyPath: "id"
-                        }
+                    const database =
+                        event.target.result;
+
+
+                    if (
+                        !database
+                            .objectStoreNames
+                            .contains(
+                                INSPECTIONS_STORE
+                            )
+                    ) {
+
+                        const inspections =
+                            database.createObjectStore(
+                                INSPECTIONS_STORE,
+                                {
+                                    keyPath: "id"
+                                }
+                            );
+
+
+                        inspections.createIndex(
+                            "createdAt",
+                            "createdAt"
+                        );
+
+                    }
+
+
+                    if (
+                        !database
+                            .objectStoreNames
+                            .contains(
+                                FINDINGS_STORE
+                            )
+                    ) {
+
+                        const findings =
+                            database.createObjectStore(
+                                FINDINGS_STORE,
+                                {
+                                    keyPath: "id"
+                                }
+                            );
+
+
+                        findings.createIndex(
+                            "inspectionId",
+                            "inspectionId"
+                        );
+
+
+                        findings.createIndex(
+                            "createdAt",
+                            "createdAt"
+                        );
+
+                    }
+
+                };
+
+
+            request.onsuccess =
+                function(event) {
+
+                    db =
+                        event.target.result;
+
+                    resolve(db);
+
+                };
+
+
+            request.onerror =
+                function() {
+
+                    reject(
+                        request.error
                     );
 
-                inspections.createIndex(
-                    "createdAt",
-                    "createdAt"
-                );
+                };
 
-            }
-
-
-            if (
-                !database.objectStoreNames.contains(
-                    FINDINGS_STORE
-                )
-            ) {
-
-                const findings =
-                    database.createObjectStore(
-                        FINDINGS_STORE,
-                        {
-                            keyPath: "id"
-                        }
-                    );
-
-                findings.createIndex(
-                    "inspectionId",
-                    "inspectionId"
-                );
-
-                findings.createIndex(
-                    "createdAt",
-                    "createdAt"
-                );
-
-            }
-
-        };
-
-
-        request.onsuccess = function(event) {
-
-            db =
-                event.target.result;
-
-            resolve(db);
-
-        };
-
-
-        request.onerror = function() {
-
-            reject(
-                request.error
-            );
-
-        };
-
-    });
+        }
+    );
 
 }
 
 
 
 /* =====================================================
-   GENERIC DB HELPERS
+   DATABASE HELPERS
 ===================================================== */
 
-function dbPut(storeName, data) {
+function dbPut(
+    storeName,
+    data
+) {
 
-    return new Promise((resolve, reject) => {
+    return new Promise(
+        (resolve, reject) => {
 
-        const transaction =
-            db.transaction(
-                storeName,
-                "readwrite"
-            );
-
-        const store =
-            transaction.objectStore(
-                storeName
-            );
-
-        const request =
-            store.put(data);
+            const transaction =
+                db.transaction(
+                    storeName,
+                    "readwrite"
+                );
 
 
-        request.onsuccess =
-            () => resolve(data);
-
-        request.onerror =
-            () => reject(request.error);
-
-    });
-
-}
+            const store =
+                transaction.objectStore(
+                    storeName
+                );
 
 
-function dbGetAll(storeName) {
-
-    return new Promise((resolve, reject) => {
-
-        const transaction =
-            db.transaction(
-                storeName,
-                "readonly"
-            );
-
-        const store =
-            transaction.objectStore(
-                storeName
-            );
-
-        const request =
-            store.getAll();
+            const request =
+                store.put(data);
 
 
-        request.onsuccess =
-            () => resolve(request.result);
+            request.onsuccess =
+                () => resolve(data);
 
-        request.onerror =
-            () => reject(request.error);
 
-    });
+            request.onerror =
+                () => reject(
+                    request.error
+                );
+
+        }
+    );
 
 }
 
 
-function dbDelete(storeName, id) {
 
-    return new Promise((resolve, reject) => {
+function dbGetAll(
+    storeName
+) {
 
-        const transaction =
-            db.transaction(
-                storeName,
-                "readwrite"
-            );
+    return new Promise(
+        (resolve, reject) => {
 
-        const store =
-            transaction.objectStore(
-                storeName
-            );
-
-        const request =
-            store.delete(id);
+            const transaction =
+                db.transaction(
+                    storeName,
+                    "readonly"
+                );
 
 
-        request.onsuccess =
-            () => resolve();
+            const store =
+                transaction.objectStore(
+                    storeName
+                );
 
-        request.onerror =
-            () => reject(request.error);
 
-    });
+            const request =
+                store.getAll();
+
+
+            request.onsuccess =
+                () => resolve(
+                    request.result
+                );
+
+
+            request.onerror =
+                () => reject(
+                    request.error
+                );
+
+        }
+    );
+
+}
+
+
+
+function dbDelete(
+    storeName,
+    id
+) {
+
+    return new Promise(
+        (resolve, reject) => {
+
+            const transaction =
+                db.transaction(
+                    storeName,
+                    "readwrite"
+                );
+
+
+            const store =
+                transaction.objectStore(
+                    storeName
+                );
+
+
+            const request =
+                store.delete(id);
+
+
+            request.onsuccess =
+                () => resolve();
+
+
+            request.onerror =
+                () => reject(
+                    request.error
+                );
+
+        }
+    );
 
 }
 
@@ -257,9 +316,12 @@ function createId() {
 
     }
 
+
     return (
         Date.now().toString(36) +
-        Math.random().toString(36).slice(2)
+        Math.random()
+            .toString(36)
+            .slice(2)
     );
 
 }
@@ -270,7 +332,9 @@ function createId() {
    DATE
 ===================================================== */
 
-function formatDate(timestamp) {
+function formatDate(
+    timestamp
+) {
 
     return new Intl.DateTimeFormat(
         "tr-TR",
@@ -290,7 +354,46 @@ function formatDate(timestamp) {
 
 
 /* =====================================================
-   MODALS
+   ESCAPE HTML
+===================================================== */
+
+function escapeHtml(
+    value
+) {
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+
+/* =====================================================
+   OPEN INSPECTION MODAL
 ===================================================== */
 
 function openInspectionModal() {
@@ -300,9 +403,11 @@ function openInspectionModal() {
     inspectionType.value =
         "Landing Gear Inspection";
 
+
     inspectionModal.classList.add(
         "show"
     );
+
 
     setTimeout(
         () => aircraftInput.focus(),
@@ -310,6 +415,7 @@ function openInspectionModal() {
     );
 
 }
+
 
 
 function closeInspectionModal() {
@@ -321,6 +427,11 @@ function closeInspectionModal() {
 }
 
 
+
+/* =====================================================
+   OPEN FINDING MODAL
+===================================================== */
+
 function openFindingModal() {
 
     findingLocation.value = "";
@@ -329,9 +440,11 @@ function openFindingModal() {
 
     findingPhoto.value = "";
 
+
     findingModal.classList.add(
         "show"
     );
+
 
     setTimeout(
         () => findingLocation.focus(),
@@ -339,6 +452,7 @@ function openFindingModal() {
     );
 
 }
+
 
 
 function closeFindingModal() {
@@ -397,6 +511,7 @@ async function createInspection() {
 
         closeInspectionModal();
 
+
         await showInspectionList();
 
     }
@@ -416,17 +531,19 @@ async function createInspection() {
 
 
 /* =====================================================
-   LIST INSPECTIONS
+   SHOW INSPECTION LIST
 ===================================================== */
 
 async function showInspectionList() {
 
     currentInspectionId = null;
 
+
     const inspections =
         await dbGetAll(
             INSPECTIONS_STORE
         );
+
 
     const findings =
         await dbGetAll(
@@ -528,6 +645,7 @@ async function showInspectionList() {
                     <div
                         class="inspection-card-sub"
                     >
+
                         ✈️
                         ${escapeHtml(
                             inspection.aircraft
@@ -538,6 +656,7 @@ async function showInspectionList() {
                         ${formatDate(
                             inspection.createdAt
                         )}
+
                     </div>
 
 
@@ -549,10 +668,11 @@ async function showInspectionList() {
                             ${count}
                             ${
                                 count === 1
-                                ? "Finding"
-                                : "Findings"
+                                    ? "Finding"
+                                    : "Findings"
                             }
                         </span>
+
 
                         <span
                             class="finding-count"
@@ -649,11 +769,13 @@ async function showInspectionDetail(
 
     const inspectionFindings =
         findings
+
             .filter(
                 finding =>
                     finding.inspectionId ===
                     inspectionId
             )
+
             .sort(
                 (a, b) =>
                     a.createdAt -
@@ -760,35 +882,63 @@ async function showInspectionDetail(
     inspectionFindings.forEach(
         (finding, index) => {
 
+
             html += `
 
                 <div
                     class="finding-card"
+                    data-finding-card="${finding.id}"
                 >
 
+                    <!-- FINDING MAIN -->
+
                     <div
-                        class="finding-number"
+                        class="finding-main"
                     >
-                        FINDING #${index + 1}
+
+                        <div
+                            class="finding-number"
+                        >
+                            FINDING #${index + 1}
+                        </div>
+
+
+                        <div
+                            class="finding-location"
+                        >
+                            ${escapeHtml(
+                                finding.location
+                            )}
+                        </div>
+
+
+                        <div
+                            class="finding-text"
+                        >
+                            ${escapeHtml(
+                                finding.text
+                            )}
+                        </div>
+
+
+                        <div
+                            class="finding-arrow"
+                        >
+                            ▼
+                        </div>
+
                     </div>
 
 
-                    <div
-                        class="finding-location"
-                    >
-                        ${escapeHtml(
-                            finding.location
-                        )}
-                    </div>
-
+                    <!-- EXPANDED CONTENT -->
 
                     <div
-                        class="finding-text"
+                        class="finding-expand"
                     >
-                        ${escapeHtml(
-                            finding.text
-                        )}
-                    </div>
+
+                        <div
+                            class="finding-divider"
+                        ></div>
 
             `;
 
@@ -814,29 +964,45 @@ async function showInspectionDetail(
 
             }
 
+            else {
+
+                html += `
+
+                    <div class="no-photo">
+
+                        📷 Fotoğraf eklenmemiş
+
+                    </div>
+
+                `;
+
+            }
+
 
             html += `
 
-                    <div
-                        class="finding-footer"
-                    >
-
-                        <span
-                            class="finding-date"
+                        <div
+                            class="finding-footer"
                         >
-                            ${formatDate(
-                                finding.createdAt
-                            )}
-                        </span>
+
+                            <span
+                                class="finding-date"
+                            >
+                                ${formatDate(
+                                    finding.createdAt
+                                )}
+                            </span>
 
 
-                        <button
-                            class="delete-finding"
-                            type="button"
-                            data-finding-id="${finding.id}"
-                        >
-                            DELETE
-                        </button>
+                            <button
+                                class="delete-finding"
+                                type="button"
+                                data-finding-id="${finding.id}"
+                            >
+                                DELETE
+                            </button>
+
+                        </div>
 
                     </div>
 
@@ -851,7 +1017,10 @@ async function showInspectionDetail(
     app.innerHTML = html;
 
 
-    /* BACK */
+
+    /* =================================================
+       BACK
+    ================================================= */
 
     document
         .getElementById(
@@ -863,7 +1032,10 @@ async function showInspectionDetail(
         );
 
 
-    /* ADD FINDING */
+
+    /* =================================================
+       ADD FINDING
+    ================================================= */
 
     document
         .getElementById(
@@ -871,11 +1043,20 @@ async function showInspectionDetail(
         )
         .addEventListener(
             "click",
-            openFindingModal
+            event => {
+
+                event.stopPropagation();
+
+                openFindingModal();
+
+            }
         );
 
 
-    /* DELETE INSPECTION */
+
+    /* =================================================
+       DELETE INSPECTION
+    ================================================= */
 
     document
         .getElementById(
@@ -883,13 +1064,67 @@ async function showInspectionDetail(
         )
         .addEventListener(
             "click",
-            () => deleteInspection(
-                inspection.id
-            )
+            event => {
+
+                event.stopPropagation();
+
+                deleteInspection(
+                    inspection.id
+                );
+
+            }
         );
 
 
-    /* DELETE FINDINGS */
+
+    /* =================================================
+       FINDING CLICK
+    ================================================= */
+
+    document
+        .querySelectorAll(
+            ".finding-card"
+        )
+        .forEach(card => {
+
+            card.addEventListener(
+                "click",
+                event => {
+
+                    /*
+                     * DELETE veya PHOTO
+                     * tıklanırsa finding
+                     * aç/kapa yapma.
+                     */
+
+                    if (
+                        event.target.closest(
+                            ".delete-finding"
+                        ) ||
+                        event.target.closest(
+                            ".finding-photo"
+                        )
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    card.classList.toggle(
+                        "expanded"
+                    );
+
+                }
+            );
+
+        });
+
+
+
+    /* =================================================
+       DELETE FINDING
+    ================================================= */
 
     document
         .querySelectorAll(
@@ -903,8 +1138,10 @@ async function showInspectionDetail(
 
                     event.stopPropagation();
 
+
                     await deleteFinding(
-                        button.dataset.findingId
+                        button.dataset
+                            .findingId
                     );
 
                 }
@@ -913,7 +1150,10 @@ async function showInspectionDetail(
         });
 
 
-    /* PHOTO CLICK */
+
+    /* =================================================
+       PHOTO CLICK
+    ================================================= */
 
     document
         .querySelectorAll(
@@ -923,10 +1163,14 @@ async function showInspectionDetail(
 
             image.addEventListener(
                 "click",
-                () => {
+                event => {
+
+                    event.stopPropagation();
+
 
                     photoPreview.src =
                         image.src;
+
 
                     photoModal.classList.add(
                         "show"
@@ -956,6 +1200,7 @@ async function createFinding() {
 
     const location =
         findingLocation.value.trim();
+
 
     const text =
         findingText.value.trim();
@@ -1041,7 +1286,7 @@ async function createFinding() {
         console.error(error);
 
         alert(
-            "Bulgu kaydedilemedi. Tarayıcı depolama alanını kontrol edin."
+            "Bulgu kaydedilemedi."
         );
 
     }
@@ -1174,43 +1419,6 @@ async function deleteInspection(
 
 
 /* =====================================================
-   ESCAPE HTML
-===================================================== */
-
-function escapeHtml(value) {
-
-    return String(value)
-
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
-
-}
-
-
-
-/* =====================================================
    PHOTO CLOSE
 ===================================================== */
 
@@ -1220,16 +1428,19 @@ document
     )
     .addEventListener(
         "click",
-        () => {
-
-            photoModal.classList.remove(
-                "show"
-            );
-
-            photoPreview.src = "";
-
-        }
+        closePhoto
     );
+
+
+function closePhoto() {
+
+    photoModal.classList.remove(
+        "show"
+    );
+
+    photoPreview.src = "";
+
+}
 
 
 photoModal.addEventListener(
@@ -1241,11 +1452,7 @@ photoModal.addEventListener(
             photoModal
         ) {
 
-            photoModal.classList.remove(
-                "show"
-            );
-
-            photoPreview.src = "";
+            closePhoto();
 
         }
 
@@ -1300,7 +1507,7 @@ document
 
 
 /* =====================================================
-   MODAL BACKGROUND CLOSE
+   MODAL BACKGROUND
 ===================================================== */
 
 inspectionModal.addEventListener(
@@ -1356,6 +1563,7 @@ async function init() {
 
         console.error(error);
 
+
         app.innerHTML = `
 
             <div class="card">
@@ -1367,8 +1575,8 @@ async function init() {
 
                     <br><br>
 
-                    Tarayıcı IndexedDB desteğini
-                    kontrol edin.
+                    Tarayıcının IndexedDB
+                    desteğini kontrol edin.
 
                 </div>
 
