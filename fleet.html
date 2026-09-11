@@ -48,7 +48,9 @@
 }
 
 
-/* Results */
+/* ================================
+   RESULTS
+   ================================ */
 
 #fleetResults {
 
@@ -57,7 +59,9 @@
 }
 
 
-/* Aircraft card */
+/* ================================
+   AIRCRAFT CARD
+   ================================ */
 
 .fleet-card {
 
@@ -99,7 +103,9 @@
 }
 
 
-/* Registration */
+/* ================================
+   REGISTRATION
+   ================================ */
 
 .fleet-registration {
 
@@ -114,20 +120,41 @@
 }
 
 
-/* Aircraft type */
+/* ================================
+   AIRCRAFT NAME
+   ================================ */
+
+.fleet-name {
+
+    margin-top: 5px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: var(--accent);
+
+}
+
+
+/* ================================
+   AIRCRAFT TYPE
+   ================================ */
 
 .fleet-aircraft {
 
-    margin-top: 4px;
+    margin-top: 3px;
 
-    font-size: 12px;
+    font-size: 11px;
 
     color: var(--text-muted);
 
 }
 
 
-/* Divider */
+/* ================================
+   DIVIDER
+   ================================ */
 
 .fleet-divider {
 
@@ -140,7 +167,9 @@
 }
 
 
-/* Info rows */
+/* ================================
+   INFO ROWS
+   ================================ */
 
 .fleet-row {
 
@@ -179,7 +208,9 @@
 }
 
 
-/* Engine highlight */
+/* ================================
+   ENGINE
+   ================================ */
 
 .fleet-engine {
 
@@ -188,7 +219,9 @@
 }
 
 
-/* Empty / instruction */
+/* ================================
+   EMPTY / MESSAGE
+   ================================ */
 
 .fleet-message {
 
@@ -214,7 +247,9 @@
 }
 
 
-/* Mobile */
+/* ================================
+   MOBILE
+   ================================ */
 
 @media (max-width: 600px) {
 
@@ -224,9 +259,17 @@
 
     }
 
+
     .fleet-registration {
 
         font-size: 17px;
+
+    }
+
+
+    .fleet-name {
+
+        font-size: 13px;
 
     }
 
@@ -242,7 +285,9 @@
 <div class="page-wrap">
 
 
-    <!-- HEADER -->
+    <!-- =========================
+         HEADER
+         ========================= -->
 
     <div class="page-header">
 
@@ -253,9 +298,11 @@
             ← Ana Menü
         </a>
 
+
         <span class="page-title">
             A330 Fleet
         </span>
+
 
         <button
             class="theme-btn"
@@ -268,7 +315,9 @@
     </div>
 
 
-    <!-- SEARCH -->
+    <!-- =========================
+         SEARCH
+         ========================= -->
 
     <input
         type="text"
@@ -288,11 +337,13 @@
     </div>
 
 
-    <!-- RESULTS -->
+    <!-- =========================
+         RESULTS
+         ========================= -->
 
     <div id="fleetResults">
 
-        <!-- Başlangıçta BOŞ -->
+        <!-- Başlangıçta boş -->
 
     </div>
 
@@ -300,23 +351,33 @@
 </div>
 
 
+<!-- =========================
+     SCRIPTS
+     ========================= -->
+
 <script src="fleet.js"></script>
+
 <script src="theme.js"></script>
 
 
 <script>
 
+/* =================================
+   ELEMENTS
+   ================================= */
+
 const searchInput =
     document.getElementById("fleetSearch");
+
 
 const results =
     document.getElementById("fleetResults");
 
 
-/* --------------------------------
+/* =================================
    NORMALIZE
    TC-JNB = TCJNB = tc-jnb
-   -------------------------------- */
+   ================================= */
 
 function normalize(value) {
 
@@ -327,78 +388,139 @@ function normalize(value) {
 }
 
 
-/* --------------------------------
+/* =================================
    SHOW AIRCRAFT
-   -------------------------------- */
+   ================================= */
 
 function showAircraft(aircraft) {
+
+    /*
+       Aircraft name yoksa —
+       göster
+    */
+
+    const aircraftName =
+        aircraft.name && aircraft.name.trim()
+            ? aircraft.name
+            : "—";
+
 
     results.innerHTML = `
 
         <div class="fleet-card">
 
+
+            <!-- REGISTRATION -->
+
             <div class="fleet-registration">
+
                 ${aircraft.registration}
+
             </div>
+
+
+            <!-- AIRCRAFT NAME -->
+
+            <div class="fleet-name">
+
+                ${aircraftName}
+
+            </div>
+
+
+            <!-- AIRCRAFT TYPE -->
 
             <div class="fleet-aircraft">
+
                 ${aircraft.aircraft}
+
             </div>
 
+
+            <!-- DIVIDER -->
 
             <div class="fleet-divider"></div>
 
 
+            <!-- AIRCRAFT -->
+
             <div class="fleet-row">
 
                 <span class="fleet-label">
+
                     Aircraft
+
                 </span>
 
+
                 <span class="fleet-value">
+
                     ${aircraft.aircraft}
+
                 </span>
 
             </div>
 
 
+            <!-- FAMILY -->
+
             <div class="fleet-row">
 
                 <span class="fleet-label">
+
                     Family
+
                 </span>
+
 
                 <span class="fleet-value">
+
                     ${aircraft.family}
+
                 </span>
 
             </div>
 
 
+            <!-- ENGINE -->
+
             <div class="fleet-row">
 
                 <span class="fleet-label">
+
                     Engine
+
                 </span>
+
 
                 <span class="fleet-value fleet-engine">
+
                     ${aircraft.engine}
+
                 </span>
 
             </div>
 
+
+            <!-- MANUFACTURER -->
 
             <div class="fleet-row">
 
                 <span class="fleet-label">
+
                     Manufacturer
+
                 </span>
 
+
                 <span class="fleet-value">
+
                     ${aircraft.manufacturer}
+
                 </span>
 
             </div>
+
 
         </div>
 
@@ -407,9 +529,9 @@ function showAircraft(aircraft) {
 }
 
 
-/* --------------------------------
-   SEARCH
-   -------------------------------- */
+/* =================================
+   SEARCH FLEET
+   ================================= */
 
 function searchFleet(value) {
 
@@ -417,10 +539,9 @@ function searchFleet(value) {
         normalize(value);
 
 
-    /*
-       Arama kutusu boşsa
-       hiçbir şey gösterme.
-    */
+    /* -------------------------------
+       EMPTY SEARCH
+       ------------------------------- */
 
     if (!query) {
 
@@ -431,9 +552,9 @@ function searchFleet(value) {
     }
 
 
-    /*
-       En az 3 karakter
-    */
+    /* -------------------------------
+       MINIMUM 3 CHARACTERS
+       ------------------------------- */
 
     if (query.length < 3) {
 
@@ -442,8 +563,11 @@ function searchFleet(value) {
             <div class="fleet-message">
 
                 <div class="fleet-message-icon">
+
                     🔎
+
                 </div>
+
 
                 Kuyruk kodunu yazın.
 
@@ -456,9 +580,9 @@ function searchFleet(value) {
     }
 
 
-    /*
-       Registration üzerinden ara
-    */
+    /* -------------------------------
+       FIND AIRCRAFT
+       ------------------------------- */
 
     const aircraft =
         fleetData.find(item => {
@@ -470,9 +594,9 @@ function searchFleet(value) {
         });
 
 
-    /*
-       BULUNAMADI
-    */
+    /* -------------------------------
+       NOT FOUND
+       ------------------------------- */
 
     if (!aircraft) {
 
@@ -481,17 +605,26 @@ function searchFleet(value) {
             <div class="fleet-message">
 
                 <div class="fleet-message-icon">
+
                     ✈️
+
                 </div>
 
+
                 <strong>
+
                     Aircraft not found
+
                 </strong>
+
 
                 <br>
 
+
                 <span>
+
                     ${value.toUpperCase()}
+
                 </span>
 
             </div>
@@ -503,18 +636,18 @@ function searchFleet(value) {
     }
 
 
-    /*
-       SADECE BULUNAN UÇAĞI GÖSTER
-    */
+    /* -------------------------------
+       SHOW ONLY MATCHED AIRCRAFT
+       ------------------------------- */
 
     showAircraft(aircraft);
 
 }
 
 
-/* --------------------------------
+/* =================================
    INPUT
-   -------------------------------- */
+   ================================= */
 
 searchInput.addEventListener(
     "input",
@@ -526,9 +659,9 @@ searchInput.addEventListener(
 );
 
 
-/*
-   Enter'a basınca da çalışsın
-*/
+/* =================================
+   ENTER
+   ================================= */
 
 searchInput.addEventListener(
     "keydown",
@@ -544,6 +677,7 @@ searchInput.addEventListener(
 );
 
 </script>
+
 
 </body>
 
