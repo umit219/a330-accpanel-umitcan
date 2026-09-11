@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A330 - Sistem Şematik</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="theme.css">
+    <style>
+        details {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; margin-bottom: 8px; overflow: hidden;
+        }
+        details[open] { border-color: var(--accent); }
+        summary {
+            padding: 14px 16px; font-weight: 600; font-size: 13px;
+            cursor: pointer; color: var(--text); list-style: none;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        summary::after { content: '›'; color: var(--text-muted); font-size: 18px; }
+        details[open] summary::after { transform: rotate(90deg); display: inline-block; }
+        .chapter-content {
+            padding: 12px 16px 16px; border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+        .chapter-content p { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px; }
+        .chapter-img {
+            width: 100%; border-radius: 8px; border: 1px solid var(--border);
+            display: block; cursor: zoom-in; margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrap">
+    <div class="page-header">
+        <a href="index.html" class="back-link">← Ana Menü</a>
+        <span class="page-title">Sistem Şematikleri</span>
+        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    </div>
+
+    <input type="text" id="search" class="search-input" placeholder="Chapter ara... (örn: 21 veya Air)" onkeyup="filterChapters()" style="margin-bottom:16px;">
+
+    <div id="chapterList">
+        <details class="chapter-item"><summary>Chapter 21 — Pack Airflow Regulation</summary><div class="chapter-content"><p>Pack Flow Control Valve üzerinden uçağa giren havanın miktarını ve basıncını kontrol eden sistemdir.</p><img src="sematik/1.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 21 — Air Conditioning System</summary><div class="chapter-content"><p>Kabin içi sıcaklık kontrolü, hava sirkülasyonu ve ana iklimlendirme döngüsünü içeren sistemdir.</p><img src="sematik/2.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 22 — Auto Flight System</summary><div class="chapter-content"><p>Otopilot (AP), Flight Director (FD) ve Auto-Thrust (A/THR) kontrol şemalarını kapsar.</p><img src="sematik/3.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 23 — Communication System</summary><div class="chapter-content"><p>VHF, HF telsiz hatları ve kokpit içi sesli haberleşme sistemlerinin dağılım şemasıdır.</p><img src="sematik/4.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 24 — Electrical Power System</summary><div class="chapter-content"><p>AC/DC güç üretimi, ana baraların (Bus) beslenmesi ve acil durum elektrik şemalarını içerir.</p><img src="sematik/5.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 26 — Fire Protection System</summary><div class="chapter-content"><p>Motor, APU ve kargo yangın algılama (Loop) ve söndürme tüplerinin kontrol hattıdır.</p><img src="sematik/6.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 27 — Primary Flight Control</summary><div class="chapter-content"><p>Aileron, Elevator ve Rudder gibi ana kumanda yüzeylerinin kontrol mimarisidir.</p><img src="sematik/7.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 27 — Secondary Flight Control</summary><div class="chapter-content"><p>Flap, Slat ve Spoiler yüzeylerinin hidrolik/elektronik kontrol ve çalışma şemasıdır.</p><img src="sematik/8.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 28 — Fuel System</summary><div class="chapter-content"><p>Yakıt besleme, tanklar arası transfer ve yakıt miktar ölçüm sistemlerini kapsar.</p><img src="sematik/9.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 29 — Hydraulic Power System</summary><div class="chapter-content"><p>Green, Yellow ve Blue hidrolik sistemlerinin basınçlandırma ve dağıtım şemasıdır.</p><img src="sematik/10.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 31 — Indicating System</summary><div class="chapter-content"><p>ECAM ekranlarına veri akışı ve uyarılardan sorumlu merkezi izleme sistemidir.</p><img src="sematik/11.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 32 — Braking System</summary><div class="chapter-content"><p>Tekerlek frenleme, Anti-skid ve Auto-brake sistemlerinin çalışma prensibini içerir.</p><img src="sematik/12.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 32 — Landing Gear System</summary><div class="chapter-content"><p>İniş takımlarının açılması, kapanması ve kapakların kontrol mekanizmalarını kapsar.</p><img src="sematik/13.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 32 — Steering System</summary><div class="chapter-content"><p>Burun tekerleği yönlendirme sisteminin hidrolik kontrol ve açılanma şemasıdır.</p><img src="sematik/14.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 34 — Navigation System</summary><div class="chapter-content"><p>ADIRS, Radar, ILS ve diğer seyrüsefer yardımcılarının veri toplama şemasıdır.</p><img src="sematik/15.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 36 — Pneumatic System</summary><div class="chapter-content"><p>Motor ve APU'dan gelen yüksek basınçlı havanın dağıtımı ve kaçak izleme şemasıdır.</p><img src="sematik/16.png" class="chapter-img" onclick="openImage(this.src)"><img src="sematik/16.1.png" class="chapter-img" onclick="openImage(this.src)"><img src="sematik/16.2.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 38 — Water/Waste System</summary><div class="chapter-content"><p>Atık su tahliyesi ve vakumlu tuvalet sistemlerinin çalışma hattıdır.</p><img src="sematik/17.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 38 — Potable Water System</summary><div class="chapter-content"><p>Uçağa alınan temiz suyun basınçlandırılması ve dağıtım şemasıdır.</p><img src="sematik/18.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 49 — APU System</summary><div class="chapter-content"><p>Yardımcı Güç Ünitesi'nin hava, yakıt ve çalıştırma kontrol şemalarını kapsar.</p><img src="sematik/19.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 70 — RR Trent 700 Engine</summary><div class="chapter-content"><p>Rolls-Royce motorların yakıt, yağ ve hava kontrol sistemlerini içerir.</p><img src="sematik/20.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 70 — PW 4168 Engine</summary><div class="chapter-content"><p>Pratt & Whitney motorlara özgü kontrol ve sistem mimarisi şemasıdır.</p><img src="sematik/21.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+        <details class="chapter-item"><summary>Chapter 70 — GE CF6-80E1 Engine</summary><div class="chapter-content"><p>General Electric motorların besleme ve kontrol üniteleri şemasıdır.</p><img src="sematik/22.png" class="chapter-img" onclick="openImage(this.src)"></div></details>
+    </div>
+</div>
+
+<div id="imgModal" class="modal" onclick="closeImage()">
+    <span class="modal-close" onclick="closeImage()">&times;</span>
+    <img id="fullImg" src="" style="max-width:95%;max-height:90%;border-radius:8px;" onclick="event.stopPropagation()">
+</div>
+
+<div class="offline-bar" id="offlineBar">📡 Çevrimdışı mod</div>
+
+<script>
+function filterChapters() {
+    const q = document.getElementById('search').value.toLowerCase();
+    document.querySelectorAll('.chapter-item').forEach(el => {
+        const title = el.querySelector('summary').innerText.toLowerCase();
+        el.style.display = title.includes(q) ? '' : 'none';
+        if (!title.includes(q)) el.removeAttribute('open');
+    });
+}
+function openImage(src) {
+    document.getElementById('fullImg').src = src;
+    document.getElementById('imgModal').style.display = 'flex';
+}
+function closeImage() {
+    document.getElementById('imgModal').style.display = 'none';
+}
+</script>
+<script src="theme.js"></script>
+</body>
+</html>

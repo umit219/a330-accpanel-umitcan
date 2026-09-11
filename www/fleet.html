@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>A330 - Fleet</title>
+
+
+<!-- Google Font -->
+
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
+
+
+<!-- Main Theme -->
+
+<link
+    rel="stylesheet"
+    href="theme.css"
+>
+
+
+<style>
+
+/* =================================================
+   FLEET PAGE
+   ================================================= */
+
+
+/* Search information */
+
+.fleet-search-info {
+
+    text-align: center;
+
+    font-size: 11px;
+
+    color: var(--text-muted);
+
+    margin-top: 2px;
+
+    margin-bottom: 16px;
+
+}
+
+
+/* Results container */
+
+#fleetResults {
+
+    margin-top: 8px;
+
+}
+
+
+/* =================================================
+   AIRCRAFT CARD
+   ================================================= */
+
+.fleet-card {
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-left: 3px solid var(--card-border-left);
+
+    border-radius: 12px;
+
+    padding: 16px;
+
+    margin-bottom: 10px;
+
+    animation: fleetIn .18s ease-out;
+
+}
+
+
+@keyframes fleetIn {
+
+    from {
+
+        opacity: 0;
+
+        transform: translateY(4px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform: translateY(0);
+
+    }
+
+}
+
+
+/* =================================================
+   REGISTRATION
+   ================================================= */
+
+.fleet-registration {
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    color: var(--text);
+
+    letter-spacing: .3px;
+
+}
+
+
+/* =================================================
+   AIRCRAFT NAME
+   ================================================= */
+
+.fleet-name {
+
+    margin-top: 5px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: var(--accent);
+
+}
+
+
+/* =================================================
+   AIRCRAFT TYPE
+   ================================================= */
+
+.fleet-aircraft {
+
+    margin-top: 3px;
+
+    font-size: 11px;
+
+    color: var(--text-muted);
+
+}
+
+
+/* =================================================
+   DIVIDER
+   ================================================= */
+
+.fleet-divider {
+
+    height: 1px;
+
+    background: var(--border);
+
+    margin: 14px 0 8px;
+
+}
+
+
+/* =================================================
+   INFO ROWS
+   ================================================= */
+
+.fleet-row {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 8px 0;
+
+}
+
+
+.fleet-label {
+
+    font-size: 11px;
+
+    color: var(--text-muted);
+
+}
+
+
+.fleet-value {
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: var(--text);
+
+    text-align: right;
+
+    max-width: 65%;
+
+}
+
+
+/* =================================================
+   ENGINE HIGHLIGHT
+   ================================================= */
+
+.fleet-engine {
+
+    color: var(--accent);
+
+}
+
+
+/* =================================================
+   MSN
+   ================================================= */
+
+.fleet-msn {
+
+    font-family: monospace;
+
+    letter-spacing: .3px;
+
+}
+
+
+/* =================================================
+   SEAT CONFIGURATION
+   ================================================= */
+
+.fleet-seat-config {
+
+    font-family: monospace;
+
+    letter-spacing: .2px;
+
+}
+
+
+/* =================================================
+   SEATS
+   ================================================= */
+
+.fleet-seats {
+
+    font-weight: 700;
+
+}
+
+
+/* =================================================
+   EMPTY / MESSAGE
+   ================================================= */
+
+.fleet-message {
+
+    text-align: center;
+
+    padding: 28px 15px;
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+    line-height: 1.6;
+
+}
+
+
+.fleet-message-icon {
+
+    font-size: 24px;
+
+    margin-bottom: 8px;
+
+}
+
+
+/* =================================================
+   MOBILE
+   ================================================= */
+
+@media (max-width: 600px) {
+
+    .fleet-card {
+
+        padding: 15px;
+
+    }
+
+
+    .fleet-registration {
+
+        font-size: 17px;
+
+    }
+
+
+    .fleet-name {
+
+        font-size: 13px;
+
+    }
+
+
+    .fleet-value {
+
+        max-width: 60%;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="page-wrap">
+
+
+    <!-- =================================================
+         HEADER
+         ================================================= -->
+
+    <div class="page-header">
+
+
+        <a
+            href="index.html"
+            class="back-link"
+        >
+
+            ← Ana Menü
+
+        </a>
+
+
+        <span class="page-title">
+
+            A330 Fleet
+
+        </span>
+
+
+        <button
+            class="theme-btn"
+            onclick="toggleTheme()"
+            id="themeBtn"
+        >
+
+            🌙
+
+        </button>
+
+
+    </div>
+
+
+    <!-- =================================================
+         SEARCH
+         ================================================= -->
+
+    <input
+        type="text"
+        id="fleetSearch"
+        class="search-input"
+        placeholder="Kuyruk kodu ara..."
+        autocomplete="off"
+        autocapitalize="characters"
+        spellcheck="false"
+    >
+
+
+    <div class="fleet-search-info">
+
+        Örn. TC-JNB veya JNB
+
+    </div>
+
+
+    <!-- =================================================
+         RESULTS
+         ================================================= -->
+
+    <div id="fleetResults">
+
+        <!-- Başlangıçta boş -->
+
+    </div>
+
+
+</div>
+
+
+<!-- =================================================
+     JAVASCRIPT FILES
+     ================================================= -->
+
+<script src="fleet.js"></script>
+
+<script src="theme.js"></script>
+
+
+<script>
+
+/* =================================================
+   ELEMENTS
+   ================================================= */
+
+const searchInput =
+    document.getElementById("fleetSearch");
+
+
+const results =
+    document.getElementById("fleetResults");
+
+
+/* =================================================
+   NORMALIZE
+   TC-JNB
+   TCJNB
+   tc-jnb
+   ================================================= */
+
+function normalize(value) {
+
+    return value
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "");
+
+}
+
+
+/* =================================================
+   SAFE VALUE
+   ================================================= */
+
+function displayValue(value) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+
+        return "—";
+
+    }
+
+    return value;
+
+}
+
+
+/* =================================================
+   SHOW AIRCRAFT
+   ================================================= */
+
+function showAircraft(aircraft) {
+
+
+    /* Aircraft name */
+
+    const aircraftName =
+        displayValue(aircraft.name);
+
+
+    /* MSN */
+
+    const msn =
+        displayValue(aircraft.msn);
+
+
+    /* Seat configuration */
+
+    const seatConfig =
+        displayValue(aircraft.seatConfig);
+
+
+    /* Total seats */
+
+    const seats =
+        displayValue(aircraft.seats);
+
+
+    results.innerHTML = `
+
+        <div class="fleet-card">
+
+
+            <!-- =====================================
+                 REGISTRATION
+                 ===================================== -->
+
+            <div class="fleet-registration">
+
+                ${displayValue(
+                    aircraft.registration
+                )}
+
+            </div>
+
+
+            <!-- =====================================
+                 AIRCRAFT NAME
+                 ===================================== -->
+
+            <div class="fleet-name">
+
+                ${aircraftName}
+
+            </div>
+
+
+            <!-- =====================================
+                 AIRCRAFT TYPE
+                 ===================================== -->
+
+            <div class="fleet-aircraft">
+
+                ${displayValue(
+                    aircraft.aircraft
+                )}
+
+            </div>
+
+
+            <!-- =====================================
+                 DIVIDER
+                 ===================================== -->
+
+            <div class="fleet-divider"></div>
+
+
+            <!-- =====================================
+                 AIRCRAFT
+                 ===================================== -->
+
+            <div class="fleet-row">
+
+                <span class="fleet-label">
+
+                    Aircraft
+
+                </span>
+
+
+                <span class="fleet-value">
+
+                    ${displayValue(
+                        aircraft.aircraft
+                    )}
+
+                </span>
+
+            </div>
+
+
+            <!-- =====================================
+                 FAMILY
+                 ===================================== -->
+
+            <div class="fleet-row">
+
+                <span class="fleet-label">
+
+                    Family
+
+                </span>
+
+
+                <span class="fleet-value">
+
+                    ${displayValue(
+                        aircraft.family
+                    )}
+
+                </span>
+
+            </div>
+
+
+            <!-- =====================================
+                 ENGINE
+                 ===================================== -->
+
+            <div class="fleet-row">
+
+                <span class="fleet-label">
+
+                    Engine
+
+                </span>
+
+
+                <span class="fleet-value fleet-engine">
+
+                    ${displayValue(
+                        aircraft.engine
+                    )}
+
+                </span>
+
+            </div>
+
+
+            <!-- =====================================
+                 MANUFACTURER
+                 ===================================== -->
+
+            <div class="fleet-row">
+
+                <span class="fleet-label">
+
+                    Manufacturer
+
+                </span>
+
+
+                <span class="fleet-value">
+
+                    ${displayValue(
+                        aircraft.manufacturer
+                    )}
+
+                </span>
+
+            </div>
+
+
+            <!-- =====================================
+                 MSN
+                 ===================================== -->
+
+            <div class="fleet-row">
+
+                <span class="fleet-label">
+
+                    MSN
+
+                </span>
+
+
+                <span class="fleet-value fleet-msn">
+
+                    ${msn}
+
+                </span>
+
+            </div>
+
+
+            <!-- =====================================
+                 SEAT CONFIGURATION
+                 ===================================== -->
+
+            <div class="fleet-row">
+
+                <span class="fleet-label">
+
+                    Seat Configuration
+
+                </span>
+
+
+                <span class="fleet-value fleet-seat-config">
+
+                    ${seatConfig}
+
+                </span>
+
+            </div>
+
+
+            <!-- =====================================
+                 SEATS
+                 ===================================== -->
+
+            <div class="fleet-row">
+
+                <span class="fleet-label">
+
+                    Seats
+
+                </span>
+
+
+                <span class="fleet-value fleet-seats">
+
+                    ${seats}
+
+                </span>
+
+            </div>
+
+
+        </div>
+
+    `;
+
+}
+
+
+/* =================================================
+   SEARCH FLEET
+   ================================================= */
+
+function searchFleet(value) {
+
+
+    const query =
+        normalize(value);
+
+
+    /* -----------------------------------------------
+       EMPTY
+       ----------------------------------------------- */
+
+    if (!query) {
+
+        results.innerHTML = "";
+
+        return;
+
+    }
+
+
+    /* -----------------------------------------------
+       MINIMUM 3 CHARACTERS
+       ----------------------------------------------- */
+
+    if (query.length < 3) {
+
+        results.innerHTML = `
+
+            <div class="fleet-message">
+
+
+                <div class="fleet-message-icon">
+
+                    🔎
+
+                </div>
+
+
+                Kuyruk kodunu yazın.
+
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    /* -----------------------------------------------
+       FIND
+       ----------------------------------------------- */
+
+    const aircraft =
+        fleetData.find(item => {
+
+            return normalize(
+                item.registration
+            ).includes(query);
+
+        });
+
+
+    /* -----------------------------------------------
+       NOT FOUND
+       ----------------------------------------------- */
+
+    if (!aircraft) {
+
+        results.innerHTML = `
+
+            <div class="fleet-message">
+
+
+                <div class="fleet-message-icon">
+
+                    ✈️
+
+                </div>
+
+
+                <strong>
+
+                    Aircraft not found
+
+                </strong>
+
+
+                <br>
+
+
+                <span>
+
+                    ${value.toUpperCase()}
+
+                </span>
+
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    /* -----------------------------------------------
+       SHOW AIRCRAFT
+       ----------------------------------------------- */
+
+    showAircraft(aircraft);
+
+}
+
+
+/* =================================================
+   INPUT
+   ================================================= */
+
+searchInput.addEventListener(
+    "input",
+    function () {
+
+        searchFleet(this.value);
+
+    }
+);
+
+
+/* =================================================
+   ENTER
+   ================================================= */
+
+searchInput.addEventListener(
+    "keydown",
+    function (event) {
+
+        if (event.key === "Enter") {
+
+            searchFleet(this.value);
+
+        }
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>

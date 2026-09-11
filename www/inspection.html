@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent"
+    >
+
+    <title>Inspection Recorder</title>
+
+
+    <!-- FONT -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- MAIN THEME -->
+
+    <link
+        rel="stylesheet"
+        href="theme.css"
+    >
+
+
+    <style>
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .inspection-header {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr
+                auto
+                1fr;
+
+            align-items: center;
+
+            margin-bottom: 24px;
+
+            padding-top: 4px;
+        }
+
+
+        .inspection-header .back-link {
+
+            justify-self: start;
+
+        }
+
+
+        .inspection-title {
+
+            justify-self: center;
+
+            font-size: 15px;
+
+            font-weight: 600;
+
+            color: var(--text);
+
+            white-space: nowrap;
+
+        }
+
+
+        .inspection-header .theme-btn {
+
+            justify-self: end;
+
+        }
+
+
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        .primary-btn {
+
+            width: 100%;
+
+            height: 44px;
+
+            border: 1px solid var(--accent);
+
+            border-radius: 10px;
+
+            background: var(--accent);
+
+            color: white;
+
+            font-family: Inter, sans-serif;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition:
+                opacity .2s,
+                transform .15s;
+
+        }
+
+
+        .primary-btn:hover {
+
+            opacity: .9;
+
+        }
+
+
+        .primary-btn:active {
+
+            transform: scale(.99);
+
+        }
+
+
+        .secondary-btn {
+
+            height: 42px;
+
+            padding: 0 16px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 10px;
+
+            background: var(--surface);
+
+            color: var(--text);
+
+            font-family: Inter, sans-serif;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+        }
+
+
+        .secondary-btn:hover {
+
+            border-color: var(--accent);
+
+            color: var(--accent);
+
+        }
+
+
+
+        /* =====================================================
+           INSPECTION LIST
+        ===================================================== */
+
+        .inspection-card {
+
+            cursor: pointer;
+
+            transition:
+                border-color .2s,
+                transform .15s;
+
+        }
+
+
+        .inspection-card:hover {
+
+            border-color: var(--accent);
+
+            transform: translateY(-1px);
+
+        }
+
+
+        .inspection-card-title {
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            color: var(--text);
+
+            line-height: 1.4;
+
+        }
+
+
+        .inspection-card-sub {
+
+            margin-top: 6px;
+
+            font-size: 12px;
+
+            color: var(--text-muted);
+
+            line-height: 1.6;
+
+        }
+
+
+        .inspection-card-footer {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-top: 12px;
+
+            padding-top: 10px;
+
+            border-top: 1px solid var(--border);
+
+            font-size: 11px;
+
+            color: var(--text-muted);
+
+        }
+
+
+        .finding-count {
+
+            color: var(--accent);
+
+            font-weight: 600;
+
+        }
+
+
+
+        /* =====================================================
+           EMPTY STATE
+        ===================================================== */
+
+        .empty-state {
+
+            text-align: center;
+
+            padding: 30px 16px;
+
+            color: var(--text-muted);
+
+            font-size: 12px;
+
+            line-height: 1.7;
+
+        }
+
+
+
+        /* =====================================================
+           MODAL
+        ===================================================== */
+
+        .form-modal {
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 500;
+
+            display: none;
+
+            align-items: flex-end;
+
+            justify-content: center;
+
+            background: rgba(0,0,0,.55);
+
+            padding: 0;
+
+        }
+
+
+        .form-modal.show {
+
+            display: flex;
+
+        }
+
+
+        .form-sheet {
+
+            width: 100%;
+
+            max-width: 480px;
+
+            max-height: 90vh;
+
+            overflow-y: auto;
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+
+            border-radius: 18px 18px 0 0;
+
+            padding: 20px;
+
+            box-shadow:
+                0 -10px 40px rgba(0,0,0,.2);
+
+        }
+
+
+        .form-title {
+
+            font-size: 16px;
+
+            font-weight: 600;
+
+            color: var(--text);
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .form-label {
+
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            color: var(--text-muted);
+
+            text-transform: uppercase;
+
+            letter-spacing: .05em;
+
+        }
+
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+
+            width: 100%;
+
+            border: 1px solid var(--border);
+
+            border-radius: 10px;
+
+            background: var(--bg);
+
+            color: var(--text);
+
+            font-family: Inter, sans-serif;
+
+            font-size: 13px;
+
+            outline: none;
+
+        }
+
+
+        .form-input,
+        .form-select {
+
+            height: 44px;
+
+            padding: 0 12px;
+
+        }
+
+
+        .form-textarea {
+
+            min-height: 120px;
+
+            resize: vertical;
+
+            padding: 12px;
+
+        }
+
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+
+            border-color: var(--accent);
+
+        }
+
+
+        .form-group {
+
+            margin-bottom: 14px;
+
+        }
+
+
+        .form-actions {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 8px;
+
+            margin-top: 18px;
+
+        }
+
+
+
+        /* =====================================================
+           INSPECTION DETAIL
+        ===================================================== */
+
+        .detail-header {
+
+            display: flex;
+
+            align-items: flex-start;
+
+            justify-content: space-between;
+
+            gap: 12px;
+
+            margin-bottom: 14px;
+
+        }
+
+
+        .detail-title {
+
+            font-size: 16px;
+
+            font-weight: 600;
+
+            color: var(--text);
+
+            line-height: 1.4;
+
+        }
+
+
+        .detail-meta {
+
+            margin-top: 5px;
+
+            font-size: 12px;
+
+            color: var(--text-muted);
+
+            line-height: 1.6;
+
+        }
+
+
+        .danger-btn {
+
+            flex-shrink: 0;
+
+            height: 36px;
+
+            padding: 0 11px;
+
+            border: 1px solid var(--danger);
+
+            border-radius: 9px;
+
+            background: transparent;
+
+            color: var(--danger);
+
+            font-family: Inter, sans-serif;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+        }
+
+
+        .danger-btn:hover {
+
+            background: var(--danger);
+
+            color: white;
+
+        }
+
+
+
+        /* =====================================================
+           FINDING CARD
+        ===================================================== */
+
+        .finding-card {
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+
+            border-left: 3px solid var(--accent);
+
+            border-radius: 12px;
+
+            margin-bottom: 10px;
+
+            overflow: hidden;
+
+            cursor: pointer;
+
+            transition:
+                border-color .2s,
+                background .2s;
+
+        }
+
+
+        .finding-card:hover {
+
+            border-color: var(--accent);
+
+        }
+
+
+
+        /* =====================================================
+           FINDING HEADER
+        ===================================================== */
+
+        .finding-main {
+
+            padding: 14px;
+
+            position: relative;
+
+        }
+
+
+        .finding-number {
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            color: var(--accent);
+
+            letter-spacing: .06em;
+
+            margin-bottom: 8px;
+
+            text-transform: uppercase;
+
+        }
+
+
+        .finding-location {
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            color: var(--text);
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .finding-text {
+
+            font-size: 13px;
+
+            color: var(--text);
+
+            line-height: 1.7;
+
+            white-space: pre-wrap;
+
+            padding-right: 24px;
+
+        }
+
+
+        .finding-arrow {
+
+            position: absolute;
+
+            right: 14px;
+
+            bottom: 14px;
+
+            font-size: 14px;
+
+            color: var(--text-muted);
+
+            transition:
+                transform .2s,
+                color .2s;
+
+        }
+
+
+        .finding-card.expanded .finding-arrow {
+
+            transform: rotate(180deg);
+
+            color: var(--accent);
+
+        }
+
+
+
+        /* =====================================================
+           EXPANDED CONTENT
+        ===================================================== */
+
+        .finding-expand {
+
+            display: none;
+
+            padding: 0 14px 14px 14px;
+
+        }
+
+
+        .finding-card.expanded .finding-expand {
+
+            display: block;
+
+        }
+
+
+        .finding-divider {
+
+            height: 1px;
+
+            background: var(--border);
+
+            margin-bottom: 12px;
+
+        }
+
+
+
+        /* =====================================================
+           FINDING PHOTO
+        ===================================================== */
+
+        .finding-photo {
+
+            display: block;
+
+            width: 100%;
+
+            height: 180px;
+
+            object-fit: cover;
+
+            border-radius: 9px;
+
+            border: 1px solid var(--border);
+
+            background: var(--bg);
+
+            cursor: pointer;
+
+            transition:
+                opacity .2s,
+                transform .15s;
+
+        }
+
+
+        .finding-photo:hover {
+
+            opacity: .88;
+
+        }
+
+
+        .finding-photo:active {
+
+            transform: scale(.99);
+
+        }
+
+
+        .no-photo {
+
+            padding: 16px;
+
+            border: 1px dashed var(--border);
+
+            border-radius: 9px;
+
+            text-align: center;
+
+            color: var(--text-muted);
+
+            font-size: 11px;
+
+        }
+
+
+
+        /* =====================================================
+           FINDING FOOTER
+        ===================================================== */
+
+        .finding-footer {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 10px;
+
+            margin-top: 12px;
+
+            padding-top: 10px;
+
+            border-top: 1px solid var(--border);
+
+        }
+
+
+        .finding-date {
+
+            font-size: 10px;
+
+            color: var(--text-muted);
+
+        }
+
+
+        .delete-finding {
+
+            border: 0;
+
+            background: none;
+
+            color: var(--danger);
+
+            font-family: Inter, sans-serif;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            padding: 4px;
+
+        }
+
+
+
+        /* =====================================================
+           PHOTO FULLSCREEN
+        ===================================================== */
+
+        .photo-modal {
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 1000;
+
+            display: none;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 20px;
+
+            background: rgba(0,0,0,.92);
+
+        }
+
+
+        .photo-modal.show {
+
+            display: flex;
+
+        }
+
+
+        .photo-modal img {
+
+            max-width: 100%;
+
+            max-height: 88vh;
+
+            width: auto;
+
+            height: auto;
+
+            object-fit: contain;
+
+            border-radius: 8px;
+
+        }
+
+
+        .photo-close {
+
+            position: fixed;
+
+            top: 15px;
+
+            right: 15px;
+
+            width: 42px;
+
+            height: 42px;
+
+            border: 0;
+
+            border-radius: 50%;
+
+            background: rgba(255,255,255,.12);
+
+            color: white;
+
+            font-size: 22px;
+
+            cursor: pointer;
+
+            z-index: 1001;
+
+        }
+
+
+
+        /* =====================================================
+           ADD FINDING
+        ===================================================== */
+
+        .add-finding {
+
+            margin-top: 4px;
+
+            margin-bottom: 14px;
+
+        }
+
+
+
+        /* =====================================================
+           BACK
+        ===================================================== */
+
+        .detail-back {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 5px;
+
+            margin-bottom: 14px;
+
+            border: 0;
+
+            background: none;
+
+            color: var(--text-muted);
+
+            font-family: Inter, sans-serif;
+
+            font-size: 12px;
+
+            cursor: pointer;
+
+            padding: 0;
+
+        }
+
+
+        .detail-back:hover {
+
+            color: var(--accent);
+
+        }
+
+
+
+        /* =====================================================
+           OFFLINE
+        ===================================================== */
+
+        .offline-bar {
+
+            position: fixed;
+
+            left: 50%;
+
+            bottom: 12px;
+
+            transform: translateX(-50%);
+
+            z-index: 100;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+
+            color: var(--text-muted);
+
+            font-family: Inter, sans-serif;
+
+            font-size: 10px;
+
+            opacity: .9;
+
+            pointer-events: none;
+
+        }
+
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 380px) {
+
+            .inspection-title {
+
+                font-size: 14px;
+
+            }
+
+
+            .detail-title {
+
+                font-size: 15px;
+
+            }
+
+
+            .finding-photo {
+
+                height: 150px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+
+<body>
+
+
+<div class="page-wrap">
+
+
+    <!-- =====================================================
+         HEADER
+    ===================================================== -->
+
+    <header class="inspection-header">
+
+
+        <a
+            href="index.html"
+            class="back-link"
+        >
+            ← Ana Menü
+        </a>
+
+
+        <span class="inspection-title">
+            Inspection Recorder
+        </span>
+
+
+        <button
+            class="theme-btn"
+            id="themeBtn"
+            type="button"
+            onclick="toggleTheme()"
+            aria-label="Tema değiştir"
+        >
+            🌙
+        </button>
+
+
+    </header>
+
+
+
+    <!-- APP -->
+
+    <main id="app"></main>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     NEW INSPECTION
+========================================================= -->
+
+<div
+    id="inspectionModal"
+    class="form-modal"
+>
+
+
+    <div class="form-sheet">
+
+
+        <div class="form-title">
+            New Inspection
+        </div>
+
+
+        <div class="form-group">
+
+
+            <label class="form-label">
+                Aircraft
+            </label>
+
+
+            <input
+                id="aircraftInput"
+                class="form-input"
+                type="text"
+                placeholder="Örn. TC-JNB"
+                autocomplete="off"
+            >
+
+
+        </div>
+
+
+        <div class="form-group">
+
+
+            <label class="form-label">
+                Inspection Type
+            </label>
+
+
+            <select
+                id="inspectionType"
+                class="form-select"
+            >
+
+
+                <option value="Landing Gear Inspection">
+                    Landing Gear Inspection
+                </option>
+
+
+                <option value="SAFA Inspection">
+                    SAFA Inspection
+                </option>
+
+
+                <option value="Cargo Inspection">
+                    Cargo Inspection
+                </option>
+
+
+                <option value="Cabin Inspection">
+                    Cabin Inspection
+                </option>
+
+
+                <option value="Exterior Inspection">
+                    Exterior Inspection
+                </option>
+
+
+                <option value="General Inspection">
+                    General Inspection
+                </option>
+
+
+                <option value="Other">
+                    Other
+                </option>
+
+
+            </select>
+
+
+        </div>
+
+
+        <div class="form-actions">
+
+
+            <button
+                id="cancelInspection"
+                class="secondary-btn"
+                type="button"
+            >
+                CANCEL
+            </button>
+
+
+            <button
+                id="saveInspection"
+                class="primary-btn"
+                type="button"
+            >
+                CREATE
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     NEW FINDING
+========================================================= -->
+
+<div
+    id="findingModal"
+    class="form-modal"
+>
+
+
+    <div class="form-sheet">
+
+
+        <div class="form-title">
+            Add Finding
+        </div>
+
+
+        <div class="form-group">
+
+
+            <label class="form-label">
+                Location
+            </label>
+
+
+            <input
+                id="findingLocation"
+                class="form-input"
+                type="text"
+                placeholder="Örn. Aft Cargo Compartment"
+                autocomplete="off"
+            >
+
+
+        </div>
+
+
+        <div class="form-group">
+
+
+            <label class="form-label">
+                Finding
+            </label>
+
+
+            <textarea
+                id="findingText"
+                class="form-textarea"
+                placeholder="Bulguyu yazın..."
+            ></textarea>
+
+
+        </div>
+
+
+        <div class="form-group">
+
+
+            <label class="form-label">
+                Photo
+            </label>
+
+
+            <input
+                id="findingPhoto"
+                class="form-input"
+                type="file"
+                accept="image/*"
+                capture="environment"
+            >
+
+
+        </div>
+
+
+        <div class="form-actions">
+
+
+            <button
+                id="cancelFinding"
+                class="secondary-btn"
+                type="button"
+            >
+                CANCEL
+            </button>
+
+
+            <button
+                id="saveFinding"
+                class="primary-btn"
+                type="button"
+            >
+                SAVE FINDING
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     FULLSCREEN PHOTO
+========================================================= -->
+
+<div
+    id="photoModal"
+    class="photo-modal"
+>
+
+
+    <button
+        id="photoClose"
+        class="photo-close"
+        type="button"
+        aria-label="Fotoğrafı kapat"
+    >
+        ×
+    </button>
+
+
+    <img
+        id="photoPreview"
+        alt="Finding photo"
+    >
+
+
+</div>
+
+
+
+<!-- OFFLINE -->
+
+<div
+    class="offline-bar"
+    id="offlineBar"
+>
+    📡 Çevrimdışı mod
+</div>
+
+
+
+<!-- SCRIPTS -->
+
+<script src="theme.js"></script>
+
+<script src="inspection.js"></script>
+
+
+</body>
+
+</html>
