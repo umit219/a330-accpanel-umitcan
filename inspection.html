@@ -20,10 +20,10 @@
         content="black-translucent"
     >
 
-    <title>Inspection Notes</title>
+    <title>Inspection Recorder</title>
 
 
-    <!-- Google Font -->
+    <!-- FONT -->
 
     <link
         rel="preconnect"
@@ -36,7 +36,7 @@
     >
 
 
-    <!-- Main Theme -->
+    <!-- MAIN THEME -->
 
     <link
         rel="stylesheet"
@@ -45,7 +45,6 @@
 
 
     <style>
-
 
         /* =====================================================
            HEADER
@@ -86,6 +85,7 @@
             color: var(--text);
 
             white-space: nowrap;
+
         }
 
 
@@ -126,6 +126,7 @@
             transition:
                 opacity .2s,
                 transform .15s;
+
         }
 
 
@@ -179,7 +180,7 @@
 
 
         /* =====================================================
-           INSPECTION LIST CARD
+           INSPECTION LIST
         ===================================================== */
 
         .inspection-card {
@@ -189,6 +190,7 @@
             transition:
                 border-color .2s,
                 transform .15s;
+
         }
 
 
@@ -210,8 +212,6 @@
             color: var(--text);
 
             line-height: 1.4;
-
-            padding-right: 30px;
 
         }
 
@@ -332,6 +332,7 @@
 
             box-shadow:
                 0 -10px 40px rgba(0,0,0,.2);
+
         }
 
 
@@ -537,9 +538,36 @@
 
             border-radius: 12px;
 
+            margin-bottom: 10px;
+
+            overflow: hidden;
+
+            cursor: pointer;
+
+            transition:
+                border-color .2s,
+                background .2s;
+
+        }
+
+
+        .finding-card:hover {
+
+            border-color: var(--accent);
+
+        }
+
+
+
+        /* =====================================================
+           FINDING HEADER
+        ===================================================== */
+
+        .finding-main {
+
             padding: 14px;
 
-            margin-bottom: 10px;
+            position: relative;
 
         }
 
@@ -584,15 +612,74 @@
 
             white-space: pre-wrap;
 
+            padding-right: 24px;
+
+        }
+
+
+        .finding-arrow {
+
+            position: absolute;
+
+            right: 14px;
+
+            bottom: 14px;
+
+            font-size: 14px;
+
+            color: var(--text-muted);
+
+            transition:
+                transform .2s,
+                color .2s;
+
+        }
+
+
+        .finding-card.expanded .finding-arrow {
+
+            transform: rotate(180deg);
+
+            color: var(--accent);
+
+        }
+
+
+
+        /* =====================================================
+           EXPANDED CONTENT
+        ===================================================== */
+
+        .finding-expand {
+
+            display: none;
+
+            padding: 0 14px 14px 14px;
+
+        }
+
+
+        .finding-card.expanded .finding-expand {
+
+            display: block;
+
+        }
+
+
+        .finding-divider {
+
+            height: 1px;
+
+            background: var(--border);
+
+            margin-bottom: 12px;
+
         }
 
 
 
         /* =====================================================
            FINDING PHOTO
-           
-           Küçük önizleme.
-           Fotoğrafa basınca PHOTO MODAL açılır.
         ===================================================== */
 
         .finding-photo {
@@ -601,11 +688,9 @@
 
             width: 100%;
 
-            height: 150px;
+            height: 180px;
 
             object-fit: cover;
-
-            margin-top: 12px;
 
             border-radius: 9px;
 
@@ -616,8 +701,8 @@
             cursor: pointer;
 
             transition:
-                opacity .2s ease,
-                transform .15s ease;
+                opacity .2s,
+                transform .15s;
 
         }
 
@@ -632,6 +717,23 @@
         .finding-photo:active {
 
             transform: scale(.99);
+
+        }
+
+
+        .no-photo {
+
+            padding: 16px;
+
+            border: 1px dashed var(--border);
+
+            border-radius: 9px;
+
+            text-align: center;
+
+            color: var(--text-muted);
+
+            font-size: 11px;
 
         }
 
@@ -692,7 +794,7 @@
 
 
         /* =====================================================
-           PHOTO FULLSCREEN MODAL
+           PHOTO FULLSCREEN
         ===================================================== */
 
         .photo-modal {
@@ -785,7 +887,7 @@
 
 
         /* =====================================================
-           DETAIL BACK
+           BACK
         ===================================================== */
 
         .detail-back {
@@ -824,7 +926,7 @@
 
 
         /* =====================================================
-           OFFLINE BAR
+           OFFLINE
         ===================================================== */
 
         .offline-bar {
@@ -862,7 +964,7 @@
 
 
         /* =====================================================
-           RESPONSIVE
+           MOBILE
         ===================================================== */
 
         @media (max-width: 380px) {
@@ -883,12 +985,11 @@
 
             .finding-photo {
 
-                height: 130px;
+                height: 150px;
 
             }
 
         }
-
 
     </style>
 
@@ -937,9 +1038,7 @@
 
 
 
-    <!-- =====================================================
-         APP
-    ===================================================== -->
+    <!-- APP -->
 
     <main id="app"></main>
 
@@ -949,7 +1048,7 @@
 
 
 <!-- =========================================================
-     NEW INSPECTION MODAL
+     NEW INSPECTION
 ========================================================= -->
 
 <div
@@ -964,7 +1063,6 @@
         <div class="form-title">
             New Inspection
         </div>
-
 
 
         <div class="form-group">
@@ -985,7 +1083,6 @@
 
 
         </div>
-
 
 
         <div class="form-group">
@@ -1043,7 +1140,6 @@
         </div>
 
 
-
         <div class="form-actions">
 
 
@@ -1075,7 +1171,7 @@
 
 
 <!-- =========================================================
-     NEW FINDING MODAL
+     NEW FINDING
 ========================================================= -->
 
 <div
@@ -1090,7 +1186,6 @@
         <div class="form-title">
             Add Finding
         </div>
-
 
 
         <div class="form-group">
@@ -1113,7 +1208,6 @@
         </div>
 
 
-
         <div class="form-group">
 
 
@@ -1130,7 +1224,6 @@
 
 
         </div>
-
 
 
         <div class="form-group">
@@ -1151,7 +1244,6 @@
 
 
         </div>
-
 
 
         <div class="form-actions">
@@ -1185,7 +1277,7 @@
 
 
 <!-- =========================================================
-     PHOTO FULLSCREEN
+     FULLSCREEN PHOTO
 ========================================================= -->
 
 <div
@@ -1214,9 +1306,7 @@
 
 
 
-<!-- =========================================================
-     OFFLINE
-========================================================= -->
+<!-- OFFLINE -->
 
 <div
     class="offline-bar"
@@ -1227,9 +1317,7 @@
 
 
 
-<!-- =========================================================
-     SCRIPTS
-========================================================= -->
+<!-- SCRIPTS -->
 
 <script src="theme.js"></script>
 
