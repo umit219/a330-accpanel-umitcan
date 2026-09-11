@@ -1,343 +1,336 @@
-/*
-====================================================
- A330 TECHNICIAN
- TECHNICAL UNIT CONVERTER
- OFFLINE
-====================================================
-*/
-
 const UNITS = {
 
-    /* =========================================
-       BASINÇ
-    ========================================= */
+    /* =========================
+       PRESSURE
+    ========================= */
 
     "Basınç": {
-        units: {
-            "Pa": 1,
-            "kPa": 1000,
-            "MPa": 1000000,
-            "bar": 100000,
-            "mbar": 100,
-            "psi": 6894.757293168,
-            "psf": 47.88025898,
-            "mmHg": 133.3223684,
-            "inHg": 3386.389,
-            "mmH₂O": 9.80665,
-            "inH₂O": 249.08891,
-            "atm": 101325
-        },
-        default: ["psi", "bar"]
+
+        "Pa": 1,
+        "kPa": 1000,
+        "MPa": 1000000,
+
+        "bar": 100000,
+        "mbar": 100,
+
+        "psi": 6894.757293168,
+        "psf": 47.88025898,
+
+        "mmHg": 133.322387415,
+        "inHg": 3386.389,
+
+        "mmH₂O": 9.80665,
+        "inH₂O": 249.08891,
+
+        "atm": 101325
+
     },
 
 
-    /* =========================================
-       TORK
-    ========================================= */
+    /* =========================
+       TORQUE
+    ========================= */
 
     "Tork": {
-        units: {
-            "N·m": 1,
-            "N·cm": 0.01,
-            "N·mm": 0.001,
-            "lbf·ft": 1.355817948,
-            "lbf·in": 0.112984829,
-            "kgf·m": 9.80665,
-            "kgf·cm": 0.0980665,
-            "kgf·mm": 0.00980665
-        },
-        default: ["N·m", "lbf·ft"]
+
+        "N·m": 1,
+        "N·cm": 0.01,
+        "N·mm": 0.001,
+
+        "lbf·ft": 1.355817948,
+        "lbf·in": 0.112984829,
+
+        "kgf·m": 9.80665,
+        "kgf·cm": 0.0980665,
+        "kgf·mm": 0.00980665
+
     },
 
 
-    /* =========================================
-       UZUNLUK
-    ========================================= */
+    /* =========================
+       LENGTH
+    ========================= */
 
     "Uzunluk": {
-        units: {
-            "mm": 0.001,
-            "cm": 0.01,
-            "m": 1,
-            "km": 1000,
-            "in": 0.0254,
-            "ft": 0.3048,
-            "yd": 0.9144,
-            "mile": 1609.344,
-            "NM": 1852
-        },
-        default: ["mm", "in"]
+
+        "mm": 0.001,
+        "cm": 0.01,
+        "m": 1,
+        "km": 1000,
+
+        "in": 0.0254,
+        "ft": 0.3048,
+        "yd": 0.9144,
+
+        "mile": 1609.344,
+        "NM": 1852
+
     },
 
 
-    /* =========================================
-       ALAN
-    ========================================= */
+    /* =========================
+       AREA
+    ========================= */
 
     "Alan": {
-        units: {
-            "mm²": 0.000001,
-            "cm²": 0.0001,
-            "m²": 1,
-            "km²": 1000000,
-            "in²": 0.00064516,
-            "ft²": 0.09290304
-        },
-        default: ["mm²", "in²"]
+
+        "mm²": 0.000001,
+        "cm²": 0.0001,
+        "m²": 1,
+        "km²": 1000000,
+
+        "in²": 0.00064516,
+        "ft²": 0.09290304
+
     },
 
 
-    /* =========================================
-       HACİM
-    ========================================= */
+    /* =========================
+       VOLUME
+    ========================= */
 
     "Hacim": {
-        units: {
-            "mL": 0.001,
-            "L": 1,
-            "cm³": 0.001,
-            "m³": 1000,
-            "in³": 0.016387064,
-            "ft³": 28.316846592,
-            "US gal": 3.785411784,
-            "Imp gal": 4.54609
-        },
-        default: ["L", "US gal"]
+
+        "mL": 0.000001,
+        "L": 0.001,
+
+        "cm³": 0.000001,
+        "m³": 1,
+
+        "in³": 0.000016387064,
+        "ft³": 0.028316846592,
+
+        "US gal": 0.003785411784,
+        "Imp gal": 0.00454609
+
     },
 
 
-    /* =========================================
-       KÜTLE / AĞIRLIK
-    ========================================= */
+    /* =========================
+       MASS
+    ========================= */
 
     "Kütle / Ağırlık": {
-        units: {
-            "mg": 0.000001,
-            "g": 0.001,
-            "kg": 1,
-            "tonne": 1000,
-            "oz": 0.028349523125,
-            "lb": 0.45359237
-        },
-        default: ["kg", "lb"]
+
+        "mg": 0.000001,
+        "g": 0.001,
+        "kg": 1,
+
+        "tonne": 1000,
+
+        "oz": 0.028349523125,
+        "lb": 0.45359237
+
     },
 
 
-    /* =========================================
-       SICAKLIK
-    ========================================= */
+    /* =========================
+       TEMPERATURE
+    ========================= */
 
     "Sıcaklık": {
-        type: "temperature",
 
-        units: [
-            "°C",
-            "°F",
-            "K",
-            "°R"
-        ],
+        "°C": "temperature",
+        "°F": "temperature",
+        "K": "temperature",
+        "°R": "temperature"
 
-        default: ["°C", "°F"]
     },
 
 
-    /* =========================================
-       KUVVET
-    ========================================= */
+    /* =========================
+       FORCE
+    ========================= */
 
     "Kuvvet": {
-        units: {
-            "N": 1,
-            "kN": 1000,
-            "MN": 1000000,
-            "lbf": 4.4482216152605,
-            "kgf": 9.80665
-        },
-        default: ["N", "lbf"]
+
+        "N": 1,
+        "kN": 1000,
+        "MN": 1000000,
+
+        "lbf": 4.4482216152605,
+        "kgf": 9.80665
+
     },
 
 
-    /* =========================================
-       GÜÇ
-    ========================================= */
+    /* =========================
+       POWER
+    ========================= */
 
     "Güç": {
-        units: {
-            "W": 1,
-            "kW": 1000,
-            "MW": 1000000,
-            "hp": 745.699871582,
-            "PS": 735.49875
-        },
-        default: ["kW", "hp"]
+
+        "W": 1,
+        "kW": 1000,
+        "MW": 1000000,
+
+        "hp": 745.6998715822702,
+        "PS": 735.49875
+
     },
 
 
-    /* =========================================
-       GERİLİM
-    ========================================= */
+    /* =========================
+       VOLTAGE
+    ========================= */
 
     "Gerilim": {
-        units: {
-            "µV": 0.000001,
-            "mV": 0.001,
-            "V": 1,
-            "kV": 1000,
-            "MV": 1000000
-        },
-        default: ["V", "mV"]
+
+        "µV": 0.000001,
+        "mV": 0.001,
+        "V": 1,
+        "kV": 1000,
+        "MV": 1000000
+
     },
 
 
-    /* =========================================
-       AKIM
-    ========================================= */
+    /* =========================
+       CURRENT
+    ========================= */
 
     "Akım": {
-        units: {
-            "µA": 0.000001,
-            "mA": 0.001,
-            "A": 1,
-            "kA": 1000
-        },
-        default: ["A", "mA"]
+
+        "µA": 0.000001,
+        "mA": 0.001,
+        "A": 1,
+        "kA": 1000
+
     },
 
 
-    /* =========================================
-       DİRENÇ
-    ========================================= */
+    /* =========================
+       RESISTANCE
+    ========================= */
 
     "Direnç": {
-        units: {
-            "mΩ": 0.001,
-            "Ω": 1,
-            "kΩ": 1000,
-            "MΩ": 1000000
-        },
-        default: ["Ω", "kΩ"]
+
+        "mΩ": 0.001,
+        "Ω": 1,
+        "kΩ": 1000,
+        "MΩ": 1000000
+
     },
 
 
-    /* =========================================
-       KAPASİTANS
-    ========================================= */
+    /* =========================
+       CAPACITANCE
+    ========================= */
 
     "Kapasitans": {
-        units: {
-            "pF": 1e-12,
-            "nF": 1e-9,
-            "µF": 1e-6,
-            "mF": 0.001,
-            "F": 1
-        },
-        default: ["µF", "nF"]
+
+        "pF": 0.000000000001,
+        "nF": 0.000000001,
+        "µF": 0.000001,
+        "mF": 0.001,
+        "F": 1
+
     },
 
 
-    /* =========================================
-       ENDÜKTANS
-    ========================================= */
+    /* =========================
+       INDUCTANCE
+    ========================= */
 
     "Endüktans": {
-        units: {
-            "nH": 1e-9,
-            "µH": 1e-6,
-            "mH": 0.001,
-            "H": 1
-        },
-        default: ["mH", "µH"]
+
+        "nH": 0.000000001,
+        "µH": 0.000001,
+        "mH": 0.001,
+        "H": 1
+
     },
 
 
-    /* =========================================
-       FREKANS / DEVİR
-    ========================================= */
+    /* =========================
+       FREQUENCY / RPM
+    ========================= */
 
     "Frekans / Devir": {
-        units: {
-            "Hz": 1,
-            "kHz": 1000,
-            "MHz": 1000000,
-            "GHz": 1000000000,
-            "RPM": 1 / 60,
-            "RPS": 1
-        },
-        default: ["Hz", "RPM"]
+
+        "Hz": 1,
+        "kHz": 1000,
+        "MHz": 1000000,
+        "GHz": 1000000000,
+
+        "RPM": 1 / 60,
+        "RPS": 1
+
     },
 
 
-    /* =========================================
-       YOĞUNLUK
-    ========================================= */
+    /* =========================
+       DENSITY
+    ========================= */
 
     "Yoğunluk": {
-        units: {
-            "kg/m³": 1,
-            "kg/L": 1000,
-            "g/cm³": 1000,
-            "g/mL": 1000,
-            "lb/ft³": 16.01846337,
-            "lb/US gal": 119.8264273
-        },
-        default: ["kg/m³", "lb/ft³"]
+
+        "kg/m³": 1,
+        "kg/L": 1000,
+
+        "g/cm³": 1000,
+        "g/mL": 1000,
+
+        "lb/ft³": 16.01846337,
+        "lb/US gal": 119.8264273
+
     },
 
 
-    /* =========================================
-       VİSKOZİTE
-    ========================================= */
+    /* =========================
+       VISCOSITY
+    ========================= */
 
     "Viskozite": {
-        units: {
-            "Pa·s": 1,
-            "mPa·s": 0.001,
-            "cP": 0.001,
-            "St": 0.0001,
-            "cSt": 0.000001
-        },
-        default: ["cP", "cSt"]
+
+        "Pa·s": 1,
+        "mPa·s": 0.001,
+        "cP": 0.001,
+
+        "St": 0.0001,
+        "cSt": 0.000001
+
     },
 
 
-    /* =========================================
-       İVME
-    ========================================= */
+    /* =========================
+       ACCELERATION
+    ========================= */
 
     "İvme": {
-        units: {
-            "m/s²": 1,
-            "ft/s²": 0.3048,
-            "g": 9.80665
-        },
-        default: ["m/s²", "g"]
+
+        "m/s²": 1,
+        "ft/s²": 0.3048,
+        "g": 9.80665
+
     },
 
 
-    /* =========================================
-       HAVACILIK MESAFESİ
-    ========================================= */
+    /* =========================
+       AVIATION DISTANCE
+    ========================= */
 
     "Havacılık Mesafesi": {
-        units: {
-            "ft": 0.3048,
-            "m": 1,
-            "km": 1000,
-            "NM": 1852,
-            "mile": 1609.344
-        },
-        default: ["NM", "km"]
+
+        "ft": 0.3048,
+        "m": 1,
+        "km": 1000,
+
+        "NM": 1852,
+        "mile": 1609.344
+
     }
 
 };
 
 
-/* =========================================
-   ELEMENTLER
-========================================= */
 
-const category =
-    document.getElementById("category");
+/* =========================
+   ELEMENTS
+========================= */
+
+const categorySelect =
+    document.getElementById("categorySelect");
 
 const fromUnit =
     document.getElementById("fromUnit");
@@ -358,53 +351,46 @@ const clearBtn =
     document.getElementById("clearBtn");
 
 
-/* =========================================
-   KATEGORİLERİ YÜKLE
-========================================= */
+
+/* =========================
+   LOAD CATEGORIES
+========================= */
 
 function loadCategories() {
 
-    category.innerHTML = "";
+    categorySelect.innerHTML = "";
 
-    Object.keys(UNITS).forEach(name => {
+    Object.keys(UNITS).forEach(category => {
 
         const option =
             document.createElement("option");
 
-        option.value = name;
-        option.textContent = name;
+        option.value = category;
+        option.textContent = category;
 
-        category.appendChild(option);
+        categorySelect.appendChild(option);
 
     });
 
 }
 
 
-/* =========================================
-   BİRİMLERİ YÜKLE
-========================================= */
+
+/* =========================
+   LOAD UNITS
+========================= */
 
 function loadUnits() {
 
-    const data =
-        UNITS[category.value];
+    const category =
+        categorySelect.value;
+
+    const units =
+        Object.keys(UNITS[category]);
+
 
     fromUnit.innerHTML = "";
     toUnit.innerHTML = "";
-
-    let units;
-
-
-    if (data.type === "temperature") {
-
-        units = data.units;
-
-    } else {
-
-        units = Object.keys(data.units);
-
-    }
 
 
     units.forEach(unit => {
@@ -415,8 +401,6 @@ function loadUnits() {
         fromOption.value = unit;
         fromOption.textContent = unit;
 
-        fromUnit.appendChild(fromOption);
-
 
         const toOption =
             document.createElement("option");
@@ -424,18 +408,17 @@ function loadUnits() {
         toOption.value = unit;
         toOption.textContent = unit;
 
+
+        fromUnit.appendChild(fromOption);
         toUnit.appendChild(toOption);
 
     });
 
 
-    if (data.default) {
+    if (units.length > 1) {
 
-        fromUnit.value =
-            data.default[0];
-
-        toUnit.value =
-            data.default[1];
+        fromUnit.selectedIndex = 0;
+        toUnit.selectedIndex = 1;
 
     }
 
@@ -445,18 +428,17 @@ function loadUnits() {
 }
 
 
-/* =========================================
-   SICAKLIK
-========================================= */
 
-function convertTemperature(
-    value,
-    from,
-    to
-) {
+/* =========================
+   TEMPERATURE
+========================= */
+
+function convertTemperature(value, from, to) {
 
     let celsius;
 
+
+    /* FROM → CELSIUS */
 
     if (from === "°C") {
 
@@ -486,24 +468,80 @@ function convertTemperature(
     }
 
 
-    if (to === "°C")
+
+    /* CELSIUS → TO */
+
+    if (to === "°C") {
+
         return celsius;
 
-    if (to === "°F")
+    }
+
+    if (to === "°F") {
+
         return celsius * 9 / 5 + 32;
 
-    if (to === "K")
+    }
+
+    if (to === "K") {
+
         return celsius + 273.15;
 
-    if (to === "°R")
+    }
+
+    if (to === "°R") {
+
         return (celsius + 273.15) * 9 / 5;
+
+    }
 
 }
 
 
-/* =========================================
-   HESAPLA
-========================================= */
+
+/* =========================
+   FORMAT RESULT
+========================= */
+
+function formatResult(value) {
+
+    if (!Number.isFinite(value)) {
+
+        return "0";
+
+    }
+
+
+    if (
+        Math.abs(value) < 0.000001 &&
+        value !== 0
+    ) {
+
+        return value.toExponential(6);
+
+    }
+
+
+    if (
+        Math.abs(value) >= 1000000000
+    ) {
+
+        return value.toExponential(6);
+
+    }
+
+
+    return Number(
+        value.toFixed(6)
+    ).toString();
+
+}
+
+
+
+/* =========================
+   CALCULATE
+========================= */
 
 function calculate() {
 
@@ -520,32 +558,50 @@ function calculate() {
     }
 
 
-    const data =
-        UNITS[category.value];
+    const category =
+        categorySelect.value;
+
+    const from =
+        fromUnit.value;
+
+    const to =
+        toUnit.value;
+
 
     let converted;
 
 
-    if (data.type === "temperature") {
+
+    /* TEMPERATURE */
+
+    if (
+        UNITS[category][from] ===
+        "temperature"
+    ) {
 
         converted =
             convertTemperature(
                 value,
-                fromUnit.value,
-                toUnit.value
+                from,
+                to
             );
 
     }
+
+
+
+    /* NORMAL UNITS */
 
     else {
 
         const baseValue =
             value *
-            data.units[fromUnit.value];
+            UNITS[category][from];
+
 
         converted =
             baseValue /
-            data.units[toUnit.value];
+            UNITS[category][to];
 
     }
 
@@ -556,63 +612,39 @@ function calculate() {
 }
 
 
-/* =========================================
-   SONUÇ FORMATLAMA
-========================================= */
 
-function formatResult(value) {
-
-    if (!Number.isFinite(value)) {
-
-        return "—";
-
-    }
-
-
-    const absolute =
-        Math.abs(value);
-
-
-    if (
-        absolute > 0 &&
-        absolute < 0.000001
-    ) {
-
-        return value.toExponential(6);
-
-    }
-
-
-    if (absolute >= 1000000000) {
-
-        return value.toExponential(6);
-
-    }
-
-
-    return Number(
-        value.toFixed(6)
-    ).toString();
-
-}
-
-
-/* =========================================
+/* =========================
    SWAP
-========================================= */
+========================= */
 
 swapBtn.addEventListener(
     "click",
-    () => {
+    function() {
 
-        const old =
+        const oldFrom =
             fromUnit.value;
 
-        fromUnit.value =
+        const oldTo =
             toUnit.value;
 
+        const oldResult =
+            result.textContent;
+
+
+        fromUnit.value =
+            oldTo;
+
         toUnit.value =
-            old;
+            oldFrom;
+
+
+        if (oldResult !== "0") {
+
+            fromValue.value =
+                oldResult;
+
+        }
+
 
         calculate();
 
@@ -620,13 +652,14 @@ swapBtn.addEventListener(
 );
 
 
-/* =========================================
+
+/* =========================
    CLEAR
-========================================= */
+========================= */
 
 clearBtn.addEventListener(
     "click",
-    () => {
+    function() {
 
         fromValue.value = "";
 
@@ -638,24 +671,28 @@ clearBtn.addEventListener(
 );
 
 
-/* =========================================
-   EVENTS
-========================================= */
 
-category.addEventListener(
+/* =========================
+   EVENTS
+========================= */
+
+categorySelect.addEventListener(
     "change",
     loadUnits
 );
+
 
 fromUnit.addEventListener(
     "change",
     calculate
 );
 
+
 toUnit.addEventListener(
     "change",
     calculate
 );
+
 
 fromValue.addEventListener(
     "input",
@@ -663,9 +700,10 @@ fromValue.addEventListener(
 );
 
 
-/* =========================================
-   START
-========================================= */
+
+/* =========================
+   INIT
+========================= */
 
 loadCategories();
 
