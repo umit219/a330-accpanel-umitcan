@@ -256,3 +256,13 @@ body {
     z-index: 100;
 }
 .offline-bar.show { display: block; }
+
+/* =====================================================
+   iOS SAFARI INPUT AUTO-ZOOM FIX
+===================================================== */
+
+input,
+select,
+textarea {
+    font-size: 16px !important;
+}
