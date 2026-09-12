@@ -1351,4 +1351,173 @@
         <img
             id="photoPreview"
             alt="Finding photo"
-       
+        >
+
+
+        <div class="photo-nav">
+
+            <button
+                id="photoPrev"
+                type="button"
+            >
+                ‹
+            </button>
+
+
+            <button
+                id="photoNext"
+                type="button"
+            >
+                ›
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="photo-bottom">
+
+        <button
+            id="annotatePhoto"
+            class="photo-action"
+            type="button"
+        >
+            ✏️ MARK
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     PHOTO ANNOTATION
+===================================================== -->
+
+<div
+    id="annotationModal"
+    class="annotation-modal"
+>
+
+    <div class="annotation-header">
+
+        <span class="annotation-title">
+            PHOTO MARKING
+        </span>
+
+
+        <button
+            id="annotationClose"
+            class="annotation-close"
+            type="button"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <div class="annotation-stage">
+
+        <canvas
+            id="annotationCanvas"
+        ></canvas>
+
+    </div>
+
+
+    <div class="annotation-toolbar">
+
+
+        <button
+            class="tool-btn active"
+            data-tool="pen"
+            type="button"
+        >
+            ✏️ PEN
+        </button>
+
+
+        <button
+            class="tool-btn"
+            data-tool="circle"
+            type="button"
+        >
+            ⭕ CIRCLE
+        </button>
+
+
+        <button
+            class="tool-btn"
+            data-tool="arrow"
+            type="button"
+        >
+            ➡️ ARROW
+        </button>
+
+
+        <button
+            class="tool-btn"
+            data-tool="text"
+            type="button"
+        >
+            📝 TEXT
+        </button>
+
+
+        <button
+            id="undoAnnotation"
+            class="tool-btn"
+            type="button"
+        >
+            ↩️ UNDO
+        </button>
+
+
+        <button
+            id="clearAnnotation"
+            class="tool-btn tool-danger"
+            type="button"
+        >
+            🗑️ CLEAR
+        </button>
+
+
+        <button
+            id="saveAnnotation"
+            class="tool-btn tool-save"
+            type="button"
+        >
+            ✓ SAVE
+        </button>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     OFFLINE
+===================================================== -->
+
+<div
+    class="offline-bar"
+    id="offlineBar"
+>
+    📡 Çevrimdışı mod
+</div>
+
+
+
+<script src="theme.js"></script>
+
+<script src="inspection.js"></script>
+
+
+</body>
+
+</html>
