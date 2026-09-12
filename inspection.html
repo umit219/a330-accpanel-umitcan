@@ -72,9 +72,7 @@
     justify-self: end;
 }
 
-
-/* Inspection list - New Inspection ile kart arasındaki boşluk */
-
+    /* Inspection list - New Inspection ile kart arasındaki boşluk */
 #newInspectionBtn {
     margin-bottom: 8px;
 }
@@ -314,192 +312,6 @@
 
 
 /* =====================================================
-   QUICK TEMPLATE
-===================================================== */
-
-.quick-template-wrap {
-    margin-top: 8px;
-}
-
-.quick-template-btn {
-    width: 100%;
-    min-height: 40px;
-
-    border: 1px solid var(--border);
-    border-radius: 9px;
-
-    background: var(--bg);
-    color: var(--text);
-
-    font-family: Inter, sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-
-    cursor: pointer;
-}
-
-.quick-template-btn:active {
-    opacity: .75;
-}
-
-
-/* =====================================================
-   TEMPLATE MODAL
-===================================================== */
-
-.template-modal {
-    position: fixed;
-    inset: 0;
-
-    z-index: 1500;
-
-    display: none;
-
-    align-items: flex-end;
-    justify-content: center;
-
-    background: rgba(0,0,0,.55);
-}
-
-.template-modal.show {
-    display: flex;
-}
-
-.template-sheet {
-    width: 100%;
-    max-width: 480px;
-    max-height: 85vh;
-
-    overflow-y: auto;
-
-    background: var(--surface);
-
-    border: 1px solid var(--border);
-    border-radius: 18px 18px 0 0;
-
-    padding: 20px;
-}
-
-.template-header {
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    margin-bottom: 14px;
-}
-
-.template-title {
-    font-size: 16px;
-    font-weight: 600;
-
-    color: var(--text);
-}
-
-.template-close {
-    width: 36px;
-    height: 36px;
-
-    border: 0;
-    border-radius: 50%;
-
-    background: var(--bg);
-    color: var(--text-muted);
-
-    font-size: 20px;
-
-    cursor: pointer;
-}
-
-.template-search {
-    width: 100%;
-
-    height: 44px;
-
-    padding: 0 12px;
-
-    border: 1px solid var(--border);
-    border-radius: 10px;
-
-    background: var(--bg);
-    color: var(--text);
-
-    font-family: Inter, sans-serif;
-
-    font-size: 16px;
-
-    outline: none;
-
-    margin-bottom: 16px;
-}
-
-.template-search:focus {
-    border-color: var(--accent);
-}
-
-.template-category {
-    margin-bottom: 16px;
-}
-
-.template-category-title {
-    margin-bottom: 7px;
-
-    font-size: 10px;
-    font-weight: 700;
-
-    color: var(--text-muted);
-
-    letter-spacing: .07em;
-}
-
-.template-list {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 6px;
-}
-
-.template-item {
-    width: 100%;
-
-    min-height: 42px;
-
-    padding: 10px 12px;
-
-    border: 1px solid var(--border);
-    border-radius: 9px;
-
-    background: var(--bg);
-    color: var(--text);
-
-    font-family: Inter, sans-serif;
-
-    font-size: 12px;
-
-    text-align: left;
-
-    cursor: pointer;
-}
-
-.template-item:active {
-    border-color: var(--accent);
-
-    color: var(--accent);
-}
-
-.template-empty {
-    padding: 20px 10px;
-
-    text-align: center;
-
-    color: var(--text-muted);
-
-    font-size: 11px;
-}
-
-
-/* =====================================================
    PHOTO INPUTS
 ===================================================== */
 
@@ -692,6 +504,7 @@
 
 /* =====================================================
    FINDING TEXT
+   KRİTİK DÜZELTME
 ===================================================== */
 
 .finding-text {
@@ -718,6 +531,13 @@
     color: var(--text) !important;
 
     line-height: 1.5 !important;
+
+    /*
+       pre-wrap KULLANMIYORUZ.
+
+       Böylece textarea'dan gelen
+       gereksiz baş boşlukları korunmuyor.
+    */
 
     white-space: pre-line !important;
 
@@ -1491,21 +1311,6 @@
                 placeholder="Bulguyu yazın..."
             ></textarea>
 
-
-            <!-- QUICK TEMPLATE -->
-
-            <div class="quick-template-wrap">
-
-                <button
-                    id="quickTemplateBtn"
-                    class="quick-template-btn"
-                    type="button"
-                >
-                    ⚡ QUICK TEMPLATE
-                </button>
-
-            </div>
-
         </div>
 
 
@@ -1575,6 +1380,11 @@
             >
 
 
+            <!--
+                ÖNEMLİ:
+                inspection.js bunları kullanıyor.
+            -->
+
             <div
                 id="photoSelectionInfo"
                 class="photo-count"
@@ -1612,52 +1422,6 @@
             </button>
 
         </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- =====================================================
-     QUICK TEMPLATE MODAL
-===================================================== -->
-
-<div
-    id="templateModal"
-    class="template-modal"
->
-
-    <div class="template-sheet">
-
-        <div class="template-header">
-
-            <div class="template-title">
-                Quick Template
-            </div>
-
-
-            <button
-                id="templateClose"
-                class="template-close"
-                type="button"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-        <input
-            id="templateSearch"
-            class="template-search"
-            type="text"
-            placeholder="🔍 Search templates..."
-            autocomplete="off"
-        >
-
-
-        <div id="templateList"></div>
 
     </div>
 
