@@ -3,39 +3,39 @@
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <meta
-        name="apple-mobile-web-app-capable"
-        content="yes"
-    >
+<meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+>
 
-    <meta
-        name="apple-mobile-web-app-status-bar-style"
-        content="black-translucent"
-    >
+<meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+>
 
-    <title>Inspection Recorder</title>
+<title>Inspection Recorder</title>
 
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
 
-    <link
-        rel="stylesheet"
-        href="theme.css"
-    >
+<link
+    rel="stylesheet"
+    href="theme.css"
+>
 
 
 <style>
@@ -297,7 +297,6 @@
 
 .photo-count {
     margin-top: 8px;
-
     font-size: 10px;
     color: var(--text-muted);
 }
@@ -309,11 +308,13 @@
     margin-top: 10px;
 }
 
-.pending-photo {
+.pending-photo,
+.pending-item {
     position: relative;
 }
 
-.pending-photo img {
+.pending-photo img,
+.pending-item img {
     width: 100%;
     height: 80px;
     object-fit: cover;
@@ -432,40 +433,48 @@
 
     color: var(--text);
 
-    margin-bottom: 5px;
+    margin-bottom: 6px;
 
-    text-align: left;
+    text-align: left !important;
 }
 
 
-/*
-   BURASI ÖNEMLİ
-
-   Finding açıklaması artık ortalanmaz.
-   Location'ın hemen altında sola hizalıdır.
-*/
+/* =====================================================
+   FINDING TEXT
+   ÖNEMLİ DÜZELTME
+===================================================== */
 
 .finding-text {
-    display: block;
+    display: block !important;
 
-    width: 100%;
-    box-sizing: border-box;
+    width: 100% !important;
+    box-sizing: border-box !important;
 
-    font-size: 13px;
-    font-weight: 400;
+    font-family: Inter, sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
 
-    color: var(--text);
+    color: var(--text) !important;
 
-    line-height: 1.5;
+    line-height: 1.5 !important;
 
-    white-space: pre-wrap;
-    word-break: break-word;
+    /*
+       pre-wrap yerine pre-line:
+       Başındaki gereksiz boşlukları
+       ortadan kaldırır ama satır sonlarını korur.
+    */
+    white-space: pre-line !important;
 
-    padding-right: 24px;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
 
-    margin: 0;
+    padding: 0 24px 0 0 !important;
 
-    text-align: left;
+    margin: 0 !important;
+
+    text-align: left !important;
+
+    text-indent: 0 !important;
 }
 
 .finding-arrow {
@@ -1009,43 +1018,33 @@
 <div class="page-wrap">
 
 
-    <!-- =================================================
-         HEADER
-    ================================================= -->
+<header class="inspection-header">
 
-    <header class="inspection-header">
+    <a
+        href="index.html"
+        class="back-link"
+    >
+        ← Ana Menü
+    </a>
 
-        <a
-            href="index.html"
-            class="back-link"
-        >
-            ← Ana Menü
-        </a>
+    <span class="inspection-title">
+        Inspection Recorder
+    </span>
 
+    <button
+        class="theme-btn"
+        id="themeBtn"
+        type="button"
+        onclick="toggleTheme()"
+        aria-label="Tema değiştir"
+    >
+        🌙
+    </button>
 
-        <span class="inspection-title">
-            Inspection Recorder
-        </span>
-
-
-        <button
-            class="theme-btn"
-            id="themeBtn"
-            type="button"
-            onclick="toggleTheme()"
-            aria-label="Tema değiştir"
-        >
-            🌙
-        </button>
-
-    </header>
+</header>
 
 
-    <!-- =================================================
-         APP
-    ================================================= -->
-
-    <main id="app"></main>
+<main id="app"></main>
 
 
 </div>
@@ -1139,7 +1138,6 @@
                 CANCEL
             </button>
 
-
             <button
                 id="saveInspection"
                 class="primary-btn"
@@ -1204,10 +1202,6 @@
         </div>
 
 
-        <!-- =================================================
-             CAMERA / GALLERY
-        ================================================= -->
-
         <div class="form-group">
 
             <label class="form-label">
@@ -1237,7 +1231,6 @@
             </div>
 
 
-            <!-- Camera -->
             <input
                 id="cameraInput"
                 type="file"
@@ -1247,7 +1240,6 @@
             >
 
 
-            <!-- Gallery -->
             <input
                 id="galleryInput"
                 type="file"
@@ -1257,7 +1249,6 @@
             >
 
 
-            <!-- Compatibility with older inspection.js -->
             <input
                 id="findingPhoto"
                 class="form-input"
@@ -1269,7 +1260,7 @@
 
 
             <div
-                id="pendingPhotoCount"
+                id="photoSelectionInfo"
                 class="photo-count"
             >
                 Henüz fotoğraf seçilmedi.
@@ -1277,7 +1268,7 @@
 
 
             <div
-                id="pendingPhotos"
+                id="pendingGallery"
                 class="pending-photos"
             ></div>
 
@@ -1360,177 +1351,4 @@
         <img
             id="photoPreview"
             alt="Finding photo"
-        >
-
-
-        <div class="photo-nav">
-
-            <button
-                id="photoPrev"
-                type="button"
-            >
-                ‹
-            </button>
-
-
-            <button
-                id="photoNext"
-                type="button"
-            >
-                ›
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <div class="photo-bottom">
-
-        <button
-            id="annotatePhoto"
-            class="photo-action"
-            type="button"
-        >
-            ✏️ MARK
-        </button>
-
-    </div>
-
-</div>
-
-
-
-<!-- =====================================================
-     PHOTO ANNOTATION
-===================================================== -->
-
-<div
-    id="annotationModal"
-    class="annotation-modal"
->
-
-    <div class="annotation-header">
-
-        <span class="annotation-title">
-            PHOTO MARKING
-        </span>
-
-
-        <button
-            id="annotationClose"
-            class="annotation-close"
-            type="button"
-        >
-            ×
-        </button>
-
-    </div>
-
-
-    <div class="annotation-stage">
-
-        <canvas
-            id="annotationCanvas"
-        ></canvas>
-
-    </div>
-
-
-    <div class="annotation-toolbar">
-
-
-        <button
-            class="tool-btn active"
-            data-tool="pen"
-            type="button"
-        >
-            ✏️ PEN
-        </button>
-
-
-        <button
-            class="tool-btn"
-            data-tool="circle"
-            type="button"
-        >
-            ⭕ CIRCLE
-        </button>
-
-
-        <button
-            class="tool-btn"
-            data-tool="arrow"
-            type="button"
-        >
-            ➡️ ARROW
-        </button>
-
-
-        <button
-            class="tool-btn"
-            data-tool="text"
-            type="button"
-        >
-            📝 TEXT
-        </button>
-
-
-        <button
-            id="undoAnnotation"
-            class="tool-btn"
-            type="button"
-        >
-            ↩️ UNDO
-        </button>
-
-
-        <button
-            id="clearAnnotation"
-            class="tool-btn tool-danger"
-            type="button"
-        >
-            🗑️ CLEAR
-        </button>
-
-
-        <button
-            id="saveAnnotation"
-            class="tool-btn tool-save"
-            type="button"
-        >
-            ✓ SAVE
-        </button>
-
-
-    </div>
-
-</div>
-
-
-
-<!-- =====================================================
-     OFFLINE
-===================================================== -->
-
-<div
-    class="offline-bar"
-    id="offlineBar"
->
-    📡 Çevrimdışı mod
-</div>
-
-
-
-<!-- =====================================================
-     SCRIPTS
-===================================================== -->
-
-<script src="theme.js"></script>
-
-<script src="inspection.js"></script>
-
-
-</body>
-
-</html>
+       
