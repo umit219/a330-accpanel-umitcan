@@ -2,12 +2,13 @@
    A330 INSPECTION RECORDER
    LOCAL ONLY
    IndexedDB
+   MULTI PHOTO + PHOTO MARKING
 ===================================================== */
 
 
 const DB_NAME = "A330InspectionDB";
 
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 const INSPECTIONS_STORE = "inspections";
 
@@ -19,49 +20,123 @@ let db = null;
 let currentInspectionId = null;
 
 
+/* =====================================================
+   PHOTO VIEWER STATE
+===================================================== */
+
+let currentPhotoList = [];
+
+let currentPhotoIndex = 0;
+
+let currentFindingId = null;
+
+
+
+/* =====================================================
+   ANNOTATION STATE
+===================================================== */
+
+let annotationCanvas =
+    document.getElementById(
+        "annotationCanvas"
+    );
+
+let annotationCtx =
+    annotationCanvas.getContext(
+        "2d"
+    );
+
+
+let annotationTool = "pen";
+
+let annotationDrawing = false;
+
+let annotationStartX = 0;
+
+let annotationStartY = 0;
+
+let annotationImage = null;
+
+let annotationHistory = [];
+
+let annotationOriginalBlob = null;
+
+
 
 /* =====================================================
    ELEMENTS
 ===================================================== */
 
 const app =
-    document.getElementById("app");
+    document.getElementById(
+        "app"
+    );
 
 
 const inspectionModal =
-    document.getElementById("inspectionModal");
+    document.getElementById(
+        "inspectionModal"
+    );
 
 
 const findingModal =
-    document.getElementById("findingModal");
+    document.getElementById(
+        "findingModal"
+    );
 
 
 const aircraftInput =
-    document.getElementById("aircraftInput");
+    document.getElementById(
+        "aircraftInput"
+    );
 
 
 const inspectionType =
-    document.getElementById("inspectionType");
+    document.getElementById(
+        "inspectionType"
+    );
 
 
 const findingLocation =
-    document.getElementById("findingLocation");
+    document.getElementById(
+        "findingLocation"
+    );
 
 
 const findingText =
-    document.getElementById("findingText");
+    document.getElementById(
+        "findingText"
+    );
 
 
 const findingPhoto =
-    document.getElementById("findingPhoto");
+    document.getElementById(
+        "findingPhoto"
+    );
 
 
 const photoModal =
-    document.getElementById("photoModal");
+    document.getElementById(
+        "photoModal"
+    );
 
 
 const photoPreview =
-    document.getElementById("photoPreview");
+    document.getElementById(
+        "photoPreview"
+    );
+
+
+const photoCounter =
+    document.getElementById(
+        "photoCounter"
+    );
+
+
+const annotationModal =
+    document.getElementById(
+        "annotationModal"
+    );
 
 
 
@@ -88,6 +163,10 @@ function openDatabase() {
                         event.target.result;
 
 
+                    /*
+                     * Existing inspections store
+                     */
+
                     if (
                         !database
                             .objectStoreNames
@@ -112,6 +191,10 @@ function openDatabase() {
 
                     }
 
+
+                    /*
+                     * Existing findings store
+                     */
 
                     if (
                         !database
@@ -143,6 +226,118 @@ function openDatabase() {
 
                     }
 
+
+                    /*
+                     * IMPORTANT:
+                     *
+                     * DB v1'de:
+                     *
+                     * photo: Blob
+                     *
+                     * vardı.
+                     *
+                     * Yeni sistem:
+                     *
+                     * photos: [
+                     *   {
+                     *      id,
+                     *      original,
+                     *      marked
+                     *   }
+                     * ]
+                     *
+                     * kullanıyor.
+                     */
+
+
+                    if (
+                        event.oldVersion < 2
+                    ) {
+
+                        const transaction =
+                            event.target.transaction;
+
+
+                        const store =
+                            transaction.objectStore(
+                                FINDINGS_STORE
+                            );
+
+
+                        store.getAll().onsuccess =
+                            function(e) {
+
+                                const findings =
+                                    e.target.result;
+
+
+                                findings.forEach(
+                                    finding => {
+
+                                        /*
+                                         * Eski tek
+                                         * fotoğrafı
+                                         * yeni yapıya
+                                         * taşı.
+                                         */
+
+                                        if (
+                                            finding.photo &&
+                                            !finding.photos
+                                        ) {
+
+                                            finding.photos = [
+
+                                                {
+
+                                                    id:
+                                                        createId(),
+
+                                                    original:
+                                                        finding.photo,
+
+                                                    marked:
+                                                        null
+
+                                                }
+
+                                            ];
+
+
+                                            delete finding.photo;
+
+
+                                            store.put(
+                                                finding
+                                            );
+
+                                        }
+
+
+                                        /*
+                                         * Fotoğrafı olmayan
+                                         * eski finding.
+                                         */
+
+                                        if (
+                                            !finding.photos
+                                        ) {
+
+                                            finding.photos = [];
+
+                                            store.put(
+                                                finding
+                                            );
+
+                                        }
+
+                                    }
+                                );
+
+                            };
+
+                    }
+
                 };
 
 
@@ -151,6 +346,7 @@ function openDatabase() {
 
                     db =
                         event.target.result;
+
 
                     resolve(db);
 
@@ -174,7 +370,7 @@ function openDatabase() {
 
 
 /* =====================================================
-   DATABASE HELPERS
+   DB HELPERS
 ===================================================== */
 
 function dbPut(
@@ -354,7 +550,7 @@ function formatDate(
 
 
 /* =====================================================
-   ESCAPE HTML
+   ESCAPE
 ===================================================== */
 
 function escapeHtml(
@@ -410,7 +606,8 @@ function openInspectionModal() {
 
 
     setTimeout(
-        () => aircraftInput.focus(),
+        () =>
+            aircraftInput.focus(),
         100
     );
 
@@ -447,7 +644,8 @@ function openFindingModal() {
 
 
     setTimeout(
-        () => findingLocation.focus(),
+        () =>
+            findingLocation.focus(),
         100
     );
 
@@ -490,13 +688,17 @@ async function createInspection() {
 
     const inspection = {
 
-        id: createId(),
+        id:
+            createId(),
 
-        aircraft: aircraft,
+        aircraft:
+            aircraft,
 
-        type: inspectionType.value,
+        type:
+            inspectionType.value,
 
-        createdAt: Date.now()
+        createdAt:
+            Date.now()
 
     };
 
@@ -531,7 +733,7 @@ async function createInspection() {
 
 
 /* =====================================================
-   SHOW INSPECTION LIST
+   INSPECTION LIST
 ===================================================== */
 
 async function showInspectionList() {
@@ -665,12 +867,15 @@ async function showInspectionList() {
                     >
 
                         <span>
+
                             ${count}
+
                             ${
                                 count === 1
                                     ? "Finding"
                                     : "Findings"
                             }
+
                         </span>
 
 
@@ -711,16 +916,70 @@ async function showInspectionList() {
 
             card.addEventListener(
                 "click",
-                () => {
-
+                () =>
                     showInspectionDetail(
                         card.dataset.id
-                    );
-
-                }
+                    )
             );
 
         });
+
+}
+
+
+
+/* =====================================================
+   GET FINDING PHOTOS
+===================================================== */
+
+function getFindingPhotos(
+    finding
+) {
+
+    /*
+     * Yeni sistem.
+     */
+
+    if (
+        Array.isArray(
+            finding.photos
+        )
+    ) {
+
+        return finding.photos;
+
+    }
+
+
+    /*
+     * Güvenlik için eski
+     * sistem desteği.
+     */
+
+    if (finding.photo) {
+
+        return [
+
+            {
+
+                id:
+                    "legacy-" +
+                    finding.id,
+
+                original:
+                    finding.photo,
+
+                marked:
+                    null
+
+            }
+
+        ];
+
+    }
+
+
+    return [];
 
 }
 
@@ -882,6 +1141,11 @@ async function showInspectionDetail(
     inspectionFindings.forEach(
         (finding, index) => {
 
+            const photos =
+                getFindingPhotos(
+                    finding
+                );
+
 
             html += `
 
@@ -890,7 +1154,6 @@ async function showInspectionDetail(
                     data-finding-card="${finding.id}"
                 >
 
-                    <!-- FINDING MAIN -->
 
                     <div
                         class="finding-main"
@@ -930,8 +1193,6 @@ async function showInspectionDetail(
                     </div>
 
 
-                    <!-- EXPANDED CONTENT -->
-
                     <div
                         class="finding-expand"
                     >
@@ -943,22 +1204,75 @@ async function showInspectionDetail(
             `;
 
 
-            if (finding.photo) {
+            if (photos.length) {
 
-                const photoUrl =
-                    URL.createObjectURL(
-                        finding.photo
-                    );
+                html += `
+
+                    <div class="photo-gallery">
+
+                `;
+
+
+                photos.forEach(
+                    (photo, photoIndex) => {
+
+                        const blob =
+                            photo.marked ||
+                            photo.original;
+
+
+                        const url =
+                            URL.createObjectURL(
+                                blob
+                            );
+
+
+                        html += `
+
+                            <div
+                                class="gallery-photo-wrap"
+                            >
+
+                                <img
+                                    class="gallery-photo"
+                                    src="${url}"
+                                    data-photo-url="${url}"
+                                    data-finding-id="${finding.id}"
+                                    data-photo-index="${photoIndex}"
+                                    alt="Finding photo"
+                                >
+
+
+                                <span
+                                    class="photo-number"
+                                >
+                                    ${photoIndex + 1}
+                                </span>
+
+
+                                ${
+                                    photo.marked
+                                        ? `
+                                            <span
+                                                class="marked-badge"
+                                            >
+                                                MARKED
+                                            </span>
+                                          `
+                                        : ""
+                                }
+
+                            </div>
+
+                        `;
+
+                    }
+                );
 
 
                 html += `
 
-                    <img
-                        class="finding-photo"
-                        src="${photoUrl}"
-                        data-photo-url="${photoUrl}"
-                        alt="Finding photo"
-                    >
+                    </div>
 
                 `;
 
@@ -1078,7 +1392,7 @@ async function showInspectionDetail(
 
 
     /* =================================================
-       FINDING CLICK
+       FINDING OPEN / CLOSE
     ================================================= */
 
     document
@@ -1091,18 +1405,12 @@ async function showInspectionDetail(
                 "click",
                 event => {
 
-                    /*
-                     * DELETE veya PHOTO
-                     * tıklanırsa finding
-                     * aç/kapa yapma.
-                     */
-
                     if (
                         event.target.closest(
                             ".delete-finding"
                         ) ||
                         event.target.closest(
-                            ".finding-photo"
+                            ".gallery-photo"
                         )
                     ) {
 
@@ -1157,7 +1465,7 @@ async function showInspectionDetail(
 
     document
         .querySelectorAll(
-            ".finding-photo"
+            ".gallery-photo"
         )
         .forEach(image => {
 
@@ -1168,12 +1476,11 @@ async function showInspectionDetail(
                     event.stopPropagation();
 
 
-                    photoPreview.src =
-                        image.src;
-
-
-                    photoModal.classList.add(
-                        "show"
+                    openPhotoViewer(
+                        image.dataset.findingId,
+                        Number(
+                            image.dataset.photoIndex
+                        )
                     );
 
                 }
@@ -1232,34 +1539,56 @@ async function createFinding() {
     }
 
 
-    let photo = null;
+    const photos = [];
 
 
     if (
         findingPhoto.files &&
-        findingPhoto.files[0]
+        findingPhoto.files.length
     ) {
 
-        photo =
-            findingPhoto.files[0];
+        for (
+            const file
+            of findingPhoto.files
+        ) {
+
+            photos.push({
+
+                id:
+                    createId(),
+
+                original:
+                    file,
+
+                marked:
+                    null
+
+            });
+
+        }
 
     }
 
 
     const finding = {
 
-        id: createId(),
+        id:
+            createId(),
 
         inspectionId:
             currentInspectionId,
 
-        location: location,
+        location:
+            location,
 
-        text: text,
+        text:
+            text,
 
-        photo: photo,
+        photos:
+            photos,
 
-        createdAt: Date.now()
+        createdAt:
+            Date.now()
 
     };
 
@@ -1305,7 +1634,7 @@ async function deleteFinding(
 
     const confirmed =
         confirm(
-            "Bu bulgu ve fotoğrafı silinsin mi?"
+            "Bu bulgu ve tüm fotoğrafları silinsin mi?"
         );
 
 
@@ -1419,7 +1748,1331 @@ async function deleteInspection(
 
 
 /* =====================================================
-   PHOTO CLOSE
+   PHOTO VIEWER
+===================================================== */
+
+async function openPhotoViewer(
+    findingId,
+    photoIndex
+) {
+
+    const findings =
+        await dbGetAll(
+            FINDINGS_STORE
+        );
+
+
+    const finding =
+        findings.find(
+            item =>
+                item.id ===
+                findingId
+        );
+
+
+    if (!finding) {
+
+        return;
+
+    }
+
+
+    const photos =
+        getFindingPhotos(
+            finding
+        );
+
+
+    if (!photos.length) {
+
+        return;
+
+    }
+
+
+    currentFindingId =
+        findingId;
+
+
+    currentPhotoList =
+        photos;
+
+
+    currentPhotoIndex =
+        Math.max(
+            0,
+            Math.min(
+                photoIndex,
+                photos.length - 1
+            )
+        );
+
+
+    renderCurrentPhoto();
+
+
+    photoModal.classList.add(
+        "show"
+    );
+
+}
+
+
+
+function renderCurrentPhoto() {
+
+    if (
+        !currentPhotoList.length
+    ) {
+
+        return;
+
+    }
+
+
+    const photo =
+        currentPhotoList[
+            currentPhotoIndex
+        ];
+
+
+    const blob =
+        photo.marked ||
+        photo.original;
+
+
+    if (!blob) {
+
+        return;
+
+    }
+
+
+    /*
+     * Önceki URL'yi temizle.
+     */
+
+    if (
+        photoPreview.dataset.objectUrl
+    ) {
+
+        URL.revokeObjectURL(
+            photoPreview.dataset.objectUrl
+        );
+
+    }
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    photoPreview.dataset.objectUrl =
+        url;
+
+
+    photoPreview.src =
+        url;
+
+
+    photoCounter.textContent =
+        `${currentPhotoIndex + 1} / ${currentPhotoList.length}`;
+
+}
+
+
+
+function closePhoto() {
+
+    photoModal.classList.remove(
+        "show"
+    );
+
+
+    if (
+        photoPreview.dataset.objectUrl
+    ) {
+
+        URL.revokeObjectURL(
+            photoPreview.dataset.objectUrl
+        );
+
+    }
+
+
+    photoPreview.dataset.objectUrl =
+        "";
+
+
+    photoPreview.src =
+        "";
+
+
+    currentPhotoList =
+        [];
+
+    currentPhotoIndex =
+        0;
+
+}
+
+
+
+function previousPhoto() {
+
+    if (
+        currentPhotoList.length <= 1
+    ) {
+
+        return;
+
+    }
+
+
+    currentPhotoIndex--;
+
+    if (
+        currentPhotoIndex < 0
+    ) {
+
+        currentPhotoIndex =
+            currentPhotoList.length - 1;
+
+    }
+
+
+    renderCurrentPhoto();
+
+}
+
+
+
+function nextPhoto() {
+
+    if (
+        currentPhotoList.length <= 1
+    ) {
+
+        return;
+
+    }
+
+
+    currentPhotoIndex++;
+
+
+    if (
+        currentPhotoIndex >=
+        currentPhotoList.length
+    ) {
+
+        currentPhotoIndex = 0;
+
+    }
+
+
+    renderCurrentPhoto();
+
+}
+
+
+
+/* =====================================================
+   ANNOTATION
+===================================================== */
+
+async function openAnnotation() {
+
+    if (
+        !currentPhotoList.length
+    ) {
+
+        return;
+
+    }
+
+
+    const photo =
+        currentPhotoList[
+            currentPhotoIndex
+        ];
+
+
+    /*
+     * Marking her zaman
+     * orijinal fotoğraf
+     * üzerinden başlar.
+     *
+     * Böylece orijinal
+     * bozulmaz.
+     */
+
+    annotationOriginalBlob =
+        photo.original;
+
+
+    const url =
+        URL.createObjectURL(
+            annotationOriginalBlob
+        );
+
+
+    const image =
+        new Image();
+
+
+    image.onload =
+        function() {
+
+            annotationImage =
+                image;
+
+
+            setupAnnotationCanvas(
+                image
+            );
+
+
+            URL.revokeObjectURL(
+                url
+            );
+
+
+            annotationModal.classList.add(
+                "show"
+            );
+
+        };
+
+
+    image.src =
+        url;
+
+}
+
+
+
+function setupAnnotationCanvas(
+    image
+) {
+
+    const maxWidth =
+        window.innerWidth;
+
+
+    const maxHeight =
+        window.innerHeight - 130;
+
+
+    const scale =
+        Math.min(
+            maxWidth / image.naturalWidth,
+            maxHeight / image.naturalHeight,
+            1
+        );
+
+
+    annotationCanvas.width =
+        Math.round(
+            image.naturalWidth * scale
+        );
+
+
+    annotationCanvas.height =
+        Math.round(
+            image.naturalHeight * scale
+        );
+
+
+    annotationCtx.clearRect(
+        0,
+        0,
+        annotationCanvas.width,
+        annotationCanvas.height
+    );
+
+
+    annotationCtx.drawImage(
+        image,
+        0,
+        0,
+        annotationCanvas.width,
+        annotationCanvas.height
+    );
+
+
+    annotationHistory = [];
+
+
+    saveAnnotationSnapshot();
+
+}
+
+
+
+function saveAnnotationSnapshot() {
+
+    try {
+
+        annotationHistory.push(
+            annotationCtx.getImageData(
+                0,
+                0,
+                annotationCanvas.width,
+                annotationCanvas.height
+            )
+        );
+
+
+        /*
+         * Son 20 adımı tut.
+         */
+
+        if (
+            annotationHistory.length >
+            20
+        ) {
+
+            annotationHistory.shift();
+
+        }
+
+    }
+
+    catch(error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+
+/* =====================================================
+   CANVAS COORDINATES
+===================================================== */
+
+function getCanvasPoint(
+    event
+) {
+
+    const rect =
+        annotationCanvas.getBoundingClientRect();
+
+
+    const scaleX =
+        annotationCanvas.width /
+        rect.width;
+
+
+    const scaleY =
+        annotationCanvas.height /
+        rect.height;
+
+
+    return {
+
+        x:
+            (event.clientX -
+                rect.left) *
+            scaleX,
+
+        y:
+            (event.clientY -
+                rect.top) *
+            scaleY
+
+    };
+
+}
+
+
+
+/* =====================================================
+   ANNOTATION DRAWING
+===================================================== */
+
+annotationCanvas.addEventListener(
+    "pointerdown",
+    event => {
+
+        event.preventDefault();
+
+
+        const point =
+            getCanvasPoint(
+                event
+            );
+
+
+        annotationStartX =
+            point.x;
+
+
+        annotationStartY =
+            point.y;
+
+
+        /*
+         * TEXT
+         */
+
+        if (
+            annotationTool ===
+            "text"
+        ) {
+
+            const text =
+                prompt(
+                    "Fotoğraf üzerine yazılacak metin:"
+                );
+
+
+            if (
+                text &&
+                text.trim()
+            ) {
+
+                drawText(
+                    text.trim(),
+                    point.x,
+                    point.y
+                );
+
+
+                saveAnnotationSnapshot();
+
+            }
+
+
+            return;
+
+        }
+
+
+        annotationDrawing =
+            true;
+
+
+        annotationCanvas.setPointerCapture(
+            event.pointerId
+        );
+
+
+        /*
+         * PEN başlangıcı
+         */
+
+        if (
+            annotationTool ===
+            "pen"
+        ) {
+
+            annotationCtx.beginPath();
+
+            annotationCtx.moveTo(
+                point.x,
+                point.y
+            );
+
+        }
+
+    }
+);
+
+
+
+annotationCanvas.addEventListener(
+    "pointermove",
+    event => {
+
+        if (
+            !annotationDrawing
+        ) {
+
+            return;
+
+        }
+
+
+        event.preventDefault();
+
+
+        const point =
+            getCanvasPoint(
+                event
+            );
+
+
+        /*
+         * PEN
+         */
+
+        if (
+            annotationTool ===
+            "pen"
+        ) {
+
+            annotationCtx.lineTo(
+                point.x,
+                point.y
+            );
+
+
+            annotationCtx.stroke();
+
+        }
+
+    }
+);
+
+
+
+annotationCanvas.addEventListener(
+    "pointerup",
+    finishAnnotation
+);
+
+
+annotationCanvas.addEventListener(
+    "pointercancel",
+    finishAnnotation
+);
+
+
+function finishAnnotation(
+    event
+) {
+
+    if (
+        !annotationDrawing
+    ) {
+
+        return;
+
+    }
+
+
+    annotationDrawing =
+        false;
+
+
+    const point =
+        getCanvasPoint(
+            event
+        );
+
+
+    /*
+     * PEN
+     */
+
+    if (
+        annotationTool ===
+        "pen"
+    ) {
+
+        annotationCtx.closePath();
+
+        saveAnnotationSnapshot();
+
+        return;
+
+    }
+
+
+    /*
+     * CIRCLE
+     */
+
+    if (
+        annotationTool ===
+        "circle"
+    ) {
+
+        drawCircle(
+            annotationStartX,
+            annotationStartY,
+            point.x,
+            point.y
+        );
+
+
+        saveAnnotationSnapshot();
+
+        return;
+
+    }
+
+
+    /*
+     * ARROW
+     */
+
+    if (
+        annotationTool ===
+        "arrow"
+    ) {
+
+        drawArrow(
+            annotationStartX,
+            annotationStartY,
+            point.x,
+            point.y
+        );
+
+
+        saveAnnotationSnapshot();
+
+    }
+
+}
+
+
+
+/* =====================================================
+   DRAW STYLE
+===================================================== */
+
+function prepareDrawingStyle() {
+
+    annotationCtx.strokeStyle =
+        "#ff3030";
+
+
+    annotationCtx.fillStyle =
+        "#ff3030";
+
+
+    annotationCtx.lineWidth =
+        Math.max(
+            3,
+            annotationCanvas.width /
+            300
+        );
+
+
+    annotationCtx.lineCap =
+        "round";
+
+
+    annotationCtx.lineJoin =
+        "round";
+
+}
+
+
+
+/* =====================================================
+   PEN STYLE
+===================================================== */
+
+prepareDrawingStyle();
+
+
+
+/* =====================================================
+   CIRCLE
+===================================================== */
+
+function drawCircle(
+    startX,
+    startY,
+    endX,
+    endY
+) {
+
+    prepareDrawingStyle();
+
+
+    const centerX =
+        (startX + endX) / 2;
+
+
+    const centerY =
+        (startY + endY) / 2;
+
+
+    const radiusX =
+        Math.abs(
+            endX - startX
+        ) / 2;
+
+
+    const radiusY =
+        Math.abs(
+            endY - startY
+        ) / 2;
+
+
+    annotationCtx.beginPath();
+
+
+    annotationCtx.ellipse(
+        centerX,
+        centerY,
+        Math.max(
+            radiusX,
+            5
+        ),
+        Math.max(
+            radiusY,
+            5
+        ),
+        0,
+        0,
+        Math.PI * 2
+    );
+
+
+    annotationCtx.stroke();
+
+}
+
+
+
+/* =====================================================
+   ARROW
+===================================================== */
+
+function drawArrow(
+    startX,
+    startY,
+    endX,
+    endY
+) {
+
+    prepareDrawingStyle();
+
+
+    const headLength =
+        Math.max(
+            12,
+            annotationCanvas.width /
+            35
+        );
+
+
+    const angle =
+        Math.atan2(
+            endY - startY,
+            endX - startX
+        );
+
+
+    annotationCtx.beginPath();
+
+
+    annotationCtx.moveTo(
+        startX,
+        startY
+    );
+
+
+    annotationCtx.lineTo(
+        endX,
+        endY
+    );
+
+
+    annotationCtx.stroke();
+
+
+    annotationCtx.beginPath();
+
+
+    annotationCtx.moveTo(
+        endX,
+        endY
+    );
+
+
+    annotationCtx.lineTo(
+        endX -
+        headLength *
+        Math.cos(
+            angle - Math.PI / 6
+        ),
+        endY -
+        headLength *
+        Math.sin(
+            angle - Math.PI / 6
+        )
+    );
+
+
+    annotationCtx.lineTo(
+        endX -
+        headLength *
+        Math.cos(
+            angle + Math.PI / 6
+        ),
+        endY -
+        headLength *
+        Math.sin(
+            angle + Math.PI / 6
+        )
+    );
+
+
+    annotationCtx.closePath();
+
+
+    annotationCtx.fill();
+
+}
+
+
+
+/* =====================================================
+   TEXT
+===================================================== */
+
+function drawText(
+    text,
+    x,
+    y
+) {
+
+    prepareDrawingStyle();
+
+
+    const fontSize =
+        Math.max(
+            18,
+            annotationCanvas.width /
+            28
+        );
+
+
+    annotationCtx.font =
+        `700 ${fontSize}px Inter, Arial, sans-serif`;
+
+
+    /*
+     * Siyah outline.
+     * Kırmızı yazı.
+     */
+
+    annotationCtx.lineWidth =
+        Math.max(
+            3,
+            fontSize / 7
+        );
+
+
+    annotationCtx.strokeStyle =
+        "#000";
+
+
+    annotationCtx.strokeText(
+        text,
+        x,
+        y
+    );
+
+
+    annotationCtx.fillStyle =
+        "#ff3030";
+
+
+    annotationCtx.fillText(
+        text,
+        x,
+        y
+    );
+
+
+    prepareDrawingStyle();
+
+}
+
+
+
+/* =====================================================
+   TOOL SELECT
+===================================================== */
+
+document
+    .querySelectorAll(
+        ".tool-btn[data-tool]"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    annotationTool =
+                        button.dataset.tool;
+
+
+                    document
+                        .querySelectorAll(
+                            ".tool-btn[data-tool]"
+                        )
+                        .forEach(
+                            item =>
+                                item.classList.remove(
+                                    "active"
+                                )
+                        );
+
+
+                    button.classList.add(
+                        "active"
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+
+/* =====================================================
+   UNDO
+===================================================== */
+
+document
+    .getElementById(
+        "undoAnnotation"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            if (
+                annotationHistory.length <=
+                1
+            ) {
+
+                return;
+
+            }
+
+
+            /*
+             * Son snapshot'u çıkar.
+             */
+
+            annotationHistory.pop();
+
+
+            const previous =
+                annotationHistory[
+                    annotationHistory.length - 1
+                ];
+
+
+            annotationCtx.putImageData(
+                previous,
+                0,
+                0
+            );
+
+        }
+    );
+
+
+
+/* =====================================================
+   CLEAR
+===================================================== */
+
+document
+    .getElementById(
+        "clearAnnotation"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            const confirmed =
+                confirm(
+                    "Tüm işaretlemeler temizlensin mi?"
+                );
+
+
+            if (!confirmed) {
+
+                return;
+
+            }
+
+
+            setupAnnotationCanvas(
+                annotationImage
+            );
+
+        }
+    );
+
+
+
+/* =====================================================
+   SAVE ANNOTATION
+===================================================== */
+
+document
+    .getElementById(
+        "saveAnnotation"
+    )
+    .addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                const blob =
+                    await canvasToBlob();
+
+
+                await saveMarkedPhoto(
+                    blob
+                );
+
+
+                closeAnnotation();
+
+
+                await refreshCurrentFinding();
+
+
+                alert(
+                    "İşaretlenmiş fotoğraf kaydedildi."
+                );
+
+            }
+
+            catch(error) {
+
+                console.error(error);
+
+                alert(
+                    "Fotoğraf kaydedilemedi."
+                );
+
+            }
+
+        }
+    );
+
+
+
+/* =====================================================
+   CANVAS TO BLOB
+===================================================== */
+
+function canvasToBlob() {
+
+    return new Promise(
+        (resolve, reject) => {
+
+            annotationCanvas.toBlob(
+                blob => {
+
+                    if (blob) {
+
+                        resolve(blob);
+
+                    }
+
+                    else {
+
+                        reject(
+                            new Error(
+                                "Canvas blob oluşturulamadı."
+                            )
+                        );
+
+                    }
+
+                },
+                "image/jpeg",
+                0.92
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   SAVE MARKED PHOTO
+===================================================== */
+
+async function saveMarkedPhoto(
+    markedBlob
+) {
+
+    const findings =
+        await dbGetAll(
+            FINDINGS_STORE
+        );
+
+
+    const finding =
+        findings.find(
+            item =>
+                item.id ===
+                currentFindingId
+        );
+
+
+    if (!finding) {
+
+        throw new Error(
+            "Finding bulunamadı."
+        );
+
+    }
+
+
+    const photos =
+        getFindingPhotos(
+            finding
+        );
+
+
+    if (
+        !photos[currentPhotoIndex]
+    ) {
+
+        throw new Error(
+            "Fotoğraf bulunamadı."
+        );
+
+    }
+
+
+    /*
+     * Orijinal fotoğraf
+     * kesinlikle korunuyor.
+     */
+
+    photos[
+        currentPhotoIndex
+    ].marked =
+        markedBlob;
+
+
+    finding.photos =
+        photos;
+
+
+    /*
+     * Eski alanı temizle.
+     */
+
+    delete finding.photo;
+
+
+    await dbPut(
+        FINDINGS_STORE,
+        finding
+    );
+
+
+    currentPhotoList =
+        photos;
+
+}
+
+
+
+/* =====================================================
+   REFRESH CURRENT FINDING
+===================================================== */
+
+async function refreshCurrentFinding() {
+
+    const findings =
+        await dbGetAll(
+            FINDINGS_STORE
+        );
+
+
+    const finding =
+        findings.find(
+            item =>
+                item.id ===
+                currentFindingId
+        );
+
+
+    if (!finding) {
+
+        return;
+
+    }
+
+
+    currentPhotoList =
+        getFindingPhotos(
+            finding
+        );
+
+
+    renderCurrentPhoto();
+
+
+    /*
+     * Detail ekranını da
+     * yenile ama photo modalı
+     * kapatma.
+     */
+
+    await showInspectionDetail(
+        currentInspectionId
+    );
+
+
+    /*
+     * showInspectionDetail
+     * app'i yeniden oluşturduğu
+     * için photo modalını tekrar
+     * açıyoruz.
+     */
+
+    photoModal.classList.add(
+        "show"
+    );
+
+
+    renderCurrentPhoto();
+
+}
+
+
+
+/* =====================================================
+   CLOSE ANNOTATION
+===================================================== */
+
+function closeAnnotation() {
+
+    annotationModal.classList.remove(
+        "show"
+    );
+
+
+    annotationDrawing =
+        false;
+
+}
+
+
+
+/* =====================================================
+   PHOTO CONTROLS
 ===================================================== */
 
 document
@@ -1432,16 +3085,50 @@ document
     );
 
 
-function closePhoto() {
-
-    photoModal.classList.remove(
-        "show"
+document
+    .getElementById(
+        "photoPrev"
+    )
+    .addEventListener(
+        "click",
+        previousPhoto
     );
 
-    photoPreview.src = "";
 
-}
+document
+    .getElementById(
+        "photoNext"
+    )
+    .addEventListener(
+        "click",
+        nextPhoto
+    );
 
+
+document
+    .getElementById(
+        "annotatePhoto"
+    )
+    .addEventListener(
+        "click",
+        openAnnotation
+    );
+
+
+document
+    .getElementById(
+        "annotationClose"
+    )
+    .addEventListener(
+        "click",
+        closeAnnotation
+    );
+
+
+
+/* =====================================================
+   PHOTO MODAL BACKGROUND
+===================================================== */
 
 photoModal.addEventListener(
     "click",
@@ -1453,6 +3140,77 @@ photoModal.addEventListener(
         ) {
 
             closePhoto();
+
+        }
+
+    }
+);
+
+
+
+/* =====================================================
+   KEYBOARD
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            photoModal.classList.contains(
+                "show"
+            ) &&
+            !annotationModal.classList.contains(
+                "show"
+            )
+        ) {
+
+            if (
+                event.key ===
+                "ArrowLeft"
+            ) {
+
+                previousPhoto();
+
+            }
+
+
+            if (
+                event.key ===
+                "ArrowRight"
+            ) {
+
+                nextPhoto();
+
+            }
+
+
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                closePhoto();
+
+            }
+
+        }
+
+
+        if (
+            annotationModal.classList.contains(
+                "show"
+            )
+        ) {
+
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                closeAnnotation();
+
+            }
 
         }
 
@@ -1540,6 +3298,96 @@ findingModal.addEventListener(
 
         }
 
+    }
+);
+
+
+
+/* =====================================================
+   PHOTO SWIPE
+===================================================== */
+
+let touchStartX = 0;
+
+let touchEndX = 0;
+
+
+photoModal.addEventListener(
+    "touchstart",
+    event => {
+
+        if (
+            annotationModal.classList.contains(
+                "show"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        touchStartX =
+            event.changedTouches[0].screenX;
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+photoModal.addEventListener(
+    "touchend",
+    event => {
+
+        if (
+            annotationModal.classList.contains(
+                "show"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        touchEndX =
+            event.changedTouches[0].screenX;
+
+
+        const difference =
+            touchEndX -
+            touchStartX;
+
+
+        if (
+            Math.abs(difference) <
+            50
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            difference > 0
+        ) {
+
+            previousPhoto();
+
+        }
+
+        else {
+
+            nextPhoto();
+
+        }
+
+    },
+    {
+        passive: true
     }
 );
 
