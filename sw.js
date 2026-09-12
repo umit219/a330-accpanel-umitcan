@@ -1,13 +1,8 @@
-const CACHE = 'a330-v3';
+const CACHE = 'a330-v4';
 
 const FILES = [
   '/',
   '/index.html',
-
-  /* =========================
-     MAIN PAGES
-  ========================= */
-
   '/cb.html',
   '/panels.html',
   '/circuit.html',
@@ -15,64 +10,30 @@ const FILES = [
   '/fleet.html',
   '/unit.html',
   '/inspection.html',
-
-  /* =========================
-     JAVASCRIPT
-  ========================= */
-
   '/theme.js',
   '/data.js',
   '/resetData.js',
   '/fleet.js',
   '/unit.js',
   '/inspection.js',
-
-  /* =========================
-     CSS
-  ========================= */
-
   '/theme.css',
-
-  /* =========================
-     IMAGES
-  ========================= */
-
   '/lh1.png',
   '/rh2.png',
   '/330.png',
-
-  /* =========================
-     OTHER PAGES
-  ========================= */
-
   '/kisaltmalar.html',
   '/borescope.html',
   '/reset.html',
   '/bilgiler.html',
-
-  /* =========================
-     PWA
-  ========================= */
-
   '/manifest.json'
 ];
 
-
-/* =========================
-   INSTALL
-========================= */
 
 self.addEventListener('install', event => {
 
   event.waitUntil(
 
-    caches
-      .open(CACHE)
-      .then(cache => {
-
-        return cache.addAll(FILES);
-
-      })
+    caches.open(CACHE)
+      .then(cache => cache.addAll(FILES))
 
   );
 
@@ -81,16 +42,11 @@ self.addEventListener('install', event => {
 });
 
 
-/* =========================
-   ACTIVATE
-========================= */
-
 self.addEventListener('activate', event => {
 
   event.waitUntil(
 
-    caches
-      .keys()
+    caches.keys()
       .then(keys => {
 
         return Promise.all(
@@ -110,16 +66,7 @@ self.addEventListener('activate', event => {
 });
 
 
-/* =========================
-   FETCH
-========================= */
-
 self.addEventListener('fetch', event => {
-
-  /*
-   * Sadece GET isteklerini
-   * service worker üzerinden yönet.
-   */
 
   if (event.request.method !== 'GET') {
     return;
@@ -132,17 +79,9 @@ self.addEventListener('fetch', event => {
 
       .then(response => {
 
-        /*
-         * Başarılı internet cevabını
-         * cache'e kaydet.
-         */
+        const clone = response.clone();
 
-        const clone =
-          response.clone();
-
-
-        caches
-          .open(CACHE)
+        caches.open(CACHE)
           .then(cache => {
 
             cache.put(
@@ -152,16 +91,11 @@ self.addEventListener('fetch', event => {
 
           });
 
-
         return response;
 
       })
 
       .catch(() => {
-
-        /*
-         * İnternet yoksa cache'den getir.
-         */
 
         return caches.match(
           event.request
