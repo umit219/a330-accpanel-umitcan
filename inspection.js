@@ -1,781 +1,412 @@
-/* =====================================================
+/* =========================================================
    A330 INSPECTION RECORDER
    LOCAL ONLY
    IndexedDB
-   MULTI PHOTO + PHOTO MARKING
-===================================================== */
-
+   MULTI PHOTO
+   PHOTO ANNOTATION
+========================================================= */
 
 const DB_NAME = "A330InspectionDB";
-
 const DB_VERSION = 2;
 
 const INSPECTIONS_STORE = "inspections";
-
 const FINDINGS_STORE = "findings";
-
 
 let db = null;
 
 let currentInspectionId = null;
-
-
-/* =====================================================
-   PHOTO VIEWER STATE
-===================================================== */
-
-let currentPhotoList = [];
-
-let currentPhotoIndex = 0;
-
 let currentFindingId = null;
 
+let currentPhotoList = [];
+let currentPhotoIndex = 0;
 
+/* Yeni finding oluştururken geçici fotoğraflar */
+let pendingPhotos = [];
 
-/* =====================================================
-   ANNOTATION STATE
-===================================================== */
-
-let annotationCanvas =
-    document.getElementById(
-        "annotationCanvas"
-    );
-
-let annotationCtx =
-    annotationCanvas.getContext(
-        "2d"
-    );
-
+/* Annotation */
+const annotationCanvas = document.getElementById("annotationCanvas");
+const annotationCtx = annotationCanvas.getContext("2d");
 
 let annotationTool = "pen";
-
 let annotationDrawing = false;
 
 let annotationStartX = 0;
-
 let annotationStartY = 0;
 
 let annotationImage = null;
-
 let annotationHistory = [];
 
 let annotationOriginalBlob = null;
 
 
+/* =========================================================
+   SHORTCUT
+========================================================= */
 
-/* =====================================================
-   ELEMENTS
-===================================================== */
+const $ = id => document.getElementById(id);
 
-const app =
-    document.getElementById(
-        "app"
+const app = $("app");
+
+const inspectionModal = $("inspectionModal");
+const findingModal = $("findingModal");
+
+const aircraftInput = $("aircraftInput");
+const inspectionType = $("inspectionType");
+
+const findingLocation = $("findingLocation");
+const findingText = $("findingText");
+
+const photoModal = $("photoModal");
+const photoPreview = $("photoPreview");
+const photoCounter = $("photoCounter");
+
+const annotationModal = $("annotationModal");
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function escapeHtml(value) {
+
+    return String(value ?? "").replace(/[&<>"']/g, char => {
+
+        const map = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        };
+
+        return map[char];
+
+    });
+
+}
+
+
+function formatDate(timestamp) {
+
+    return new Date(timestamp).toLocaleString("tr-TR", {
+        dateStyle: "short",
+        timeStyle: "short"
+    });
+
+}
+
+
+function uid(prefix) {
+
+    return (
+        prefix +
+        "-" +
+        Date.now() +
+        "-" +
+        Math.random().toString(36).slice(2, 10)
     );
 
-
-const inspectionModal =
-    document.getElementById(
-        "inspectionModal"
-    );
+}
 
 
-const findingModal =
-    document.getElementById(
-        "findingModal"
-    );
-
-
-const aircraftInput =
-    document.getElementById(
-        "aircraftInput"
-    );
-
-
-const inspectionType =
-    document.getElementById(
-        "inspectionType"
-    );
-
-
-const findingLocation =
-    document.getElementById(
-        "findingLocation"
-    );
-
-
-const findingText =
-    document.getElementById(
-        "findingText"
-    );
-
-
-const findingPhoto =
-    document.getElementById(
-        "findingPhoto"
-    );
-
-
-const photoModal =
-    document.getElementById(
-        "photoModal"
-    );
-
-
-const photoPreview =
-    document.getElementById(
-        "photoPreview"
-    );
-
-
-const photoCounter =
-    document.getElementById(
-        "photoCounter"
-    );
-
-
-const annotationModal =
-    document.getElementById(
-        "annotationModal"
-    );
-
-
-
-/* =====================================================
+/* =========================================================
    DATABASE
-===================================================== */
+========================================================= */
 
 function openDatabase() {
 
-    return new Promise(
-        (resolve, reject) => {
+    return new Promise((resolve, reject) => {
 
-            const request =
-                indexedDB.open(
-                    DB_NAME,
-                    DB_VERSION
+        const request = indexedDB.open(
+            DB_NAME,
+            DB_VERSION
+        );
+
+
+        request.onupgradeneeded = event => {
+
+            const database = event.target.result;
+
+            /* INSPECTIONS */
+
+            if (!database.objectStoreNames.contains(INSPECTIONS_STORE)) {
+
+                database.createObjectStore(
+                    INSPECTIONS_STORE,
+                    {
+                        keyPath: "id"
+                    }
                 );
 
-
-            request.onupgradeneeded =
-                function(event) {
-
-                    const database =
-                        event.target.result;
+            }
 
 
-                    /*
-                     * Existing inspections store
-                     */
+            /* FINDINGS */
 
-                    if (
-                        !database
-                            .objectStoreNames
-                            .contains(
-                                INSPECTIONS_STORE
-                            )
-                    ) {
+            if (!database.objectStoreNames.contains(FINDINGS_STORE)) {
 
-                        const inspections =
-                            database.createObjectStore(
-                                INSPECTIONS_STORE,
+                database.createObjectStore(
+                    FINDINGS_STORE,
+                    {
+                        keyPath: "id"
+                    }
+                );
+
+            }
+
+
+            /*
+                Version 1 -> Version 2
+
+                Eski yapı:
+
+                finding.photo
+
+                Yeni yapı:
+
+                finding.photos = [
+                    {
+                        id,
+                        original,
+                        marked
+                    }
+                ]
+            */
+
+            if (event.oldVersion < 2) {
+
+                const transaction = event.target.transaction;
+
+                const store =
+                    transaction.objectStore(FINDINGS_STORE);
+
+                store.openCursor().onsuccess = e => {
+
+                    const cursor = e.target.result;
+
+                    if (!cursor) return;
+
+                    const finding = cursor.value;
+
+
+                    if (!Array.isArray(finding.photos)) {
+
+                        if (finding.photo) {
+
+                            finding.photos = [
                                 {
-                                    keyPath: "id"
+                                    id: "legacy-" + finding.id,
+                                    original: finding.photo,
+                                    marked: null
                                 }
-                            );
+                            ];
 
+                        } else {
 
-                        inspections.createIndex(
-                            "createdAt",
-                            "createdAt"
-                        );
+                            finding.photos = [];
 
-                    }
+                        }
 
+                        delete finding.photo;
 
-                    /*
-                     * Existing findings store
-                     */
-
-                    if (
-                        !database
-                            .objectStoreNames
-                            .contains(
-                                FINDINGS_STORE
-                            )
-                    ) {
-
-                        const findings =
-                            database.createObjectStore(
-                                FINDINGS_STORE,
-                                {
-                                    keyPath: "id"
-                                }
-                            );
-
-
-                        findings.createIndex(
-                            "inspectionId",
-                            "inspectionId"
-                        );
-
-
-                        findings.createIndex(
-                            "createdAt",
-                            "createdAt"
-                        );
+                        cursor.update(finding);
 
                     }
 
 
-                    /*
-                     * IMPORTANT:
-                     *
-                     * DB v1'de:
-                     *
-                     * photo: Blob
-                     *
-                     * vardı.
-                     *
-                     * Yeni sistem:
-                     *
-                     * photos: [
-                     *   {
-                     *      id,
-                     *      original,
-                     *      marked
-                     *   }
-                     * ]
-                     *
-                     * kullanıyor.
-                     */
-
-
-                    if (
-                        event.oldVersion < 2
-                    ) {
-
-                        const transaction =
-                            event.target.transaction;
-
-
-                        const store =
-                            transaction.objectStore(
-                                FINDINGS_STORE
-                            );
-
-
-                        store.getAll().onsuccess =
-                            function(e) {
-
-                                const findings =
-                                    e.target.result;
-
-
-                                findings.forEach(
-                                    finding => {
-
-                                        /*
-                                         * Eski tek
-                                         * fotoğrafı
-                                         * yeni yapıya
-                                         * taşı.
-                                         */
-
-                                        if (
-                                            finding.photo &&
-                                            !finding.photos
-                                        ) {
-
-                                            finding.photos = [
-
-                                                {
-
-                                                    id:
-                                                        createId(),
-
-                                                    original:
-                                                        finding.photo,
-
-                                                    marked:
-                                                        null
-
-                                                }
-
-                                            ];
-
-
-                                            delete finding.photo;
-
-
-                                            store.put(
-                                                finding
-                                            );
-
-                                        }
-
-
-                                        /*
-                                         * Fotoğrafı olmayan
-                                         * eski finding.
-                                         */
-
-                                        if (
-                                            !finding.photos
-                                        ) {
-
-                                            finding.photos = [];
-
-                                            store.put(
-                                                finding
-                                            );
-
-                                        }
-
-                                    }
-                                );
-
-                            };
-
-                    }
+                    cursor.continue();
 
                 };
 
+            }
 
-            request.onsuccess =
-                function(event) {
-
-                    db =
-                        event.target.result;
+        };
 
 
-                    resolve(db);
+        request.onsuccess = () => {
 
-                };
+            db = request.result;
+
+            resolve(db);
+
+        };
 
 
-            request.onerror =
-                function() {
+        request.onerror = () => {
 
-                    reject(
-                        request.error
-                    );
+            reject(request.error);
 
-                };
+        };
 
-        }
-    );
+    });
 
 }
 
 
+/* =========================================================
+   DATABASE HELPERS
+========================================================= */
 
-/* =====================================================
-   DB HELPERS
-===================================================== */
+function dbPut(storeName, value) {
 
-function dbPut(
-    storeName,
-    data
-) {
+    return new Promise((resolve, reject) => {
 
-    return new Promise(
-        (resolve, reject) => {
+        const transaction =
+            db.transaction(
+                storeName,
+                "readwrite"
+            );
 
-            const transaction =
-                db.transaction(
-                    storeName,
-                    "readwrite"
-                );
+        const store =
+            transaction.objectStore(storeName);
 
-
-            const store =
-                transaction.objectStore(
-                    storeName
-                );
+        const request = store.put(value);
 
 
-            const request =
-                store.put(data);
+        request.onsuccess = () => {
+
+            resolve(request.result);
+
+        };
 
 
-            request.onsuccess =
-                () => resolve(data);
+        request.onerror = () => {
 
+            reject(request.error);
 
-            request.onerror =
-                () => reject(
-                    request.error
-                );
+        };
 
-        }
-    );
+    });
 
 }
 
 
+function dbGetAll(storeName) {
 
-function dbGetAll(
-    storeName
-) {
+    return new Promise((resolve, reject) => {
 
-    return new Promise(
-        (resolve, reject) => {
+        const transaction =
+            db.transaction(
+                storeName,
+                "readonly"
+            );
 
-            const transaction =
-                db.transaction(
-                    storeName,
-                    "readonly"
-                );
+        const store =
+            transaction.objectStore(storeName);
 
-
-            const store =
-                transaction.objectStore(
-                    storeName
-                );
+        const request = store.getAll();
 
 
-            const request =
-                store.getAll();
+        request.onsuccess = () => {
+
+            resolve(request.result || []);
+
+        };
 
 
-            request.onsuccess =
-                () => resolve(
-                    request.result
-                );
+        request.onerror = () => {
 
+            reject(request.error);
 
-            request.onerror =
-                () => reject(
-                    request.error
-                );
+        };
 
-        }
-    );
+    });
 
 }
 
 
+function dbDelete(storeName, key) {
 
-function dbDelete(
-    storeName,
-    id
-) {
+    return new Promise((resolve, reject) => {
 
-    return new Promise(
-        (resolve, reject) => {
+        const transaction =
+            db.transaction(
+                storeName,
+                "readwrite"
+            );
 
-            const transaction =
-                db.transaction(
-                    storeName,
-                    "readwrite"
-                );
+        const store =
+            transaction.objectStore(storeName);
 
-
-            const store =
-                transaction.objectStore(
-                    storeName
-                );
+        const request =
+            store.delete(key);
 
 
-            const request =
-                store.delete(id);
+        request.onsuccess = () => {
+
+            resolve();
+
+        };
 
 
-            request.onsuccess =
-                () => resolve();
+        request.onerror = () => {
 
+            reject(request.error);
 
-            request.onerror =
-                () => reject(
-                    request.error
-                );
+        };
 
-        }
-    );
+    });
 
 }
 
 
+/* =========================================================
+   PHOTO DATA
+========================================================= */
 
-/* =====================================================
-   ID
-===================================================== */
+function getFindingPhotos(finding) {
 
-function createId() {
+    if (Array.isArray(finding.photos)) {
 
-    if (
-        typeof crypto !== "undefined" &&
-        crypto.randomUUID
-    ) {
-
-        return crypto.randomUUID();
+        return finding.photos;
 
     }
 
 
-    return (
-        Date.now().toString(36) +
-        Math.random()
-            .toString(36)
-            .slice(2)
-    );
+    /*
+       Eski kayıt desteği
+    */
 
-}
+    if (finding.photo) {
 
-
-
-/* =====================================================
-   DATE
-===================================================== */
-
-function formatDate(
-    timestamp
-) {
-
-    return new Intl.DateTimeFormat(
-        "tr-TR",
-        {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    ).format(
-        new Date(timestamp)
-    );
-
-}
-
-
-
-/* =====================================================
-   ESCAPE
-===================================================== */
-
-function escapeHtml(
-    value
-) {
-
-    return String(value)
-
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
-
-}
-
-
-
-/* =====================================================
-   OPEN INSPECTION MODAL
-===================================================== */
-
-function openInspectionModal() {
-
-    aircraftInput.value = "";
-
-    inspectionType.value =
-        "Landing Gear Inspection";
-
-
-    inspectionModal.classList.add(
-        "show"
-    );
-
-
-    setTimeout(
-        () =>
-            aircraftInput.focus(),
-        100
-    );
-
-}
-
-
-
-function closeInspectionModal() {
-
-    inspectionModal.classList.remove(
-        "show"
-    );
-
-}
-
-
-
-/* =====================================================
-   OPEN FINDING MODAL
-===================================================== */
-
-function openFindingModal() {
-
-    findingLocation.value = "";
-
-    findingText.value = "";
-
-    findingPhoto.value = "";
-
-
-    findingModal.classList.add(
-        "show"
-    );
-
-
-    setTimeout(
-        () =>
-            findingLocation.focus(),
-        100
-    );
-
-}
-
-
-
-function closeFindingModal() {
-
-    findingModal.classList.remove(
-        "show"
-    );
-
-}
-
-
-
-/* =====================================================
-   CREATE INSPECTION
-===================================================== */
-
-async function createInspection() {
-
-    const aircraft =
-        aircraftInput.value.trim();
-
-
-    if (!aircraft) {
-
-        alert(
-            "Lütfen uçak registration bilgisini girin."
-        );
-
-        aircraftInput.focus();
-
-        return;
+        return [
+            {
+                id: "legacy-" + finding.id,
+                original: finding.photo,
+                marked: null
+            }
+        ];
 
     }
 
 
-    const inspection = {
-
-        id:
-            createId(),
-
-        aircraft:
-            aircraft,
-
-        type:
-            inspectionType.value,
-
-        createdAt:
-            Date.now()
-
-    };
-
-
-    try {
-
-        await dbPut(
-            INSPECTIONS_STORE,
-            inspection
-        );
-
-
-        closeInspectionModal();
-
-
-        await showInspectionList();
-
-    }
-
-    catch(error) {
-
-        console.error(error);
-
-        alert(
-            "Inspection kaydedilemedi."
-        );
-
-    }
+    return [];
 
 }
 
 
-
-/* =====================================================
+/* =========================================================
    INSPECTION LIST
-===================================================== */
+========================================================= */
 
 async function showInspectionList() {
 
     currentInspectionId = null;
 
 
-    const inspections =
-        await dbGetAll(
-            INSPECTIONS_STORE
-        );
+    const [
+        inspections,
+        findings
+    ] = await Promise.all([
 
+        dbGetAll(INSPECTIONS_STORE),
+        dbGetAll(FINDINGS_STORE)
 
-    const findings =
-        await dbGetAll(
-            FINDINGS_STORE
-        );
+    ]);
 
 
     inspections.sort(
-        (a, b) =>
-            b.createdAt -
-            a.createdAt
-    );
-
-
-    const findingCounts = {};
-
-
-    findings.forEach(
-        finding => {
-
-            findingCounts[
-                finding.inspectionId
-            ] =
-                (
-                    findingCounts[
-                        finding.inspectionId
-                    ] || 0
-                ) + 1;
-
-        }
+        (a, b) => b.createdAt - a.createdAt
     );
 
 
@@ -784,12 +415,11 @@ async function showInspectionList() {
         <button
             id="newInspectionBtn"
             class="primary-btn"
-            type="button"
-        >
-            + NEW INSPECTION
-        </button>
+            type="button">
 
-        <div style="height:14px;"></div>
+            + NEW INSPECTION
+
+        </button>
 
     `;
 
@@ -802,13 +432,9 @@ async function showInspectionList() {
 
                 <div class="empty-state">
 
-                    Henüz inspection kaydı yok.
+                    Henüz inspection kaydı yok.<br>
 
-                    <br><br>
-
-                    İlk inspection'ı oluşturup
-                    bulgularını fotoğraflarıyla
-                    birlikte kaydedebilirsin.
+                    Yeni bir inspection oluşturarak başlayın.
 
                 </div>
 
@@ -816,73 +442,55 @@ async function showInspectionList() {
 
         `;
 
-    }
+    } else {
 
-
-    inspections.forEach(
-        inspection => {
+        html += inspections.map(inspection => {
 
             const count =
-                findingCounts[
-                    inspection.id
-                ] || 0;
+                findings.filter(
+                    finding =>
+                        finding.inspectionId === inspection.id
+                ).length;
 
 
-            html += `
+            return `
 
                 <div
                     class="card inspection-card"
-                    data-id="${inspection.id}"
-                >
+                    data-id="${escapeHtml(inspection.id)}">
 
-                    <div
-                        class="inspection-card-title"
-                    >
-                        ${escapeHtml(
-                            inspection.type
-                        )}
+                    <div class="inspection-card-title">
+
+                        ${escapeHtml(inspection.type)}
+
                     </div>
 
 
-                    <div
-                        class="inspection-card-sub"
-                    >
+                    <div class="inspection-card-sub">
 
-                        ✈️
-                        ${escapeHtml(
-                            inspection.aircraft
-                        )}
+                        ✈️ ${escapeHtml(inspection.aircraft)}
 
                         <br>
 
-                        ${formatDate(
-                            inspection.createdAt
-                        )}
+                        ${formatDate(inspection.createdAt)}
 
                     </div>
 
 
-                    <div
-                        class="inspection-card-footer"
-                    >
+                    <div class="inspection-card-footer">
 
                         <span>
 
                             ${count}
-
-                            ${
-                                count === 1
-                                    ? "Finding"
-                                    : "Findings"
-                            }
+                            ${count === 1 ? "Finding" : "Findings"}
 
                         </span>
 
 
-                        <span
-                            class="finding-count"
-                        >
+                        <span class="finding-count">
+
                             OPEN →
+
                         </span>
 
                     </div>
@@ -891,123 +499,58 @@ async function showInspectionList() {
 
             `;
 
-        }
-    );
+        }).join("");
+
+    }
 
 
     app.innerHTML = html;
 
 
-    document
-        .getElementById(
-            "newInspectionBtn"
-        )
-        .addEventListener(
-            "click",
-            openInspectionModal
-        );
+    $("newInspectionBtn").onclick =
+        openInspectionModal;
 
 
     document
-        .querySelectorAll(
-            ".inspection-card"
-        )
+        .querySelectorAll(".inspection-card")
         .forEach(card => {
 
-            card.addEventListener(
-                "click",
-                () =>
-                    showInspectionDetail(
-                        card.dataset.id
-                    )
-            );
+            card.onclick = () => {
+
+                showInspectionDetail(
+                    card.dataset.id
+                );
+
+            };
 
         });
 
 }
 
 
-
-/* =====================================================
-   GET FINDING PHOTOS
-===================================================== */
-
-function getFindingPhotos(
-    finding
-) {
-
-    /*
-     * Yeni sistem.
-     */
-
-    if (
-        Array.isArray(
-            finding.photos
-        )
-    ) {
-
-        return finding.photos;
-
-    }
-
-
-    /*
-     * Güvenlik için eski
-     * sistem desteği.
-     */
-
-    if (finding.photo) {
-
-        return [
-
-            {
-
-                id:
-                    "legacy-" +
-                    finding.id,
-
-                original:
-                    finding.photo,
-
-                marked:
-                    null
-
-            }
-
-        ];
-
-    }
-
-
-    return [];
-
-}
-
-
-
-/* =====================================================
+/* =========================================================
    INSPECTION DETAIL
-===================================================== */
+========================================================= */
 
-async function showInspectionDetail(
-    inspectionId
-) {
+async function showInspectionDetail(id) {
 
-    currentInspectionId =
-        inspectionId;
+    currentInspectionId = id;
 
 
-    const inspections =
-        await dbGetAll(
-            INSPECTIONS_STORE
-        );
+    const [
+        inspections,
+        allFindings
+    ] = await Promise.all([
+
+        dbGetAll(INSPECTIONS_STORE),
+        dbGetAll(FINDINGS_STORE)
+
+    ]);
 
 
     const inspection =
         inspections.find(
-            item =>
-                item.id ===
-                inspectionId
+            item => item.id === id
         );
 
 
@@ -1021,24 +564,14 @@ async function showInspectionDetail(
 
 
     const findings =
-        await dbGetAll(
-            FINDINGS_STORE
-        );
-
-
-    const inspectionFindings =
-        findings
-
+        allFindings
             .filter(
                 finding =>
-                    finding.inspectionId ===
-                    inspectionId
+                    finding.inspectionId === id
             )
-
             .sort(
                 (a, b) =>
-                    a.createdAt -
-                    b.createdAt
+                    a.createdAt - b.createdAt
             );
 
 
@@ -1047,9 +580,10 @@ async function showInspectionDetail(
         <button
             id="detailBack"
             class="detail-back"
-            type="button"
-        >
+            type="button">
+
             ← Inspection Listesi
+
         </button>
 
 
@@ -1061,25 +595,18 @@ async function showInspectionDetail(
 
                     <div class="detail-title">
 
-                        ${escapeHtml(
-                            inspection.type
-                        )}
+                        ${escapeHtml(inspection.type)}
 
                     </div>
 
 
                     <div class="detail-meta">
 
-                        ✈️
-                        ${escapeHtml(
-                            inspection.aircraft
-                        )}
+                        ✈️ ${escapeHtml(inspection.aircraft)}
 
                         <br>
 
-                        ${formatDate(
-                            inspection.createdAt
-                        )}
+                        ${formatDate(inspection.createdAt)}
 
                     </div>
 
@@ -1089,9 +616,10 @@ async function showInspectionDetail(
                 <button
                     id="deleteInspection"
                     class="danger-btn"
-                    type="button"
-                >
+                    type="button">
+
                     DELETE
+
                 </button>
 
             </div>
@@ -1100,9 +628,10 @@ async function showInspectionDetail(
             <button
                 id="addFindingBtn"
                 class="primary-btn add-finding"
-                type="button"
-            >
+                type="button">
+
                 + ADD FINDING
+
             </button>
 
         </div>
@@ -1110,7 +639,7 @@ async function showInspectionDetail(
     `;
 
 
-    if (!inspectionFindings.length) {
+    if (!findings.length) {
 
         html += `
 
@@ -1121,199 +650,185 @@ async function showInspectionDetail(
                     Bu inspection için henüz
                     bulgu eklenmedi.
 
-                    <br><br>
-
-                    <strong>
-                        + ADD FINDING
-                    </strong>
-
-                    ile ilk bulguyu ekleyebilirsin.
-
                 </div>
 
             </div>
 
         `;
 
-    }
+    } else {
 
-
-    inspectionFindings.forEach(
-        (finding, index) => {
+        html += findings.map((finding, index) => {
 
             const photos =
-                getFindingPhotos(
-                    finding
-                );
+                getFindingPhotos(finding);
 
 
-            html += `
+            const photoHtml =
+                photos.length
 
-                <div
-                    class="finding-card"
-                    data-finding-card="${finding.id}"
-                >
+                ?
+
+                photos.map((photo, photoIndex) => {
+
+                    const blob =
+                        photo.marked ||
+                        photo.original;
+
+                    const url =
+                        URL.createObjectURL(blob);
 
 
-                    <div
-                        class="finding-main"
-                    >
+                    return `
 
-                        <div
-                            class="finding-number"
-                        >
-                            FINDING #${index + 1}
+                        <div class="gallery-photo-wrap">
+
+                            <img
+                                class="gallery-photo"
+                                data-finding="${escapeHtml(finding.id)}"
+                                data-index="${photoIndex}"
+                                src="${url}"
+                                alt="Finding photo">
+
+
+                            <span class="photo-number">
+
+                                ${photoIndex + 1}
+
+                            </span>
+
+
+                            ${
+                                photo.marked
+
+                                ?
+
+                                `<span class="marked-badge">
+                                    MARKED
+                                </span>`
+
+                                :
+
+                                ""
+                            }
+
                         </div>
 
+                    `;
 
-                        <div
-                            class="finding-location"
-                        >
-                            ${escapeHtml(
-                                finding.location
-                            )}
-                        </div>
+                }).join("")
 
+                :
 
-                        <div
-                            class="finding-text"
-                        >
-                            ${escapeHtml(
-                                finding.text
-                            )}
-                        </div>
-
-
-                        <div
-                            class="finding-arrow"
-                        >
-                            ▼
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        class="finding-expand"
-                    >
-
-                        <div
-                            class="finding-divider"
-                        ></div>
-
-            `;
-
-
-            if (photos.length) {
-
-                html += `
-
-                    <div class="photo-gallery">
-
-                `;
-
-
-                photos.forEach(
-                    (photo, photoIndex) => {
-
-                        const blob =
-                            photo.marked ||
-                            photo.original;
-
-
-                        const url =
-                            URL.createObjectURL(
-                                blob
-                            );
-
-
-                        html += `
-
-                            <div
-                                class="gallery-photo-wrap"
-                            >
-
-                                <img
-                                    class="gallery-photo"
-                                    src="${url}"
-                                    data-photo-url="${url}"
-                                    data-finding-id="${finding.id}"
-                                    data-photo-index="${photoIndex}"
-                                    alt="Finding photo"
-                                >
-
-
-                                <span
-                                    class="photo-number"
-                                >
-                                    ${photoIndex + 1}
-                                </span>
-
-
-                                ${
-                                    photo.marked
-                                        ? `
-                                            <span
-                                                class="marked-badge"
-                                            >
-                                                MARKED
-                                            </span>
-                                          `
-                                        : ""
-                                }
-
-                            </div>
-
-                        `;
-
-                    }
-                );
-
-
-                html += `
-
-                    </div>
-
-                `;
-
-            }
-
-            else {
-
-                html += `
+                `
 
                     <div class="no-photo">
 
-                        📷 Fotoğraf eklenmemiş
+                        No photos
 
                     </div>
 
                 `;
 
-            }
+
+            return `
+
+                <div
+                    class="finding-card"
+                    data-id="${escapeHtml(finding.id)}">
 
 
-            html += `
+                    <!-- FINDING HEADER -->
 
-                        <div
-                            class="finding-footer"
-                        >
+                    <div class="finding-main">
 
-                            <span
-                                class="finding-date"
-                            >
+                        <div class="finding-number">
+
+                            FINDING ${index + 1}
+
+                        </div>
+
+
+                        <div class="finding-location">
+
+                            ${escapeHtml(
+                                finding.location ||
+                                "No location"
+                            )}
+
+                        </div>
+
+
+                        <div class="finding-text">
+
+                            ${escapeHtml(
+                                finding.text || ""
+                            )}
+
+                        </div>
+
+
+                        <div class="finding-arrow">
+
+                            ⌄
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- EXPANDED AREA -->
+
+                    <div class="finding-expand">
+
+                        <div class="finding-divider"></div>
+
+
+                        <!-- PHOTO GALLERY -->
+
+                        <div class="photo-gallery">
+
+                            ${photoHtml}
+
+                        </div>
+
+
+                        <!-- ADD MORE PHOTOS -->
+
+                        <div style="margin-top:10px">
+
+                            <button
+                                class="add-photos-btn add-photos"
+                                data-id="${escapeHtml(finding.id)}"
+                                type="button">
+
+                                ＋ ADD PHOTOS
+
+                            </button>
+
+                        </div>
+
+
+                        <!-- FOOTER -->
+
+                        <div class="finding-footer">
+
+                            <span class="finding-date">
+
                                 ${formatDate(
                                     finding.createdAt
                                 )}
+
                             </span>
 
 
                             <button
                                 class="delete-finding"
-                                type="button"
-                                data-finding-id="${finding.id}"
-                            >
+                                data-id="${escapeHtml(finding.id)}"
+                                type="button">
+
                                 DELETE
+
                             </button>
 
                         </div>
@@ -1324,186 +839,433 @@ async function showInspectionDetail(
 
             `;
 
-        }
-    );
+        }).join("");
+
+    }
 
 
     app.innerHTML = html;
 
 
+    /* BACK */
 
-    /* =================================================
-       BACK
-    ================================================= */
-
-    document
-        .getElementById(
-            "detailBack"
-        )
-        .addEventListener(
-            "click",
-            showInspectionList
-        );
+    $("detailBack").onclick =
+        showInspectionList;
 
 
+    /* ADD FINDING */
 
-    /* =================================================
-       ADD FINDING
-    ================================================= */
-
-    document
-        .getElementById(
-            "addFindingBtn"
-        )
-        .addEventListener(
-            "click",
-            event => {
-
-                event.stopPropagation();
-
-                openFindingModal();
-
-            }
-        );
+    $("addFindingBtn").onclick =
+        openFindingModal;
 
 
+    /* DELETE INSPECTION */
 
-    /* =================================================
-       DELETE INSPECTION
-    ================================================= */
+    $("deleteInspection").onclick =
+        () => deleteInspection(id);
+
+
+    /* FINDING ACCORDION */
 
     document
-        .getElementById(
-            "deleteInspection"
-        )
-        .addEventListener(
-            "click",
-            event => {
-
-                event.stopPropagation();
-
-                deleteInspection(
-                    inspection.id
-                );
-
-            }
-        );
-
-
-
-    /* =================================================
-       FINDING OPEN / CLOSE
-    ================================================= */
-
-    document
-        .querySelectorAll(
-            ".finding-card"
-        )
+        .querySelectorAll(".finding-card")
         .forEach(card => {
 
-            card.addEventListener(
-                "click",
-                event => {
-
-                    if (
-                        event.target.closest(
-                            ".delete-finding"
-                        ) ||
-                        event.target.closest(
-                            ".gallery-photo"
-                        )
-                    ) {
-
-                        return;
-
-                    }
+            const main =
+                card.querySelector(".finding-main");
 
 
-                    card.classList.toggle(
-                        "expanded"
-                    );
+            main.onclick = () => {
 
-                }
-            );
+                card.classList.toggle(
+                    "expanded"
+                );
+
+            };
 
         });
 
 
-
-    /* =================================================
-       DELETE FINDING
-    ================================================= */
+    /* OPEN PHOTOS */
 
     document
-        .querySelectorAll(
-            ".delete-finding"
-        )
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                async event => {
-
-                    event.stopPropagation();
-
-
-                    await deleteFinding(
-                        button.dataset
-                            .findingId
-                    );
-
-                }
-            );
-
-        });
-
-
-
-    /* =================================================
-       PHOTO CLICK
-    ================================================= */
-
-    document
-        .querySelectorAll(
-            ".gallery-photo"
-        )
+        .querySelectorAll(".gallery-photo")
         .forEach(image => {
 
-            image.addEventListener(
-                "click",
-                event => {
+            image.onclick = event => {
 
-                    event.stopPropagation();
+                event.stopPropagation();
 
 
-                    openPhotoViewer(
-                        image.dataset.findingId,
-                        Number(
-                            image.dataset.photoIndex
-                        )
-                    );
+                openPhotoViewer(
+                    image.dataset.finding,
+                    Number(image.dataset.index)
+                );
 
-                }
-            );
+            };
+
+        });
+
+
+    /* DELETE FINDING */
+
+    document
+        .querySelectorAll(".delete-finding")
+        .forEach(button => {
+
+            button.onclick = event => {
+
+                event.stopPropagation();
+
+                deleteFinding(
+                    button.dataset.id
+                );
+
+            };
+
+        });
+
+
+    /* ADD PHOTOS */
+
+    document
+        .querySelectorAll(".add-photos")
+        .forEach(button => {
+
+            button.onclick = event => {
+
+                event.stopPropagation();
+
+
+                currentFindingId =
+                    button.dataset.id;
+
+
+                $("addPhotosInput").value = "";
+
+
+                $("addPhotosInput").click();
+
+            };
 
         });
 
 }
 
 
+/* =========================================================
+   DELETE INSPECTION
+========================================================= */
 
-/* =====================================================
-   CREATE FINDING
-===================================================== */
+async function deleteInspection(id) {
 
-async function createFinding() {
+    const confirmed =
+        confirm(
+            "Bu inspection ve tüm finding kayıtları silinsin mi?"
+        );
 
-    if (!currentInspectionId) {
+
+    if (!confirmed) return;
+
+
+    const findings =
+        await dbGetAll(FINDINGS_STORE);
+
+
+    const related =
+        findings.filter(
+            finding =>
+                finding.inspectionId === id
+        );
+
+
+    for (const finding of related) {
+
+        await dbDelete(
+            FINDINGS_STORE,
+            finding.id
+        );
+
+    }
+
+
+    await dbDelete(
+        INSPECTIONS_STORE,
+        id
+    );
+
+
+    await showInspectionList();
+
+}
+
+
+/* =========================================================
+   DELETE FINDING
+========================================================= */
+
+async function deleteFinding(id) {
+
+    const confirmed =
+        confirm(
+            "Bu finding silinsin mi?"
+        );
+
+
+    if (!confirmed) return;
+
+
+    await dbDelete(
+        FINDINGS_STORE,
+        id
+    );
+
+
+    await showInspectionDetail(
+        currentInspectionId
+    );
+
+}
+
+
+/* =========================================================
+   NEW INSPECTION
+========================================================= */
+
+function openInspectionModal() {
+
+    inspectionModal.classList.add("show");
+
+    aircraftInput.focus();
+
+}
+
+
+function closeInspectionModal() {
+
+    inspectionModal.classList.remove("show");
+
+    aircraftInput.value = "";
+
+}
+
+
+async function saveInspection() {
+
+    const aircraft =
+        aircraftInput.value.trim();
+
+
+    if (!aircraft) {
+
+        alert(
+            "Aircraft bilgisini girin."
+        );
 
         return;
 
     }
 
+
+    const inspection = {
+
+        id: uid("inspection"),
+
+        aircraft: aircraft,
+
+        type: inspectionType.value,
+
+        createdAt: Date.now()
+
+    };
+
+
+    await dbPut(
+        INSPECTIONS_STORE,
+        inspection
+    );
+
+
+    closeInspectionModal();
+
+    await showInspectionList();
+
+}
+
+
+/* =========================================================
+   FINDING MODAL
+========================================================= */
+
+function resetPendingPhotos() {
+
+    pendingPhotos = [];
+
+    renderPendingPhotos();
+
+}
+
+
+function openFindingModal() {
+
+    resetPendingPhotos();
+
+    findingLocation.value = "";
+
+    findingText.value = "";
+
+    findingModal.classList.add("show");
+
+    findingLocation.focus();
+
+}
+
+
+function closeFindingModal() {
+
+    findingModal.classList.remove("show");
+
+    resetPendingPhotos();
+
+}
+
+
+/* =========================================================
+   ADD PHOTOS TO TEMPORARY FINDING
+========================================================= */
+
+function addPendingFiles(files) {
+
+    const fileArray =
+        Array.from(files || []);
+
+
+    for (const file of fileArray) {
+
+        if (
+            file.type &&
+            file.type.startsWith("image/")
+        ) {
+
+            pendingPhotos.push({
+
+                file: file,
+
+                id: uid("photo")
+
+            });
+
+        }
+
+    }
+
+
+    renderPendingPhotos();
+
+}
+
+
+/* =========================================================
+   PENDING PHOTO PREVIEW
+========================================================= */
+
+function renderPendingPhotos() {
+
+    const info =
+        $("photoSelectionInfo");
+
+
+    const gallery =
+        $("pendingGallery");
+
+
+    if (!pendingPhotos.length) {
+
+        info.textContent =
+            "Henüz fotoğraf seçilmedi.";
+
+        gallery.innerHTML = "";
+
+        return;
+
+    }
+
+
+    info.textContent =
+        `${pendingPhotos.length} fotoğraf seçildi.`;
+
+
+    gallery.innerHTML =
+        pendingPhotos
+            .map((photo, index) => {
+
+                const url =
+                    URL.createObjectURL(
+                        photo.file
+                    );
+
+
+                return `
+
+                    <div class="pending-item">
+
+                        <img
+                            src="${url}"
+                            alt="Selected photo">
+
+
+                        <button
+                            class="pending-remove"
+                            data-index="${index}"
+                            type="button">
+
+                            ×
+
+                        </button>
+
+                    </div>
+
+                `;
+
+            })
+            .join("");
+
+
+    document
+        .querySelectorAll(".pending-remove")
+        .forEach(button => {
+
+            button.onclick = event => {
+
+                event.stopPropagation();
+
+
+                const index =
+                    Number(
+                        button.dataset.index
+                    );
+
+
+                pendingPhotos.splice(
+                    index,
+                    1
+                );
+
+
+                renderPendingPhotos();
+
+            };
+
+        });
+
+}
+
+
+/* =========================================================
+   SAVE FINDING
+========================================================= */
+
+async function saveFinding() {
 
     const location =
         findingLocation.value.trim();
@@ -1513,26 +1275,11 @@ async function createFinding() {
         findingText.value.trim();
 
 
-    if (!location) {
+    if (!location || !text) {
 
         alert(
-            "Lütfen bulgunun bulunduğu yeri girin."
+            "Location ve Finding alanlarını doldurun."
         );
-
-        findingLocation.focus();
-
-        return;
-
-    }
-
-
-    if (!text) {
-
-        alert(
-            "Lütfen bulguyu yazın."
-        );
-
-        findingText.focus();
 
         return;
 
@@ -1542,26 +1289,106 @@ async function createFinding() {
     const photos = [];
 
 
-    if (
-        findingPhoto.files &&
-        findingPhoto.files.length
-    ) {
+    for (const pending of pendingPhotos) {
 
-        for (
-            const file
-            of findingPhoto.files
+        photos.push({
+
+            id: pending.id,
+
+            original: pending.file,
+
+            marked: null
+
+        });
+
+    }
+
+
+    const finding = {
+
+        id: uid("finding"),
+
+        inspectionId:
+            currentInspectionId,
+
+        location: location,
+
+        text: text,
+
+        photos: photos,
+
+        createdAt: Date.now()
+
+    };
+
+
+    await dbPut(
+        FINDINGS_STORE,
+        finding
+    );
+
+
+    closeFindingModal();
+
+
+    await showInspectionDetail(
+        currentInspectionId
+    );
+
+}
+
+
+/* =========================================================
+   ADD PHOTOS TO EXISTING FINDING
+========================================================= */
+
+async function addPhotosToFinding(files) {
+
+    if (!currentFindingId) return;
+
+
+    const findings =
+        await dbGetAll(
+            FINDINGS_STORE
+        );
+
+
+    const finding =
+        findings.find(
+            item =>
+                item.id === currentFindingId
+        );
+
+
+    if (!finding) return;
+
+
+    if (!Array.isArray(finding.photos)) {
+
+        finding.photos =
+            getFindingPhotos(finding);
+
+    }
+
+
+    const fileArray =
+        Array.from(files || []);
+
+
+    for (const file of fileArray) {
+
+        if (
+            file.type &&
+            file.type.startsWith("image/")
         ) {
 
-            photos.push({
+            finding.photos.push({
 
-                id:
-                    createId(),
+                id: uid("photo"),
 
-                original:
-                    file,
+                original: file,
 
-                marked:
-                    null
+                marked: null
 
             });
 
@@ -1570,190 +1397,26 @@ async function createFinding() {
     }
 
 
-    const finding = {
-
-        id:
-            createId(),
-
-        inspectionId:
-            currentInspectionId,
-
-        location:
-            location,
-
-        text:
-            text,
-
-        photos:
-            photos,
-
-        createdAt:
-            Date.now()
-
-    };
+    await dbPut(
+        FINDINGS_STORE,
+        finding
+    );
 
 
-    try {
-
-        await dbPut(
-            FINDINGS_STORE,
-            finding
-        );
-
-
-        closeFindingModal();
-
-
-        await showInspectionDetail(
-            currentInspectionId
-        );
-
-    }
-
-    catch(error) {
-
-        console.error(error);
-
-        alert(
-            "Bulgu kaydedilemedi."
-        );
-
-    }
+    await showInspectionDetail(
+        currentInspectionId
+    );
 
 }
 
 
-
-/* =====================================================
-   DELETE FINDING
-===================================================== */
-
-async function deleteFinding(
-    findingId
-) {
-
-    const confirmed =
-        confirm(
-            "Bu bulgu ve tüm fotoğrafları silinsin mi?"
-        );
-
-
-    if (!confirmed) {
-
-        return;
-
-    }
-
-
-    try {
-
-        await dbDelete(
-            FINDINGS_STORE,
-            findingId
-        );
-
-
-        await showInspectionDetail(
-            currentInspectionId
-        );
-
-    }
-
-    catch(error) {
-
-        console.error(error);
-
-        alert(
-            "Bulgu silinemedi."
-        );
-
-    }
-
-}
-
-
-
-/* =====================================================
-   DELETE INSPECTION
-===================================================== */
-
-async function deleteInspection(
-    inspectionId
-) {
-
-    const confirmed =
-        confirm(
-            "Bu inspection ve içindeki TÜM bulgular/fotoğraflar silinsin mi?"
-        );
-
-
-    if (!confirmed) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const findings =
-            await dbGetAll(
-                FINDINGS_STORE
-            );
-
-
-        const relatedFindings =
-            findings.filter(
-                finding =>
-                    finding.inspectionId ===
-                    inspectionId
-            );
-
-
-        for (
-            const finding
-            of relatedFindings
-        ) {
-
-            await dbDelete(
-                FINDINGS_STORE,
-                finding.id
-            );
-
-        }
-
-
-        await dbDelete(
-            INSPECTIONS_STORE,
-            inspectionId
-        );
-
-
-        await showInspectionList();
-
-    }
-
-    catch(error) {
-
-        console.error(error);
-
-        alert(
-            "Inspection silinemedi."
-        );
-
-    }
-
-}
-
-
-
-/* =====================================================
+/* =========================================================
    PHOTO VIEWER
-===================================================== */
+========================================================= */
 
 async function openPhotoViewer(
     findingId,
-    photoIndex
+    index
 ) {
 
     const findings =
@@ -1765,29 +1428,11 @@ async function openPhotoViewer(
     const finding =
         findings.find(
             item =>
-                item.id ===
-                findingId
+                item.id === findingId
         );
 
 
-    if (!finding) {
-
-        return;
-
-    }
-
-
-    const photos =
-        getFindingPhotos(
-            finding
-        );
-
-
-    if (!photos.length) {
-
-        return;
-
-    }
+    if (!finding) return;
 
 
     currentFindingId =
@@ -1795,35 +1440,30 @@ async function openPhotoViewer(
 
 
     currentPhotoList =
-        photos;
+        getFindingPhotos(finding);
 
 
     currentPhotoIndex =
-        Math.max(
-            0,
-            Math.min(
-                photoIndex,
-                photos.length - 1
-            )
-        );
+        index;
 
 
-    renderCurrentPhoto();
+    renderPhotoViewer();
 
 
-    photoModal.classList.add(
-        "show"
-    );
+    photoModal.classList.add("show");
 
 }
 
 
+/* =========================================================
+   RENDER PHOTO VIEWER
+========================================================= */
 
-function renderCurrentPhoto() {
+function renderPhotoViewer() {
 
-    if (
-        !currentPhotoList.length
-    ) {
+    if (!currentPhotoList.length) {
+
+        closePhotoViewer();
 
         return;
 
@@ -1841,39 +1481,27 @@ function renderCurrentPhoto() {
         photo.original;
 
 
-    if (!blob) {
+    if (!blob) return;
 
-        return;
-
-    }
-
-
-    /*
-     * Önceki URL'yi temizle.
-     */
 
     if (
-        photoPreview.dataset.objectUrl
+        photoPreview.dataset.url
     ) {
 
         URL.revokeObjectURL(
-            photoPreview.dataset.objectUrl
+            photoPreview.dataset.url
         );
 
     }
 
 
     const url =
-        URL.createObjectURL(
-            blob
-        );
+        URL.createObjectURL(blob);
 
 
-    photoPreview.dataset.objectUrl =
-        url;
+    photoPreview.src = url;
 
-
-    photoPreview.src =
+    photoPreview.dataset.url =
         url;
 
 
@@ -1883,281 +1511,60 @@ function renderCurrentPhoto() {
 }
 
 
+/* =========================================================
+   CLOSE PHOTO
+========================================================= */
 
-function closePhoto() {
+function closePhotoViewer() {
 
-    photoModal.classList.remove(
-        "show"
-    );
+    photoModal.classList.remove("show");
 
 
     if (
-        photoPreview.dataset.objectUrl
+        photoPreview.dataset.url
     ) {
 
         URL.revokeObjectURL(
-            photoPreview.dataset.objectUrl
+            photoPreview.dataset.url
         );
+
+
+        delete photoPreview.dataset.url;
 
     }
 
-
-    photoPreview.dataset.objectUrl =
-        "";
+}
 
 
-    photoPreview.src =
-        "";
+/* =========================================================
+   NEXT / PREVIOUS PHOTO
+========================================================= */
 
+function nextPhoto(direction) {
 
-    currentPhotoList =
-        [];
+    if (!currentPhotoList.length)
+        return;
+
 
     currentPhotoIndex =
-        0;
+        (
+            currentPhotoIndex +
+            direction +
+            currentPhotoList.length
+        ) %
+        currentPhotoList.length;
+
+
+    renderPhotoViewer();
 
 }
 
 
-
-function previousPhoto() {
-
-    if (
-        currentPhotoList.length <= 1
-    ) {
-
-        return;
-
-    }
-
-
-    currentPhotoIndex--;
-
-    if (
-        currentPhotoIndex < 0
-    ) {
-
-        currentPhotoIndex =
-            currentPhotoList.length - 1;
-
-    }
-
-
-    renderCurrentPhoto();
-
-}
-
-
-
-function nextPhoto() {
-
-    if (
-        currentPhotoList.length <= 1
-    ) {
-
-        return;
-
-    }
-
-
-    currentPhotoIndex++;
-
-
-    if (
-        currentPhotoIndex >=
-        currentPhotoList.length
-    ) {
-
-        currentPhotoIndex = 0;
-
-    }
-
-
-    renderCurrentPhoto();
-
-}
-
-
-
-/* =====================================================
-   ANNOTATION
-===================================================== */
-
-async function openAnnotation() {
-
-    if (
-        !currentPhotoList.length
-    ) {
-
-        return;
-
-    }
-
-
-    const photo =
-        currentPhotoList[
-            currentPhotoIndex
-        ];
-
-
-    /*
-     * Marking her zaman
-     * orijinal fotoğraf
-     * üzerinden başlar.
-     *
-     * Böylece orijinal
-     * bozulmaz.
-     */
-
-    annotationOriginalBlob =
-        photo.original;
-
-
-    const url =
-        URL.createObjectURL(
-            annotationOriginalBlob
-        );
-
-
-    const image =
-        new Image();
-
-
-    image.onload =
-        function() {
-
-            annotationImage =
-                image;
-
-
-            setupAnnotationCanvas(
-                image
-            );
-
-
-            URL.revokeObjectURL(
-                url
-            );
-
-
-            annotationModal.classList.add(
-                "show"
-            );
-
-        };
-
-
-    image.src =
-        url;
-
-}
-
-
-
-function setupAnnotationCanvas(
-    image
-) {
-
-    const maxWidth =
-        window.innerWidth;
-
-
-    const maxHeight =
-        window.innerHeight - 130;
-
-
-    const scale =
-        Math.min(
-            maxWidth / image.naturalWidth,
-            maxHeight / image.naturalHeight,
-            1
-        );
-
-
-    annotationCanvas.width =
-        Math.round(
-            image.naturalWidth * scale
-        );
-
-
-    annotationCanvas.height =
-        Math.round(
-            image.naturalHeight * scale
-        );
-
-
-    annotationCtx.clearRect(
-        0,
-        0,
-        annotationCanvas.width,
-        annotationCanvas.height
-    );
-
-
-    annotationCtx.drawImage(
-        image,
-        0,
-        0,
-        annotationCanvas.width,
-        annotationCanvas.height
-    );
-
-
-    annotationHistory = [];
-
-
-    saveAnnotationSnapshot();
-
-}
-
-
-
-function saveAnnotationSnapshot() {
-
-    try {
-
-        annotationHistory.push(
-            annotationCtx.getImageData(
-                0,
-                0,
-                annotationCanvas.width,
-                annotationCanvas.height
-            )
-        );
-
-
-        /*
-         * Son 20 adımı tut.
-         */
-
-        if (
-            annotationHistory.length >
-            20
-        ) {
-
-            annotationHistory.shift();
-
-        }
-
-    }
-
-    catch(error) {
-
-        console.error(error);
-
-    }
-
-}
-
-
-
-/* =====================================================
+/* =========================================================
    CANVAS COORDINATES
-===================================================== */
+========================================================= */
 
-function getCanvasPoint(
-    event
-) {
+function getCanvasPoint(event) {
 
     const rect =
         annotationCanvas.getBoundingClientRect();
@@ -2176,13 +1583,11 @@ function getCanvasPoint(
     return {
 
         x:
-            (event.clientX -
-                rect.left) *
+            (event.clientX - rect.left) *
             scaleX,
 
         y:
-            (event.clientY -
-                rect.top) *
+            (event.clientY - rect.top) *
             scaleY
 
     };
@@ -2190,872 +1595,197 @@ function getCanvasPoint(
 }
 
 
-
-/* =====================================================
-   ANNOTATION DRAWING
-===================================================== */
-
-annotationCanvas.addEventListener(
-    "pointerdown",
-    event => {
-
-        event.preventDefault();
-
-
-        const point =
-            getCanvasPoint(
-                event
-            );
-
-
-        annotationStartX =
-            point.x;
-
-
-        annotationStartY =
-            point.y;
-
-
-        /*
-         * TEXT
-         */
-
-        if (
-            annotationTool ===
-            "text"
-        ) {
-
-            const text =
-                prompt(
-                    "Fotoğraf üzerine yazılacak metin:"
-                );
-
-
-            if (
-                text &&
-                text.trim()
-            ) {
-
-                drawText(
-                    text.trim(),
-                    point.x,
-                    point.y
-                );
-
-
-                saveAnnotationSnapshot();
-
-            }
-
-
-            return;
-
-        }
-
-
-        annotationDrawing =
-            true;
-
-
-        annotationCanvas.setPointerCapture(
-            event.pointerId
-        );
-
-
-        /*
-         * PEN başlangıcı
-         */
-
-        if (
-            annotationTool ===
-            "pen"
-        ) {
-
-            annotationCtx.beginPath();
-
-            annotationCtx.moveTo(
-                point.x,
-                point.y
-            );
-
-        }
-
-    }
-);
-
-
-
-annotationCanvas.addEventListener(
-    "pointermove",
-    event => {
-
-        if (
-            !annotationDrawing
-        ) {
-
-            return;
-
-        }
-
-
-        event.preventDefault();
-
-
-        const point =
-            getCanvasPoint(
-                event
-            );
-
-
-        /*
-         * PEN
-         */
-
-        if (
-            annotationTool ===
-            "pen"
-        ) {
-
-            annotationCtx.lineTo(
-                point.x,
-                point.y
-            );
-
-
-            annotationCtx.stroke();
-
-        }
-
-    }
-);
-
-
-
-annotationCanvas.addEventListener(
-    "pointerup",
-    finishAnnotation
-);
-
-
-annotationCanvas.addEventListener(
-    "pointercancel",
-    finishAnnotation
-);
-
-
-function finishAnnotation(
-    event
-) {
-
-    if (
-        !annotationDrawing
-    ) {
-
-        return;
-
-    }
-
-
-    annotationDrawing =
-        false;
-
-
-    const point =
-        getCanvasPoint(
-            event
-        );
-
-
-    /*
-     * PEN
-     */
-
-    if (
-        annotationTool ===
-        "pen"
-    ) {
-
-        annotationCtx.closePath();
-
-        saveAnnotationSnapshot();
-
-        return;
-
-    }
-
-
-    /*
-     * CIRCLE
-     */
-
-    if (
-        annotationTool ===
-        "circle"
-    ) {
-
-        drawCircle(
-            annotationStartX,
-            annotationStartY,
-            point.x,
-            point.y
-        );
-
-
-        saveAnnotationSnapshot();
-
-        return;
-
-    }
-
-
-    /*
-     * ARROW
-     */
-
-    if (
-        annotationTool ===
-        "arrow"
-    ) {
-
-        drawArrow(
-            annotationStartX,
-            annotationStartY,
-            point.x,
-            point.y
-        );
-
-
-        saveAnnotationSnapshot();
-
-    }
-
-}
-
-
-
-/* =====================================================
-   DRAW STYLE
-===================================================== */
-
-function prepareDrawingStyle() {
-
-    annotationCtx.strokeStyle =
-        "#ff3030";
-
-
-    annotationCtx.fillStyle =
-        "#ff3030";
-
-
-    annotationCtx.lineWidth =
-        Math.max(
-            3,
-            annotationCanvas.width /
-            300
-        );
-
-
-    annotationCtx.lineCap =
-        "round";
-
-
-    annotationCtx.lineJoin =
-        "round";
-
-}
-
-
-
-/* =====================================================
-   PEN STYLE
-===================================================== */
-
-prepareDrawingStyle();
-
-
-
-/* =====================================================
-   CIRCLE
-===================================================== */
-
-function drawCircle(
-    startX,
-    startY,
-    endX,
-    endY
-) {
-
-    prepareDrawingStyle();
-
-
-    const centerX =
-        (startX + endX) / 2;
-
-
-    const centerY =
-        (startY + endY) / 2;
-
-
-    const radiusX =
-        Math.abs(
-            endX - startX
-        ) / 2;
-
-
-    const radiusY =
-        Math.abs(
-            endY - startY
-        ) / 2;
-
-
-    annotationCtx.beginPath();
-
-
-    annotationCtx.ellipse(
-        centerX,
-        centerY,
-        Math.max(
-            radiusX,
-            5
-        ),
-        Math.max(
-            radiusY,
-            5
-        ),
-        0,
-        0,
-        Math.PI * 2
-    );
-
-
-    annotationCtx.stroke();
-
-}
-
-
-
-/* =====================================================
-   ARROW
-===================================================== */
-
-function drawArrow(
-    startX,
-    startY,
-    endX,
-    endY
-) {
-
-    prepareDrawingStyle();
-
-
-    const headLength =
-        Math.max(
-            12,
-            annotationCanvas.width /
-            35
-        );
-
-
-    const angle =
-        Math.atan2(
-            endY - startY,
-            endX - startX
-        );
-
-
-    annotationCtx.beginPath();
-
-
-    annotationCtx.moveTo(
-        startX,
-        startY
-    );
-
-
-    annotationCtx.lineTo(
-        endX,
-        endY
-    );
-
-
-    annotationCtx.stroke();
-
-
-    annotationCtx.beginPath();
-
-
-    annotationCtx.moveTo(
-        endX,
-        endY
-    );
-
-
-    annotationCtx.lineTo(
-        endX -
-        headLength *
-        Math.cos(
-            angle - Math.PI / 6
-        ),
-        endY -
-        headLength *
-        Math.sin(
-            angle - Math.PI / 6
+/* =========================================================
+   ANNOTATION HISTORY
+========================================================= */
+
+function saveCanvasHistory() {
+
+    annotationHistory.push(
+
+        annotationCtx.getImageData(
+            0,
+            0,
+            annotationCanvas.width,
+            annotationCanvas.height
         )
+
     );
 
 
-    annotationCtx.lineTo(
-        endX -
-        headLength *
-        Math.cos(
-            angle + Math.PI / 6
-        ),
-        endY -
-        headLength *
-        Math.sin(
-            angle + Math.PI / 6
-        )
-    );
+    if (annotationHistory.length > 30) {
 
+        annotationHistory.shift();
 
-    annotationCtx.closePath();
-
-
-    annotationCtx.fill();
+    }
 
 }
 
 
-
-/* =====================================================
-   TEXT
-===================================================== */
-
-function drawText(
-    text,
-    x,
-    y
-) {
-
-    prepareDrawingStyle();
-
-
-    const fontSize =
-        Math.max(
-            18,
-            annotationCanvas.width /
-            28
-        );
-
-
-    annotationCtx.font =
-        `700 ${fontSize}px Inter, Arial, sans-serif`;
-
-
-    /*
-     * Siyah outline.
-     * Kırmızı yazı.
-     */
-
-    annotationCtx.lineWidth =
-        Math.max(
-            3,
-            fontSize / 7
-        );
-
-
-    annotationCtx.strokeStyle =
-        "#000";
-
-
-    annotationCtx.strokeText(
-        text,
-        x,
-        y
-    );
-
-
-    annotationCtx.fillStyle =
-        "#ff3030";
-
-
-    annotationCtx.fillText(
-        text,
-        x,
-        y
-    );
-
-
-    prepareDrawingStyle();
-
-}
-
-
-
-/* =====================================================
-   TOOL SELECT
-===================================================== */
-
-document
-    .querySelectorAll(
-        ".tool-btn[data-tool]"
-    )
-    .forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    annotationTool =
-                        button.dataset.tool;
-
-
-                    document
-                        .querySelectorAll(
-                            ".tool-btn[data-tool]"
-                        )
-                        .forEach(
-                            item =>
-                                item.classList.remove(
-                                    "active"
-                                )
-                        );
-
-
-                    button.classList.add(
-                        "active"
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-
-/* =====================================================
+/* =========================================================
    UNDO
-===================================================== */
+========================================================= */
 
-document
-    .getElementById(
-        "undoAnnotation"
-    )
-    .addEventListener(
-        "click",
-        () => {
-
-            if (
-                annotationHistory.length <=
-                1
-            ) {
-
-                return;
-
-            }
-
-
-            /*
-             * Son snapshot'u çıkar.
-             */
-
-            annotationHistory.pop();
-
-
-            const previous =
-                annotationHistory[
-                    annotationHistory.length - 1
-                ];
-
-
-            annotationCtx.putImageData(
-                previous,
-                0,
-                0
-            );
-
-        }
-    );
-
-
-
-/* =====================================================
-   CLEAR
-===================================================== */
-
-document
-    .getElementById(
-        "clearAnnotation"
-    )
-    .addEventListener(
-        "click",
-        () => {
-
-            const confirmed =
-                confirm(
-                    "Tüm işaretlemeler temizlensin mi?"
-                );
-
-
-            if (!confirmed) {
-
-                return;
-
-            }
-
-
-            setupAnnotationCanvas(
-                annotationImage
-            );
-
-        }
-    );
-
-
-
-/* =====================================================
-   SAVE ANNOTATION
-===================================================== */
-
-document
-    .getElementById(
-        "saveAnnotation"
-    )
-    .addEventListener(
-        "click",
-        async () => {
-
-            try {
-
-                const blob =
-                    await canvasToBlob();
-
-
-                await saveMarkedPhoto(
-                    blob
-                );
-
-
-                closeAnnotation();
-
-
-                await refreshCurrentFinding();
-
-
-                alert(
-                    "İşaretlenmiş fotoğraf kaydedildi."
-                );
-
-            }
-
-            catch(error) {
-
-                console.error(error);
-
-                alert(
-                    "Fotoğraf kaydedilemedi."
-                );
-
-            }
-
-        }
-    );
-
-
-
-/* =====================================================
-   CANVAS TO BLOB
-===================================================== */
-
-function canvasToBlob() {
-
-    return new Promise(
-        (resolve, reject) => {
-
-            annotationCanvas.toBlob(
-                blob => {
-
-                    if (blob) {
-
-                        resolve(blob);
-
-                    }
-
-                    else {
-
-                        reject(
-                            new Error(
-                                "Canvas blob oluşturulamadı."
-                            )
-                        );
-
-                    }
-
-                },
-                "image/jpeg",
-                0.92
-            );
-
-        }
-    );
-
-}
-
-
-
-/* =====================================================
-   SAVE MARKED PHOTO
-===================================================== */
-
-async function saveMarkedPhoto(
-    markedBlob
-) {
-
-    const findings =
-        await dbGetAll(
-            FINDINGS_STORE
-        );
-
-
-    const finding =
-        findings.find(
-            item =>
-                item.id ===
-                currentFindingId
-        );
-
-
-    if (!finding) {
-
-        throw new Error(
-            "Finding bulunamadı."
-        );
-
-    }
-
-
-    const photos =
-        getFindingPhotos(
-            finding
-        );
-
+function restoreHistory() {
 
     if (
-        !photos[currentPhotoIndex]
+        annotationHistory.length > 1
     ) {
 
-        throw new Error(
-            "Fotoğraf bulunamadı."
+        annotationHistory.pop();
+
+
+        annotationCtx.putImageData(
+
+            annotationHistory[
+                annotationHistory.length - 1
+            ],
+
+            0,
+            0
+
         );
 
     }
 
-
-    /*
-     * Orijinal fotoğraf
-     * kesinlikle korunuyor.
-     */
-
-    photos[
-        currentPhotoIndex
-    ].marked =
-        markedBlob;
+}
 
 
-    finding.photos =
-        photos;
+/* =========================================================
+   SETUP ANNOTATION
+========================================================= */
+
+function setupAnnotation(blob) {
+
+    const image =
+        new Image();
 
 
-    /*
-     * Eski alanı temizle.
-     */
+    image.onload = () => {
 
-    delete finding.photo;
-
-
-    await dbPut(
-        FINDINGS_STORE,
-        finding
-    );
+        annotationImage =
+            image;
 
 
-    currentPhotoList =
-        photos;
+        /*
+            Ekrana sığacak şekilde
+            canvas boyutunu belirliyoruz.
+        */
+
+        const maxWidth =
+            window.innerWidth;
+
+
+        const maxHeight =
+            window.innerHeight - 120;
+
+
+        const scale =
+            Math.min(
+
+                maxWidth /
+                    image.naturalWidth,
+
+                maxHeight /
+                    image.naturalHeight,
+
+                1
+
+            );
+
+
+        annotationCanvas.width =
+            Math.round(
+                image.naturalWidth *
+                scale
+            );
+
+
+        annotationCanvas.height =
+            Math.round(
+                image.naturalHeight *
+                scale
+            );
+
+
+        annotationCtx.clearRect(
+            0,
+            0,
+            annotationCanvas.width,
+            annotationCanvas.height
+        );
+
+
+        annotationCtx.drawImage(
+
+            image,
+
+            0,
+            0,
+
+            annotationCanvas.width,
+            annotationCanvas.height
+
+        );
+
+
+        annotationHistory = [
+
+            annotationCtx.getImageData(
+                0,
+                0,
+                annotationCanvas.width,
+                annotationCanvas.height
+            )
+
+        ];
+
+
+        annotationModal.classList.add(
+            "show"
+        );
+
+    };
+
+
+    image.src =
+        URL.createObjectURL(blob);
 
 }
 
 
+/* =========================================================
+   OPEN ANNOTATION
+========================================================= */
 
-/* =====================================================
-   REFRESH CURRENT FINDING
-===================================================== */
+function openAnnotation() {
 
-async function refreshCurrentFinding() {
-
-    const findings =
-        await dbGetAll(
-            FINDINGS_STORE
-        );
-
-
-    const finding =
-        findings.find(
-            item =>
-                item.id ===
-                currentFindingId
-        );
+    const photo =
+        currentPhotoList[
+            currentPhotoIndex
+        ];
 
 
-    if (!finding) {
-
-        return;
-
-    }
+    if (!photo) return;
 
 
-    currentPhotoList =
-        getFindingPhotos(
-            finding
-        );
+    annotationOriginalBlob =
+        photo.original;
 
 
-    renderCurrentPhoto();
+    setupAnnotation(
 
+        photo.marked ||
+        photo.original
 
-    /*
-     * Detail ekranını da
-     * yenile ama photo modalı
-     * kapatma.
-     */
-
-    await showInspectionDetail(
-        currentInspectionId
     );
-
-
-    /*
-     * showInspectionDetail
-     * app'i yeniden oluşturduğu
-     * için photo modalını tekrar
-     * açıyoruz.
-     */
-
-    photoModal.classList.add(
-        "show"
-    );
-
-
-    renderCurrentPhoto();
 
 }
 
 
-
-/* =====================================================
+/* =========================================================
    CLOSE ANNOTATION
-===================================================== */
+========================================================= */
 
 function closeAnnotation() {
 
@@ -3064,153 +1794,878 @@ function closeAnnotation() {
     );
 
 
-    annotationDrawing =
-        false;
+    annotationDrawing = false;
 
 }
 
 
+/* =========================================================
+   DRAW ARROW
+========================================================= */
 
-/* =====================================================
-   PHOTO CONTROLS
-===================================================== */
+function drawArrow(
+    x1,
+    y1,
+    x2,
+    y2
+) {
 
-document
-    .getElementById(
-        "photoClose"
-    )
-    .addEventListener(
-        "click",
-        closePhoto
+    const angle =
+        Math.atan2(
+            y2 - y1,
+            x2 - x1
+        );
+
+
+    const length = 16;
+
+
+    annotationCtx.beginPath();
+
+
+    annotationCtx.moveTo(
+        x2,
+        y2
     );
 
 
-document
-    .getElementById(
-        "photoPrev"
-    )
-    .addEventListener(
-        "click",
-        previousPhoto
+    annotationCtx.lineTo(
+
+        x2 -
+            length *
+            Math.cos(angle - 0.45),
+
+        y2 -
+            length *
+            Math.sin(angle - 0.45)
+
     );
 
 
-document
-    .getElementById(
-        "photoNext"
-    )
-    .addEventListener(
-        "click",
-        nextPhoto
+    annotationCtx.moveTo(
+        x2,
+        y2
     );
 
 
-document
-    .getElementById(
-        "annotatePhoto"
-    )
-    .addEventListener(
-        "click",
-        openAnnotation
+    annotationCtx.lineTo(
+
+        x2 -
+            length *
+            Math.cos(angle + 0.45),
+
+        y2 -
+            length *
+            Math.sin(angle + 0.45)
+
     );
 
 
-document
-    .getElementById(
-        "annotationClose"
-    )
-    .addEventListener(
-        "click",
-        closeAnnotation
-    );
+    annotationCtx.stroke();
+
+}
 
 
+/* =========================================================
+   BEGIN DRAW
+========================================================= */
 
-/* =====================================================
-   PHOTO MODAL BACKGROUND
-===================================================== */
+function beginDraw(event) {
 
-photoModal.addEventListener(
-    "click",
-    event => {
+    /*
+       TEXT
+    */
 
-        if (
-            event.target ===
-            photoModal
-        ) {
+    if (annotationTool === "text") {
 
-            closePhoto();
+        const point =
+            getCanvasPoint(event);
+
+
+        const text =
+            prompt(
+                "Metni girin:"
+            );
+
+
+        if (text) {
+
+            annotationCtx.font =
+                "bold 22px Arial";
+
+            annotationCtx.fillStyle =
+                "#ff3b30";
+
+
+            annotationCtx.fillText(
+
+                text,
+
+                point.x,
+                point.y
+
+            );
+
+
+            saveCanvasHistory();
 
         }
 
+
+        return;
+
     }
+
+
+    if (
+        annotationTool !== "pen" &&
+        annotationTool !== "circle" &&
+        annotationTool !== "arrow"
+    ) {
+
+        return;
+
+    }
+
+
+    annotationDrawing = true;
+
+
+    const point =
+        getCanvasPoint(event);
+
+
+    annotationStartX =
+        point.x;
+
+
+    annotationStartY =
+        point.y;
+
+
+    annotationCtx.beginPath();
+
+
+    annotationCtx.moveTo(
+        point.x,
+        point.y
+    );
+
+
+    annotationCtx.strokeStyle =
+        "#ff3b30";
+
+
+    annotationCtx.fillStyle =
+        "#ff3b30";
+
+
+    annotationCtx.lineWidth =
+        Math.max(
+            4,
+            annotationCanvas.width / 250
+        );
+
+
+    annotationCtx.lineCap =
+        "round";
+
+
+    /*
+       iPhone / iPad için
+       pointer capture
+    */
+
+    if (
+        annotationCanvas.setPointerCapture
+    ) {
+
+        annotationCanvas.setPointerCapture(
+            event.pointerId
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   DRAW / MOVE
+========================================================= */
+
+function moveDraw(event) {
+
+    if (!annotationDrawing)
+        return;
+
+
+    const point =
+        getCanvasPoint(event);
+
+
+    /*
+       PEN
+    */
+
+    if (
+        annotationTool === "pen"
+    ) {
+
+        annotationCtx.lineTo(
+            point.x,
+            point.y
+        );
+
+
+        annotationCtx.stroke();
+
+        return;
+
+    }
+
+
+    /*
+       CIRCLE / ARROW
+
+       Önce son kaydedilen görüntüyü
+       geri getiriyoruz.
+    */
+
+    annotationCtx.clearRect(
+
+        0,
+        0,
+
+        annotationCanvas.width,
+        annotationCanvas.height
+
+    );
+
+
+    const last =
+        annotationHistory[
+            annotationHistory.length - 1
+        ];
+
+
+    if (last) {
+
+        annotationCtx.putImageData(
+            last,
+            0,
+            0
+        );
+
+    } else {
+
+        annotationCtx.drawImage(
+
+            annotationImage,
+
+            0,
+            0,
+
+            annotationCanvas.width,
+            annotationCanvas.height
+
+        );
+
+    }
+
+
+    annotationCtx.beginPath();
+
+
+    annotationCtx.strokeStyle =
+        "#ff3b30";
+
+
+    annotationCtx.lineWidth =
+        Math.max(
+            4,
+            annotationCanvas.width / 250
+        );
+
+
+    /*
+       CIRCLE
+    */
+
+    if (
+        annotationTool === "circle"
+    ) {
+
+        const radiusX =
+            (point.x -
+                annotationStartX) / 2;
+
+
+        const radiusY =
+            (point.y -
+                annotationStartY) / 2;
+
+
+        annotationCtx.ellipse(
+
+            annotationStartX +
+                radiusX,
+
+            annotationStartY +
+                radiusY,
+
+            Math.abs(radiusX),
+
+            Math.abs(radiusY),
+
+            0,
+
+            0,
+
+            Math.PI * 2
+
+        );
+
+
+        annotationCtx.stroke();
+
+    }
+
+
+    /*
+       ARROW
+    */
+
+    else if (
+        annotationTool === "arrow"
+    ) {
+
+        annotationCtx.moveTo(
+
+            annotationStartX,
+            annotationStartY
+
+        );
+
+
+        annotationCtx.lineTo(
+
+            point.x,
+            point.y
+
+        );
+
+
+        annotationCtx.stroke();
+
+
+        drawArrow(
+
+            annotationStartX,
+            annotationStartY,
+
+            point.x,
+            point.y
+
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   END DRAW
+========================================================= */
+
+function endDraw() {
+
+    if (!annotationDrawing)
+        return;
+
+
+    annotationDrawing = false;
+
+
+    saveCanvasHistory();
+
+}
+
+
+/* =========================================================
+   SAVE MARKED PHOTO
+========================================================= */
+
+async function saveAnnotation() {
+
+    const blob =
+        await new Promise(resolve => {
+
+            annotationCanvas.toBlob(
+
+                resolve,
+
+                "image/jpeg",
+
+                0.92
+
+            );
+
+        });
+
+
+    if (!blob) {
+
+        alert(
+            "Fotoğraf kaydedilemedi."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Viewer içindeki geçici liste
+       de güncelleniyor.
+    */
+
+    currentPhotoList[
+        currentPhotoIndex
+    ].marked = blob;
+
+
+    /*
+       IndexedDB'deki gerçek finding
+       güncelleniyor.
+    */
+
+    const findings =
+        await dbGetAll(
+            FINDINGS_STORE
+        );
+
+
+    const finding =
+        findings.find(
+            item =>
+                item.id === currentFindingId
+        );
+
+
+    if (!finding) {
+
+        alert(
+            "Finding bulunamadı."
+        );
+
+        return;
+
+    }
+
+
+    finding.photos =
+        getFindingPhotos(finding);
+
+
+    finding.photos[
+        currentPhotoIndex
+    ].marked = blob;
+
+
+    await dbPut(
+        FINDINGS_STORE,
+        finding
+    );
+
+
+    /*
+       Annotation ekranını kapat.
+    */
+
+    closeAnnotation();
+
+
+    /*
+       Viewer'ı yeni marked fotoğrafla
+       göster.
+    */
+
+    renderPhotoViewer();
+
+
+    photoModal.classList.add(
+        "show"
+    );
+
+
+    renderPhotoViewer();
+
+
+    /*
+       Arka taraftaki finding ekranını
+       da güncelle.
+    */
+
+    await showInspectionDetail(
+        currentInspectionId
+    );
+
+
+    /*
+       showInspectionDetail viewer'ı
+       kapatmış olacağı için tekrar açıyoruz.
+    */
+
+    photoModal.classList.add(
+        "show"
+    );
+
+
+    renderPhotoViewer();
+
+}
+
+
+/* =========================================================
+   BUTTON EVENTS
+========================================================= */
+
+
+/* Inspection */
+
+$("cancelInspection").onclick =
+    closeInspectionModal;
+
+
+$("saveInspection").onclick =
+    saveInspection;
+
+
+/* Finding */
+
+$("cancelFinding").onclick =
+    closeFindingModal;
+
+
+$("saveFinding").onclick =
+    saveFinding;
+
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+$("takePhotoBtn").onclick = () => {
+
+    /*
+       Camera input:
+
+       capture="environment"
+
+       multiple YOK.
+
+       Böylece iPhone kamerada
+       düzgün çalışır.
+    */
+
+    $("cameraInput").value = "";
+
+    $("cameraInput").click();
+
+};
+
+
+/* =========================================================
+   GALLERY
+========================================================= */
+
+$("choosePhotosBtn").onclick = () => {
+
+    /*
+       Gallery input:
+
+       multiple VAR.
+
+       iPhone'da galeriden birden fazla
+       fotoğraf seçilebilir.
+    */
+
+    $("galleryInput").value = "";
+
+    $("galleryInput").click();
+
+};
+
+
+/* =========================================================
+   CAMERA RESULT
+========================================================= */
+
+$("cameraInput").onchange = event => {
+
+    addPendingFiles(
+        event.target.files
+    );
+
+
+    /*
+       Aynı fotoğrafı tekrar seçebilmek için
+       input'u temizliyoruz.
+    */
+
+    event.target.value = "";
+
+};
+
+
+/* =========================================================
+   GALLERY RESULT
+========================================================= */
+
+$("galleryInput").onchange = event => {
+
+    addPendingFiles(
+        event.target.files
+    );
+
+
+    /*
+       Aynı fotoğrafları tekrar seçebilmek için
+       input'u temizliyoruz.
+    */
+
+    event.target.value = "";
+
+};
+
+
+/* =========================================================
+   ADD PHOTOS TO EXISTING FINDING
+========================================================= */
+
+$("addPhotosInput").onchange =
+    event => {
+
+        addPhotosToFinding(
+            event.target.files
+        );
+
+
+        event.target.value = "";
+
+    };
+
+
+/* =========================================================
+   PHOTO VIEWER
+========================================================= */
+
+$("photoClose").onclick =
+    closePhotoViewer;
+
+
+$("photoPrev").onclick =
+    () => nextPhoto(-1);
+
+
+$("photoNext").onclick =
+    () => nextPhoto(1);
+
+
+$("annotatePhoto").onclick =
+    openAnnotation;
+
+
+/* =========================================================
+   ANNOTATION CLOSE
+========================================================= */
+
+$("annotationClose").onclick =
+    closeAnnotation;
+
+
+/* =========================================================
+   ANNOTATION TOOLS
+========================================================= */
+
+document
+    .querySelectorAll(".tool-btn")
+    .forEach(button => {
+
+        button.onclick = () => {
+
+            const tool =
+                button.dataset.tool;
+
+
+            /* UNDO */
+
+            if (tool === "undo") {
+
+                restoreHistory();
+
+                return;
+
+            }
+
+
+            /* CLEAR */
+
+            if (tool === "clear") {
+
+                const confirmed =
+                    confirm(
+                        "Tüm işaretlemeler temizlensin mi?"
+                    );
+
+
+                if (!confirmed)
+                    return;
+
+
+                annotationCtx.clearRect(
+
+                    0,
+                    0,
+
+                    annotationCanvas.width,
+                    annotationCanvas.height
+
+                );
+
+
+                annotationCtx.drawImage(
+
+                    annotationImage,
+
+                    0,
+                    0,
+
+                    annotationCanvas.width,
+                    annotationCanvas.height
+
+                );
+
+
+                annotationHistory = [
+
+                    annotationCtx.getImageData(
+
+                        0,
+                        0,
+
+                        annotationCanvas.width,
+                        annotationCanvas.height
+
+                    )
+
+                ];
+
+
+                return;
+
+            }
+
+
+            /* SAVE */
+
+            if (tool === "save") {
+
+                saveAnnotation();
+
+                return;
+
+            }
+
+
+            /*
+               PEN / CIRCLE / ARROW / TEXT
+            */
+
+            annotationTool =
+                tool;
+
+
+            document
+                .querySelectorAll(".tool-btn")
+                .forEach(button => {
+
+                    button.classList.remove(
+                        "active"
+                    );
+
+                });
+
+
+            button.classList.add(
+                "active"
+            );
+
+        };
+
+    });
+
+
+/* =========================================================
+   CANVAS POINTER EVENTS
+========================================================= */
+
+annotationCanvas.addEventListener(
+    "pointerdown",
+    beginDraw
 );
 
 
+annotationCanvas.addEventListener(
+    "pointermove",
+    moveDraw
+);
 
-/* =====================================================
-   KEYBOARD
-===================================================== */
+
+annotationCanvas.addEventListener(
+    "pointerup",
+    endDraw
+);
+
+
+annotationCanvas.addEventListener(
+    "pointercancel",
+    endDraw
+);
+
+
+/* =========================================================
+   ESC KEY
+========================================================= */
 
 document.addEventListener(
     "keydown",
     event => {
 
+        if (event.key !== "Escape")
+            return;
+
+
+        if (
+            annotationModal.classList.contains(
+                "show"
+            )
+        ) {
+
+            closeAnnotation();
+
+            return;
+
+        }
+
+
         if (
             photoModal.classList.contains(
                 "show"
-            ) &&
-            !annotationModal.classList.contains(
-                "show"
             )
         ) {
 
-            if (
-                event.key ===
-                "ArrowLeft"
-            ) {
-
-                previousPhoto();
-
-            }
-
-
-            if (
-                event.key ===
-                "ArrowRight"
-            ) {
-
-                nextPhoto();
-
-            }
-
-
-            if (
-                event.key ===
-                "Escape"
-            ) {
-
-                closePhoto();
-
-            }
-
-        }
-
-
-        if (
-            annotationModal.classList.contains(
-                "show"
-            )
-        ) {
-
-            if (
-                event.key ===
-                "Escape"
-            ) {
-
-                closeAnnotation();
-
-            }
+            closePhotoViewer();
 
         }
 
@@ -3218,223 +2673,48 @@ document.addEventListener(
 );
 
 
-
-/* =====================================================
-   FORM BUTTONS
-===================================================== */
-
-document
-    .getElementById(
-        "saveInspection"
-    )
-    .addEventListener(
-        "click",
-        createInspection
-    );
-
-
-document
-    .getElementById(
-        "cancelInspection"
-    )
-    .addEventListener(
-        "click",
-        closeInspectionModal
-    );
-
-
-document
-    .getElementById(
-        "saveFinding"
-    )
-    .addEventListener(
-        "click",
-        createFinding
-    );
-
-
-document
-    .getElementById(
-        "cancelFinding"
-    )
-    .addEventListener(
-        "click",
-        closeFindingModal
-    );
-
-
-
-/* =====================================================
-   MODAL BACKGROUND
-===================================================== */
-
-inspectionModal.addEventListener(
-    "click",
-    event => {
-
-        if (
-            event.target ===
-            inspectionModal
-        ) {
-
-            closeInspectionModal();
-
-        }
-
-    }
-);
-
-
-findingModal.addEventListener(
-    "click",
-    event => {
-
-        if (
-            event.target ===
-            findingModal
-        ) {
-
-            closeFindingModal();
-
-        }
-
-    }
-);
-
-
-
-/* =====================================================
-   PHOTO SWIPE
-===================================================== */
-
-let touchStartX = 0;
-
-let touchEndX = 0;
-
-
-photoModal.addEventListener(
-    "touchstart",
-    event => {
-
-        if (
-            annotationModal.classList.contains(
-                "show"
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        touchStartX =
-            event.changedTouches[0].screenX;
-
-    },
-    {
-        passive: true
-    }
-);
-
-
-photoModal.addEventListener(
-    "touchend",
-    event => {
-
-        if (
-            annotationModal.classList.contains(
-                "show"
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        touchEndX =
-            event.changedTouches[0].screenX;
-
-
-        const difference =
-            touchEndX -
-            touchStartX;
-
-
-        if (
-            Math.abs(difference) <
-            50
-        ) {
-
-            return;
-
-        }
-
-
-        if (
-            difference > 0
-        ) {
-
-            previousPhoto();
-
-        }
-
-        else {
-
-            nextPhoto();
-
-        }
-
-    },
-    {
-        passive: true
-    }
-);
-
-
-
-/* =====================================================
+/* =========================================================
    INIT
-===================================================== */
+========================================================= */
 
-async function init() {
+window.addEventListener(
+    "load",
+    async () => {
 
-    try {
+        try {
 
-        await openDatabase();
+            await openDatabase();
 
-        await showInspectionList();
+            await showInspectionList();
 
-    }
+        }
 
-    catch(error) {
+        catch (error) {
 
-        console.error(error);
+            console.error(error);
 
 
-        app.innerHTML = `
+            app.innerHTML = `
 
-            <div class="card">
+                <div class="card">
 
-                <div class="empty-state">
+                    <div class="empty-state">
 
-                    Inspection storage
-                    başlatılamadı.
+                        Database açılamadı.
 
-                    <br><br>
+                        <br><br>
 
-                    Tarayıcının IndexedDB
-                    desteğini kontrol edin.
+                        ${escapeHtml(
+                            error.message
+                        )}
+
+                    </div>
 
                 </div>
 
-            </div>
+            `;
 
-        `;
+        }
 
     }
-
-}
-
-
-init();
+);
