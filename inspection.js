@@ -4,7 +4,6 @@
    IndexedDB
    MULTI PHOTO
    PHOTO ANNOTATION
-   QUICK FINDING TEMPLATES
 ========================================================= */
 
 const DB_NAME = "A330InspectionDB";
@@ -65,647 +64,49 @@ const annotationModal = $("annotationModal");
 
 
 /* =========================================================
-   QUICK FINDING TEMPLATES
+   HELPERS
 ========================================================= */
 
-const findingTemplates = [
+function escapeHtml(value) {
 
-    /* =====================================================
-       GENERAL
-    ===================================================== */
+    return String(value ?? "").replace(/[&<>"']/g, char => {
 
-    {
-        category: "GENERAL",
-        location: "General",
-        text: "One screw is missing."
-    },
+        const map = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        };
 
-    {
-        category: "GENERAL",
-        location: "General",
-        text: "One screw is loose."
-    },
+        return map[char];
 
-    {
-        category: "GENERAL",
-        location: "General",
-        text: "Loose hardware was found."
-    },
+    });
 
-    {
-        category: "GENERAL",
-        location: "General",
-        text: "Damaged component was found."
-    },
+}
 
-    {
-        category: "GENERAL",
-        location: "General",
-        text: "Crack was found."
-    },
 
-    {
-        category: "GENERAL",
-        location: "General",
-        text: "Seal is missing."
-    },
+function formatDate(timestamp) {
 
-    {
-        category: "GENERAL",
-        location: "General",
-        text: "Seal is damaged."
-    },
+    return new Date(timestamp).toLocaleString("tr-TR", {
+        dateStyle: "short",
+        timeStyle: "short"
+    });
 
-    {
-        category: "GENERAL",
-        location: "General",
-        text: "Component is damaged."
-    },
+}
 
 
-    /* =====================================================
-       DOORS / PANELS
-    ===================================================== */
+function uid(prefix) {
 
-    {
-        category: "DOORS / PANELS",
-        location: "Door",
-        text: "One screw is missing."
-    },
+    return (
+        prefix +
+        "-" +
+        Date.now() +
+        "-" +
+        Math.random().toString(36).slice(2, 10)
+    );
 
-    {
-        category: "DOORS / PANELS",
-        location: "Door",
-        text: "One screw is loose."
-    },
-
-    {
-        category: "DOORS / PANELS",
-        location: "Door",
-        text: "Seal is damaged."
-    },
-
-    {
-        category: "DOORS / PANELS",
-        location: "Door",
-        text: "Seal is missing."
-    },
-
-    {
-        category: "DOORS / PANELS",
-        location: "Door",
-        text: "Panel is damaged."
-    },
-
-    {
-        category: "DOORS / PANELS",
-        location: "Panel",
-        text: "One screw is missing."
-    },
-
-    {
-        category: "DOORS / PANELS",
-        location: "Panel",
-        text: "One screw is loose."
-    },
-
-    {
-        category: "DOORS / PANELS",
-        location: "Panel",
-        text: "Panel is damaged."
-    },
-
-    {
-        category: "DOORS / PANELS",
-        location: "Access Panel",
-        text: "One fastener is missing."
-    },
-
-    {
-        category: "DOORS / PANELS",
-        location: "Access Panel",
-        text: "One fastener is loose."
-    },
-
-
-    /* =====================================================
-       CARGO
-    ===================================================== */
-
-    {
-        category: "CARGO",
-        location: "Cargo Door",
-        text: "Seal is damaged."
-    },
-
-    {
-        category: "CARGO",
-        location: "Cargo Door",
-        text: "Seal is missing."
-    },
-
-    {
-        category: "CARGO",
-        location: "Cargo Door",
-        text: "Panel is damaged."
-    },
-
-    {
-        category: "CARGO",
-        location: "Cargo Compartment",
-        text: "Liner is damaged."
-    },
-
-    {
-        category: "CARGO",
-        location: "Cargo Compartment",
-        text: "Floor panel is damaged."
-    },
-
-    {
-        category: "CARGO",
-        location: "Cargo Compartment",
-        text: "Fastener is missing."
-    },
-
-    {
-        category: "CARGO",
-        location: "Cargo Compartment",
-        text: "Fastener is loose."
-    },
-
-    {
-        category: "CARGO",
-        location: "Cargo Compartment",
-        text: "Water staining was found."
-    },
-
-
-    /* =====================================================
-       LANDING GEAR
-    ===================================================== */
-
-    {
-        category: "LANDING GEAR",
-        location: "Landing Gear",
-        text: "Component is damaged."
-    },
-
-    {
-        category: "LANDING GEAR",
-        location: "Landing Gear",
-        text: "Crack was found."
-    },
-
-    {
-        category: "LANDING GEAR",
-        location: "Landing Gear",
-        text: "Leak was found."
-    },
-
-    {
-        category: "LANDING GEAR",
-        location: "Landing Gear",
-        text: "Hydraulic leak was found."
-    },
-
-    {
-        category: "LANDING GEAR",
-        location: "Landing Gear",
-        text: "Grease leakage was found."
-    },
-
-    {
-        category: "LANDING GEAR",
-        location: "Landing Gear",
-        text: "Hardware is loose."
-    },
-
-    {
-        category: "LANDING GEAR",
-        location: "Landing Gear",
-        text: "Hardware is missing."
-    },
-
-    {
-        category: "LANDING GEAR",
-        location: "Landing Gear",
-        text: "Corrosion was found."
-    },
-
-
-    /* =====================================================
-       FLIGHT CONTROLS
-    ===================================================== */
-
-    {
-        category: "FLIGHT CONTROLS",
-        location: "Elevator",
-        text: "Surface is damaged."
-    },
-
-    {
-        category: "FLIGHT CONTROLS",
-        location: "Elevator",
-        text: "Crack was found."
-    },
-
-    {
-        category: "FLIGHT CONTROLS",
-        location: "Elevator",
-        text: "Seal is damaged."
-    },
-
-    {
-        category: "FLIGHT CONTROLS",
-        location: "Aileron",
-        text: "Surface is damaged."
-    },
-
-    {
-        category: "FLIGHT CONTROLS",
-        location: "Aileron",
-        text: "Crack was found."
-    },
-
-    {
-        category: "FLIGHT CONTROLS",
-        location: "Rudder",
-        text: "Surface is damaged."
-    },
-
-    {
-        category: "FLIGHT CONTROLS",
-        location: "Rudder",
-        text: "Crack was found."
-    },
-
-    {
-        category: "FLIGHT CONTROLS",
-        location: "THS",
-        text: "Component is damaged."
-    },
-
-    {
-        category: "FLIGHT CONTROLS",
-        location: "THS",
-        text: "Crack was found."
-    },
-
-
-    /* =====================================================
-       ENGINE / NACELLE
-    ===================================================== */
-
-    {
-        category: "ENGINE / NACELLE",
-        location: "Engine",
-        text: "Oil leak was found."
-    },
-
-    {
-        category: "ENGINE / NACELLE",
-        location: "Engine",
-        text: "Fuel leak was found."
-    },
-
-    {
-        category: "ENGINE / NACELLE",
-        location: "Engine",
-        text: "Hydraulic leak was found."
-    },
-
-    {
-        category: "ENGINE / NACELLE",
-        location: "Nacelle",
-        text: "Panel is damaged."
-    },
-
-    {
-        category: "ENGINE / NACELLE",
-        location: "Nacelle",
-        text: "One fastener is missing."
-    },
-
-    {
-        category: "ENGINE / NACELLE",
-        location: "Nacelle",
-        text: "One fastener is loose."
-    },
-
-    {
-        category: "ENGINE / NACELLE",
-        location: "Fan Cowl",
-        text: "Panel is damaged."
-    },
-
-    {
-        category: "ENGINE / NACELLE",
-        location: "Fan Cowl",
-        text: "Fastener is missing."
-    },
-
-
-    /* =====================================================
-       LIGHTING
-    ===================================================== */
-
-    {
-        category: "LIGHTING",
-        location: "Navigation Light",
-        text: "Lens is damaged."
-    },
-
-    {
-        category: "LIGHTING",
-        location: "Navigation Light",
-        text: "Light is not functioning."
-    },
-
-    {
-        category: "LIGHTING",
-        location: "Strobe Light",
-        text: "Lens is damaged."
-    },
-
-    {
-        category: "LIGHTING",
-        location: "Strobe Light",
-        text: "Light is not functioning."
-    },
-
-    {
-        category: "LIGHTING",
-        location: "Landing Light",
-        text: "Lens is damaged."
-    },
-
-    {
-        category: "LIGHTING",
-        location: "Landing Light",
-        text: "Light is not functioning."
-    },
-
-
-    /* =====================================================
-       ELECTRICAL
-    ===================================================== */
-
-    {
-        category: "ELECTRICAL",
-        location: "Electrical Panel",
-        text: "Circuit breaker is tripped."
-    },
-
-    {
-        category: "ELECTRICAL",
-        location: "Electrical Panel",
-        text: "Circuit breaker cap is missing."
-    },
-
-    {
-        category: "ELECTRICAL",
-        location: "Electrical Panel",
-        text: "Component is damaged."
-    },
-
-    {
-        category: "ELECTRICAL",
-        location: "Wiring",
-        text: "Wire is damaged."
-    },
-
-    {
-        category: "ELECTRICAL",
-        location: "Wiring",
-        text: "Bonding jumper is broken."
-    },
-
-    {
-        category: "ELECTRICAL",
-        location: "Wiring",
-        text: "Bonding jumper is damaged."
-    },
-
-
-    /* =====================================================
-       CABIN
-    ===================================================== */
-
-    {
-        category: "CABIN",
-        location: "Cabin",
-        text: "Panel is damaged."
-    },
-
-    {
-        category: "CABIN",
-        location: "Cabin",
-        text: "Trim is damaged."
-    },
-
-    {
-        category: "CABIN",
-        location: "Cabin",
-        text: "Seat is damaged."
-    },
-
-    {
-        category: "CABIN",
-        location: "Overhead Bin",
-        text: "Panel is damaged."
-    },
-
-    {
-        category: "CABIN",
-        location: "Overhead Bin",
-        text: "Latch is damaged."
-    },
-
-    {
-        category: "CABIN",
-        location: "Lavatory",
-        text: "Seal is damaged."
-    },
-
-    {
-        category: "CABIN",
-        location: "Lavatory",
-        text: "Panel is damaged."
-    },
-
-
-    /* =====================================================
-       EXTERIOR
-    ===================================================== */
-
-    {
-        category: "EXTERIOR",
-        location: "Fuselage",
-        text: "Surface damage was found."
-    },
-
-    {
-        category: "EXTERIOR",
-        location: "Fuselage",
-        text: "Dent was found."
-    },
-
-    {
-        category: "EXTERIOR",
-        location: "Fuselage",
-        text: "Scratch was found."
-    },
-
-    {
-        category: "EXTERIOR",
-        location: "Fuselage",
-        text: "Crack was found."
-    },
-
-    {
-        category: "EXTERIOR",
-        location: "Wing",
-        text: "Surface damage was found."
-    },
-
-    {
-        category: "EXTERIOR",
-        location: "Wing",
-        text: "Scratch was found."
-    },
-
-    {
-        category: "EXTERIOR",
-        location: "Wing",
-        text: "Dent was found."
-    },
-
-    {
-        category: "EXTERIOR",
-        location: "Fairing",
-        text: "Fairing is damaged."
-    },
-
-    {
-        category: "EXTERIOR",
-        location: "Fairing",
-        text: "Fastener is missing."
-    },
-
-
-    /* =====================================================
-       LEAK / DAMAGE
-    ===================================================== */
-
-    {
-        category: "LEAK / DAMAGE",
-        location: "Component",
-        text: "Oil leak was found."
-    },
-
-    {
-        category: "LEAK / DAMAGE",
-        location: "Component",
-        text: "Fuel leak was found."
-    },
-
-    {
-        category: "LEAK / DAMAGE",
-        location: "Component",
-        text: "Hydraulic leak was found."
-    },
-
-    {
-        category: "LEAK / DAMAGE",
-        location: "Component",
-        text: "Water leak was found."
-    },
-
-    {
-        category: "LEAK / DAMAGE",
-        location: "Component",
-        text: "Crack was found."
-    },
-
-    {
-        category: "LEAK / DAMAGE",
-        location: "Component",
-        text: "Corrosion was found."
-    },
-
-    {
-        category: "LEAK / DAMAGE",
-        location: "Component",
-        text: "Dent was found."
-    },
-
-    {
-        category: "LEAK / DAMAGE",
-        location: "Component",
-        text: "Scratch was found."
-    },
-
-
-    /* =====================================================
-       HARDWARE
-    ===================================================== */
-
-    {
-        category: "HARDWARE",
-        location: "Component",
-        text: "One screw is missing."
-    },
-
-    {
-        category: "HARDWARE",
-        location: "Component",
-        text: "One screw is loose."
-    },
-
-    {
-        category: "HARDWARE",
-        location: "Component",
-        text: "One bolt is missing."
-    },
-
-    {
-        category: "HARDWARE",
-        location: "Component",
-        text: "One bolt is loose."
-    },
-
-    {
-        category: "HARDWARE",
-        location: "Component",
-        text: "One nut is missing."
-    },
-
-    {
-        category: "HARDWARE",
-        location: "Component",
-        text: "One nut is loose."
-    },
-
-    {
-        category: "HARDWARE",
-        location: "Component",
-        text: "Fastener is missing."
-    },
-
-    {
-        category: "HARDWARE",
-        location: "Component",
-        text: "Fastener is loose."
-    },
-
-    {
-        category: "HARDWARE",
-        location: "Component",
-        text: "Washer is missing."
-    }
-
-];
+}
 
 
 /* =========================================================
@@ -726,6 +127,8 @@ function openDatabase() {
 
             const database = event.target.result;
 
+            /* INSPECTIONS */
+
             if (!database.objectStoreNames.contains(INSPECTIONS_STORE)) {
 
                 database.createObjectStore(
@@ -738,6 +141,8 @@ function openDatabase() {
             }
 
 
+            /* FINDINGS */
+
             if (!database.objectStoreNames.contains(FINDINGS_STORE)) {
 
                 database.createObjectStore(
@@ -749,6 +154,24 @@ function openDatabase() {
 
             }
 
+
+            /*
+                Version 1 -> Version 2
+
+                Eski yapı:
+
+                finding.photo
+
+                Yeni yapı:
+
+                finding.photos = [
+                    {
+                        id,
+                        original,
+                        marked
+                    }
+                ]
+            */
 
             if (event.oldVersion < 2) {
 
@@ -939,6 +362,10 @@ function getFindingPhotos(finding) {
 
     }
 
+
+    /*
+       Eski kayıt desteği
+    */
 
     if (finding.photo) {
 
@@ -1311,6 +738,8 @@ async function showInspectionDetail(id) {
                     data-id="${escapeHtml(finding.id)}">
 
 
+                    <!-- FINDING HEADER -->
+
                     <div class="finding-main">
 
                         <div class="finding-number">
@@ -1348,10 +777,14 @@ async function showInspectionDetail(id) {
                     </div>
 
 
+                    <!-- EXPANDED AREA -->
+
                     <div class="finding-expand">
 
                         <div class="finding-divider"></div>
 
+
+                        <!-- PHOTO GALLERY -->
 
                         <div class="photo-gallery">
 
@@ -1359,6 +792,8 @@ async function showInspectionDetail(id) {
 
                         </div>
 
+
+                        <!-- ADD MORE PHOTOS -->
 
                         <div style="margin-top:10px">
 
@@ -1373,6 +808,8 @@ async function showInspectionDetail(id) {
 
                         </div>
 
+
+                        <!-- FOOTER -->
 
                         <div class="finding-footer">
 
@@ -1410,17 +847,25 @@ async function showInspectionDetail(id) {
     app.innerHTML = html;
 
 
+    /* BACK */
+
     $("detailBack").onclick =
         showInspectionList;
 
+
+    /* ADD FINDING */
 
     $("addFindingBtn").onclick =
         openFindingModal;
 
 
+    /* DELETE INSPECTION */
+
     $("deleteInspection").onclick =
         () => deleteInspection(id);
 
+
+    /* FINDING ACCORDION */
 
     document
         .querySelectorAll(".finding-card")
@@ -1441,6 +886,8 @@ async function showInspectionDetail(id) {
         });
 
 
+    /* OPEN PHOTOS */
+
     document
         .querySelectorAll(".gallery-photo")
         .forEach(image => {
@@ -1460,6 +907,8 @@ async function showInspectionDetail(id) {
         });
 
 
+    /* DELETE FINDING */
+
     document
         .querySelectorAll(".delete-finding")
         .forEach(button => {
@@ -1476,6 +925,8 @@ async function showInspectionDetail(id) {
 
         });
 
+
+    /* ADD PHOTOS */
 
     document
         .querySelectorAll(".add-photos")
@@ -1680,321 +1131,6 @@ function closeFindingModal() {
 
 
 /* =========================================================
-   QUICK TEMPLATE MODAL
-========================================================= */
-
-function openTemplateModal() {
-
-    const modal =
-        $("templateModal");
-
-    const search =
-        $("templateSearch");
-
-
-    if (!modal) return;
-
-
-    renderTemplateList(
-        ""
-    );
-
-
-    modal.classList.add(
-        "show"
-    );
-
-
-    setTimeout(() => {
-
-        if (search) {
-
-            search.value = "";
-
-            search.focus();
-
-        }
-
-    }, 100);
-
-}
-
-
-function closeTemplateModal() {
-
-    const modal =
-        $("templateModal");
-
-
-    if (!modal) return;
-
-
-    modal.classList.remove(
-        "show"
-    );
-
-}
-
-
-function renderTemplateList(searchTerm = "") {
-
-    const container =
-        $("templateList");
-
-
-    if (!container) return;
-
-
-    const term =
-        searchTerm
-            .trim()
-            .toLowerCase();
-
-
-    const categories = [];
-
-
-    findingTemplates.forEach(template => {
-
-        if (
-            term &&
-            !(
-                template.category.toLowerCase().includes(term) ||
-                template.location.toLowerCase().includes(term) ||
-                template.text.toLowerCase().includes(term)
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        if (
-            !categories.includes(
-                template.category
-            )
-        ) {
-
-            categories.push(
-                template.category
-            );
-
-        }
-
-    });
-
-
-    if (!categories.length) {
-
-        container.innerHTML = `
-
-            <div class="template-empty">
-
-                No templates found.
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        categories.map(category => {
-
-            const items =
-                findingTemplates.filter(
-                    template => {
-
-                        if (
-                            template.category !==
-                            category
-                        ) {
-
-                            return false;
-
-                        }
-
-
-                        if (!term)
-                            return true;
-
-
-                        return (
-
-                            template.category
-                                .toLowerCase()
-                                .includes(term)
-
-                            ||
-
-                            template.location
-                                .toLowerCase()
-                                .includes(term)
-
-                            ||
-
-                            template.text
-                                .toLowerCase()
-                                .includes(term)
-
-                        );
-
-                    }
-                );
-
-
-            return `
-
-                <div class="template-category">
-
-                    <div class="template-category-title">
-
-                        ${escapeHtml(category)}
-
-                    </div>
-
-
-                    <div class="template-list">
-
-                        ${
-                            items.map(
-                                (template, index) => {
-
-                                    const originalIndex =
-                                        findingTemplates.indexOf(
-                                            template
-                                        );
-
-
-                                    return `
-
-                                        <button
-                                            class="template-item"
-                                            data-template-index="${originalIndex}"
-                                            type="button">
-
-                                            <strong>
-                                                ${escapeHtml(
-                                                    template.location
-                                                )}
-                                            </strong>
-
-                                            <br>
-
-                                            ${escapeHtml(
-                                                template.text
-                                            )}
-
-                                        </button>
-
-                                    `;
-
-                                }
-                            ).join("")
-                        }
-
-                    </div>
-
-                </div>
-
-            `;
-
-        }).join("");
-
-
-    document
-        .querySelectorAll(".template-item")
-        .forEach(button => {
-
-            button.onclick = () => {
-
-                const index =
-                    Number(
-                        button.dataset.templateIndex
-                    );
-
-
-                const template =
-                    findingTemplates[index];
-
-
-                if (!template)
-                    return;
-
-
-                findingLocation.value =
-                    template.location;
-
-
-                findingText.value =
-                    template.text;
-
-
-                closeTemplateModal();
-
-
-                findingText.focus();
-
-            };
-
-        });
-
-}
-
-
-/* =========================================================
-   TEMPLATE EVENTS
-========================================================= */
-
-const quickTemplateBtn =
-    $("quickTemplateBtn");
-
-
-if (quickTemplateBtn) {
-
-    quickTemplateBtn.onclick =
-        openTemplateModal;
-
-}
-
-
-const templateClose =
-    $("templateClose");
-
-
-if (templateClose) {
-
-    templateClose.onclick =
-        closeTemplateModal;
-
-}
-
-
-const templateSearch =
-    $("templateSearch");
-
-
-if (templateSearch) {
-
-    templateSearch.addEventListener(
-        "input",
-        () => {
-
-            renderTemplateList(
-                templateSearch.value
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
    ADD PHOTOS TO TEMPORARY FINDING
 ========================================================= */
 
@@ -2041,10 +1177,6 @@ function renderPendingPhotos() {
 
     const gallery =
         $("pendingGallery");
-
-
-    if (!info || !gallery)
-        return;
 
 
     if (!pendingPhotos.length) {
@@ -2141,6 +1273,20 @@ async function saveFinding() {
 
     const text =
         findingText.value.trim();
+
+
+    /*
+       Location ve Finding artık zorunlu değil.
+
+       Kullanıcı:
+       - sadece Location
+       - sadece Finding
+       - Location + Finding
+       - sadece fotoğraf
+       - hiçbir bilgi olmadan
+
+       kayıt oluşturabilir.
+    */
 
 
     const photos = [];
@@ -2524,6 +1670,11 @@ function setupAnnotation(blob) {
             image;
 
 
+        /*
+            Ekrana sığacak şekilde
+            canvas boyutunu belirliyoruz.
+        */
+
         const maxWidth =
             window.innerWidth;
 
@@ -2724,6 +1875,10 @@ function drawArrow(
 
 function beginDraw(event) {
 
+    /*
+       TEXT
+    */
+
     if (annotationTool === "text") {
 
         const point =
@@ -2819,6 +1974,11 @@ function beginDraw(event) {
         "round";
 
 
+    /*
+       iPhone / iPad için
+       pointer capture
+    */
+
     if (
         annotationCanvas.setPointerCapture
     ) {
@@ -2846,6 +2006,10 @@ function moveDraw(event) {
         getCanvasPoint(event);
 
 
+    /*
+       PEN
+    */
+
     if (
         annotationTool === "pen"
     ) {
@@ -2862,6 +2026,13 @@ function moveDraw(event) {
 
     }
 
+
+    /*
+       CIRCLE / ARROW
+
+       Önce son kaydedilen görüntüyü
+       geri getiriyoruz.
+    */
 
     annotationCtx.clearRect(
 
@@ -2919,6 +2090,10 @@ function moveDraw(event) {
         );
 
 
+    /*
+       CIRCLE
+    */
+
     if (
         annotationTool === "circle"
     ) {
@@ -2958,6 +2133,10 @@ function moveDraw(event) {
 
     }
 
+
+    /*
+       ARROW
+    */
 
     else if (
         annotationTool === "arrow"
@@ -3048,10 +2227,20 @@ async function saveAnnotation() {
     }
 
 
+    /*
+       Viewer içindeki geçici liste
+       de güncelleniyor.
+    */
+
     currentPhotoList[
         currentPhotoIndex
     ].marked = blob;
 
+
+    /*
+       IndexedDB'deki gerçek finding
+       güncelleniyor.
+    */
 
     const findings =
         await dbGetAll(
@@ -3092,8 +2281,17 @@ async function saveAnnotation() {
     );
 
 
+    /*
+       Annotation ekranını kapat.
+    */
+
     closeAnnotation();
 
+
+    /*
+       Viewer'ı yeni marked fotoğrafla
+       göster.
+    */
 
     renderPhotoViewer();
 
@@ -3103,10 +2301,23 @@ async function saveAnnotation() {
     );
 
 
+    renderPhotoViewer();
+
+
+    /*
+       Arka taraftaki finding ekranını
+       da güncelle.
+    */
+
     await showInspectionDetail(
         currentInspectionId
     );
 
+
+    /*
+       showInspectionDetail viewer'ı
+       kapatmış olacağı için tekrar açıyoruz.
+    */
 
     photoModal.classList.add(
         "show"
@@ -3149,6 +2360,17 @@ $("saveFinding").onclick =
 
 $("takePhotoBtn").onclick = () => {
 
+    /*
+       Camera input:
+
+       capture="environment"
+
+       multiple YOK.
+
+       Böylece iPhone kamerada
+       düzgün çalışır.
+    */
+
     $("cameraInput").value = "";
 
     $("cameraInput").click();
@@ -3161,6 +2383,15 @@ $("takePhotoBtn").onclick = () => {
 ========================================================= */
 
 $("choosePhotosBtn").onclick = () => {
+
+    /*
+       Gallery input:
+
+       multiple VAR.
+
+       iPhone'da galeriden birden fazla
+       fotoğraf seçilebilir.
+    */
 
     $("galleryInput").value = "";
 
@@ -3180,6 +2411,11 @@ $("cameraInput").onchange = event => {
     );
 
 
+    /*
+       Aynı fotoğrafı tekrar seçebilmek için
+       input'u temizliyoruz.
+    */
+
     event.target.value = "";
 
 };
@@ -3195,6 +2431,11 @@ $("galleryInput").onchange = event => {
         event.target.files
     );
 
+
+    /*
+       Aynı fotoğrafları tekrar seçebilmek için
+       input'u temizliyoruz.
+    */
 
     event.target.value = "";
 
@@ -3260,6 +2501,8 @@ document
                 button.dataset.tool;
 
 
+            /* UNDO */
+
             if (tool === "undo") {
 
                 restoreHistory();
@@ -3268,6 +2511,8 @@ document
 
             }
 
+
+            /* CLEAR */
 
             if (tool === "clear") {
 
@@ -3325,6 +2570,8 @@ document
             }
 
 
+            /* SAVE */
+
             if (tool === "save") {
 
                 saveAnnotation();
@@ -3333,6 +2580,10 @@ document
 
             }
 
+
+            /*
+               PEN / CIRCLE / ARROW / TEXT
+            */
 
             annotationTool =
                 tool;
@@ -3396,18 +2647,6 @@ document.addEventListener(
 
         if (event.key !== "Escape")
             return;
-
-
-        if (
-            $("templateModal") &&
-            $("templateModal").classList.contains("show")
-        ) {
-
-            closeTemplateModal();
-
-            return;
-
-        }
 
 
         if (
