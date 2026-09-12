@@ -1275,15 +1275,18 @@ async function saveFinding() {
         findingText.value.trim();
 
 
-    if (!location || !text) {
+    /*
+       Location ve Finding artık zorunlu değil.
 
-        alert(
-            "Location ve Finding alanlarını doldurun."
-        );
+       Kullanıcı:
+       - sadece Location
+       - sadece Finding
+       - Location + Finding
+       - sadece fotoğraf
+       - hiçbir bilgi olmadan
 
-        return;
-
-    }
+       kayıt oluşturabilir.
+    */
 
 
     const photos = [];
