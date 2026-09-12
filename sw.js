@@ -1,4 +1,4 @@
-const CACHE = 'a330-v7';
+const CACHE = 'a330-v8';
 
 const FILES = [
   '/',
@@ -10,11 +10,13 @@ const FILES = [
   '/fleet.html',
   '/unit.html',
   '/inspection.html',
+  '/scanner.html',
   '/theme.js',
   '/data.js',
   '/resetData.js',
   '/fleet.js',
   '/unit.js',
+  '/scanner.js',
   '/inspection.js',
   '/theme.css',
   '/lh1.png',
