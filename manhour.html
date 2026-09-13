@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -9,21 +11,20 @@
 
     <title>Adam/Saat</title>
 
-    <link rel="stylesheet" href="theme.css">
+    <link
+        rel="stylesheet"
+        href="theme.css">
 
     <style>
 
         /* =====================================================
-           A330 MAN-HOUR PAGE
-           All classes are prefixed with mh-
-           to avoid conflicts with the main application.
+           MAN-HOUR
+           Simple / clean layout
            ===================================================== */
 
         .mh-page {
             width: 100%;
         }
-
-        /* ---------- FORM ---------- */
 
         .mh-form {
             display: grid;
@@ -31,25 +32,27 @@
         }
 
         .mh-field {
-            display: flex;
-            flex-direction: column;
+            display: grid;
             gap: 6px;
         }
 
         .mh-label {
             font-size: 12px;
             font-weight: 600;
-            color: var(--text-muted);
+            opacity: 0.65;
         }
 
         .mh-input,
         .mh-select {
             width: 100%;
-            height: 44px;
-            padding: 0 12px;
+            box-sizing: border-box;
+
+            height: 42px;
+
+            padding: 0 11px;
 
             border: 1px solid var(--border);
-            border-radius: 9px;
+            border-radius: 8px;
 
             background: var(--bg);
             color: var(--text);
@@ -58,8 +61,6 @@
             font-size: 16px !important;
 
             outline: none;
-            -webkit-appearance: none;
-            appearance: none;
         }
 
         .mh-input:focus,
@@ -67,202 +68,132 @@
             border-color: var(--accent);
         }
 
-        /* ---------- SHIFT INFO ---------- */
 
-        .mh-shift-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 2px;
+        /* SHIFT INFO */
+
+        .mh-gmt {
+            display: none;
+
+            padding-top: 2px;
+
+            font-size: 12px;
+            opacity: 0.7;
         }
 
-        .mh-shift-box {
-            padding: 10px 12px;
-
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 9px;
-        }
-
-        .mh-shift-label {
+        .mh-gmt.visible {
             display: block;
-            margin-bottom: 3px;
+        }
+
+
+        /* TABLE */
+
+        .mh-table-wrap {
+            display: none;
+
+            width: 100%;
+
+            overflow-x: auto;
+
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .mh-table-wrap.visible {
+            display: block;
+        }
+
+        .mh-table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            table-layout: fixed;
+        }
+
+        .mh-table th {
+            padding: 8px 5px;
+
+            border-bottom: 1px solid var(--border);
 
             font-size: 10px;
             font-weight: 600;
-
-            color: var(--text-muted);
-        }
-
-        .mh-shift-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        /* ---------- SUMMARY ---------- */
-
-        .mh-summary {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .mh-summary-item {
-            padding: 11px 12px;
-
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 9px;
-        }
-
-        .mh-summary-label {
-            display: block;
-
-            font-size: 9px;
-            font-weight: 600;
-            letter-spacing: .4px;
-
-            color: var(--text-muted);
-        }
-
-        .mh-summary-value {
-            display: block;
-            margin-top: 3px;
-
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        /* ---------- SECTION TITLE ---------- */
-
-        .mh-section-title {
-            margin: 0;
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .mh-section-subtitle {
-            margin: 3px 0 0;
-
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        /* ---------- TIMELINE ---------- */
-
-        .mh-timeline {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-
-            width: 100%;
-        }
-
-        .mh-row {
-            width: 100%;
-            min-height: 48px;
-
-            display: grid;
-            grid-template-columns: 108px minmax(0, 1fr) 22px;
-            align-items: center;
-            gap: 8px;
-
-            padding: 7px 10px;
-
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 9px;
-
-            color: var(--text);
-            font-family: inherit;
 
             text-align: left;
 
-            cursor: pointer;
-
-            -webkit-appearance: none;
-            appearance: none;
-
-            transition:
-                border-color .15s ease,
-                background .15s ease;
+            opacity: 0.6;
         }
 
-        .mh-row:active {
-            transform: none;
+        .mh-table td {
+            padding: 4px 3px;
+
+            border-bottom: 1px solid var(--border);
+
+            vertical-align: middle;
         }
 
-        .mh-row:hover {
-            border-color: var(--accent);
-        }
-
-        .mh-row-filled {
-            border-color: var(--accent);
+        .mh-table th:first-child,
+        .mh-table td:first-child {
+            width: 92px;
         }
 
         .mh-time {
-            font-size: 11px;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .mh-work {
-            min-width: 0;
-        }
-
-        .mh-work-main {
-            display: block;
-
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .mh-work-sub {
-            display: block;
-            margin-top: 2px;
-
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-
             font-size: 10px;
-            color: var(--text-muted);
+            font-weight: 600;
+
+            white-space: nowrap;
+
+            opacity: 0.8;
         }
 
-        .mh-empty {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .mh-arrow {
-            text-align: center;
-
-            font-size: 18px;
-            line-height: 1;
-
-            color: var(--text-muted);
-        }
-
-        /* ---------- BUTTONS ---------- */
-
-        .mh-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .mh-action {
+        .mh-cell-input {
             width: 100%;
-            min-height: 42px;
+            height: 36px;
+
+            box-sizing: border-box;
+
+            padding: 0 7px;
 
             border: 1px solid var(--border);
-            border-radius: 9px;
+            border-radius: 6px;
+
+            background: var(--bg);
+            color: var(--text);
+
+            font-family: inherit;
+            font-size: 14px !important;
+
+            outline: none;
+        }
+
+        .mh-cell-input:focus {
+            border-color: var(--accent);
+        }
+
+        .mh-cell-input::placeholder {
+            opacity: 0.35;
+        }
+
+
+        /* ACTIONS */
+
+        .mh-actions {
+            display: none;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 8px;
+
+            margin-top: 14px;
+        }
+
+        .mh-actions.visible {
+            display: grid;
+        }
+
+        .mh-button {
+            height: 40px;
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
 
             background: var(--surface);
             color: var(--text);
@@ -274,14 +205,12 @@
             cursor: pointer;
         }
 
-        .mh-action:hover {
-            border-color: var(--accent);
-            color: var(--accent);
+        .mh-button:active {
+            transform: scale(0.99);
         }
 
-        .mh-action-danger:hover {
-            border-color: var(--danger);
-            color: var(--danger);
+        .mh-button:hover {
+            border-color: var(--accent);
         }
 
         .mh-status {
@@ -292,202 +221,67 @@
             text-align: center;
 
             font-size: 11px;
-            color: var(--text-muted);
+
+            opacity: 0.6;
         }
 
-        /* ---------- SAVED SHIFTS ---------- */
 
-        .mh-saved {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
+        /* TOTAL */
 
-        .mh-saved-item {
-            width: 100%;
-
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 3px 10px;
-
-            padding: 10px 12px;
-
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 9px;
-
-            color: var(--text);
-
-            text-align: left;
-            font-family: inherit;
-
-            cursor: pointer;
-        }
-
-        .mh-saved-date {
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .mh-saved-shift {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .mh-saved-detail {
-            grid-column: 1 / -1;
-
-            font-size: 10px;
-            color: var(--text-muted);
-        }
-
-        .mh-no-saved {
-            padding: 12px;
-
-            text-align: center;
-
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        /* ---------- WORK MODAL ---------- */
-
-        .mh-modal {
+        .mh-total {
             display: none;
 
-            position: fixed;
-            inset: 0;
+            margin-top: 12px;
 
-            z-index: 2000;
+            font-size: 11px;
 
-            align-items: flex-end;
-            justify-content: center;
+            opacity: 0.6;
 
-            padding: 12px;
-
-            background: rgba(0, 0, 0, .65);
+            text-align: right;
         }
 
-        .mh-modal.open {
-            display: flex;
-        }
-
-        .mh-modal-box {
-            width: 100%;
-            max-width: 480px;
-
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-
-            overflow: hidden;
-        }
-
-        .mh-modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            padding: 14px 16px;
-
-            border-bottom: 1px solid var(--border);
-        }
-
-        .mh-modal-title {
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .mh-close {
-            width: 32px;
-            height: 32px;
-
-            border: 0;
-            background: transparent;
-
-            color: var(--text);
-
-            font-size: 24px;
-            line-height: 1;
-
-            cursor: pointer;
-        }
-
-        .mh-modal-body {
-            padding: 16px;
-        }
-
-        .mh-selected-time {
-            margin-bottom: 15px;
-            padding: 10px 12px;
-
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 9px;
-        }
-
-        .mh-selected-label {
+        .mh-total.visible {
             display: block;
-
-            font-size: 9px;
-            color: var(--text-muted);
         }
 
-        .mh-selected-value {
-            display: block;
-            margin-top: 2px;
 
-            font-size: 15px;
-            font-weight: 700;
-        }
+        /* MOBILE */
 
-        .mh-modal-fields {
-            display: grid;
-            gap: 12px;
-        }
+        @media (max-width: 380px) {
 
-        .mh-modal-footer {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-
-            padding: 14px 16px;
-
-            border-top: 1px solid var(--border);
-        }
-
-        /* ---------- MOBILE ---------- */
-
-        @media (max-width: 360px) {
-
-            .mh-row {
-                grid-template-columns: 96px minmax(0, 1fr) 18px;
-                gap: 6px;
-                padding-left: 8px;
-                padding-right: 8px;
+            .mh-table th:first-child,
+            .mh-table td:first-child {
+                width: 86px;
             }
 
             .mh-time {
-                font-size: 10px;
+                font-size: 9px;
             }
 
-            .mh-work-main {
-                font-size: 11px;
+            .mh-cell-input {
+                padding: 0 6px;
+                font-size: 13px !important;
             }
 
         }
 
     </style>
+
 </head>
+
 
 <body>
 
 <div class="page-wrap mh-page">
 
+
     <!-- HEADER -->
+
     <header class="page-header">
 
-        <a href="index.html" class="back-link">
+        <a
+            href="index.html"
+            class="back-link">
             ← Back
         </a>
 
@@ -495,8 +289,6 @@
             Adam/Saat
         </h1>
 
-        <!-- IMPORTANT:
-             theme.js expects themeBtn -->
         <button
             id="themeBtn"
             class="theme-btn"
@@ -508,10 +300,14 @@
     </header>
 
 
-    <!-- SHIFT -->
+    <!-- DATE / SHIFT -->
+
     <section class="card">
 
         <div class="mh-form">
+
+
+            <!-- DATE -->
 
             <div class="mh-field">
 
@@ -522,12 +318,14 @@
                 </label>
 
                 <input
+                    id="workDate"
                     class="mh-input"
-                    type="date"
-                    id="workDate">
+                    type="date">
 
             </div>
 
+
+            <!-- SHIFT -->
 
             <div class="mh-field">
 
@@ -538,8 +336,12 @@
                 </label>
 
                 <select
-                    class="mh-select"
-                    id="shiftSelect">
+                    id="shiftSelect"
+                    class="mh-select">
+
+                    <option value="">
+                        Select Shift
+                    </option>
 
                     <option value="07-15">
                         07:00 – 15:00
@@ -558,146 +360,92 @@
             </div>
 
 
-            <div class="mh-shift-info">
+            <!-- GMT -->
 
-                <div class="mh-shift-box">
+            <div
+                id="gmtInfo"
+                class="mh-gmt">
 
-                    <span class="mh-shift-label">
-                        LOCAL
-                    </span>
+                GMT:
+                <strong id="gmtShift">
+                    —
+                </strong>
 
-                    <strong
-                        id="localShift"
-                        class="mh-shift-value">
-                        07:00 – 15:00
-                    </strong>
-
-                </div>
+            </div>
 
 
-                <div class="mh-shift-box">
+        </div>
 
-                    <span class="mh-shift-label">
+    </section>
+
+
+    <!-- WORK TABLE -->
+
+    <section
+        id="tableCard"
+        class="card mh-table-wrap">
+
+        <table class="mh-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
                         GMT
-                    </span>
+                    </th>
 
-                    <strong
-                        id="gmtShift"
-                        class="mh-shift-value">
-                        04:00 – 12:00
-                    </strong>
+                    <th>
+                        WORK ORDER
+                    </th>
 
-                </div>
+                    <th>
+                        TASK CARD
+                    </th>
 
-            </div>
+                </tr>
 
-        </div>
+            </thead>
 
-    </section>
+            <tbody id="timeline">
 
+                <!-- Generated by JavaScript -->
 
-    <!-- SUMMARY -->
-    <section class="card">
+            </tbody>
 
-        <div class="mh-summary">
-
-            <div class="mh-summary-item">
-                <span class="mh-summary-label">
-                    WORK ORDERS
-                </span>
-
-                <strong
-                    id="totalWO"
-                    class="mh-summary-value">
-                    0
-                </strong>
-            </div>
-
-
-            <div class="mh-summary-item">
-                <span class="mh-summary-label">
-                    TASK CARDS
-                </span>
-
-                <strong
-                    id="totalTC"
-                    class="mh-summary-value">
-                    0
-                </strong>
-            </div>
-
-
-            <div class="mh-summary-item">
-                <span class="mh-summary-label">
-                    WORK TIME
-                </span>
-
-                <strong
-                    id="totalTime"
-                    class="mh-summary-value">
-                    0h 00m
-                </strong>
-            </div>
-
-
-            <div class="mh-summary-item">
-                <span class="mh-summary-label">
-                    MAN-HOURS
-                </span>
-
-                <strong
-                    id="totalMH"
-                    class="mh-summary-value">
-                    0.00
-                </strong>
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- TIMELINE -->
-    <section class="card">
-
-        <h2 class="mh-section-title">
-            Shift Timeline
-        </h2>
-
-        <p class="mh-section-subtitle">
-            GMT · 10 minute intervals
-        </p>
+        </table>
 
 
         <div
-            id="timeline"
-            class="mh-timeline"
-            style="margin-top: 12px;">
+            id="totalTime"
+            class="mh-total">
+
+            Work time:
+            <strong>0h 00m</strong>
+
         </div>
 
-    </section>
 
-
-    <!-- ACTIONS -->
-    <section class="card">
-
-        <div class="mh-actions">
+        <div
+            id="actions"
+            class="mh-actions">
 
             <button
                 id="saveBtn"
-                class="mh-action"
+                class="mh-button"
                 type="button">
                 SAVE
             </button>
 
             <button
                 id="clearBtn"
-                class="mh-action mh-action-danger"
+                class="mh-button"
                 type="button">
                 CLEAR
             </button>
 
         </div>
+
 
         <div
             id="saveStatus"
@@ -707,223 +455,14 @@
     </section>
 
 
-    <!-- SAVED -->
-    <section class="card">
-
-        <h2 class="mh-section-title">
-            Saved Shifts
-        </h2>
-
-        <p class="mh-section-subtitle">
-            Stored on this device
-        </p>
-
-
-        <div
-            id="savedShifts"
-            class="mh-saved"
-            style="margin-top: 12px;">
-        </div>
-
-    </section>
-
-</div>
-
-
-<!-- WORK MODAL -->
-<div
-    id="workModal"
-    class="mh-modal">
-
-    <div class="mh-modal-box">
-
-        <div class="mh-modal-header">
-
-            <span class="mh-modal-title">
-                Work Entry
-            </span>
-
-            <button
-                id="closeModal"
-                class="mh-close"
-                type="button">
-                ×
-            </button>
-
-        </div>
-
-
-        <div class="mh-modal-body">
-
-            <div class="mh-selected-time">
-
-                <span class="mh-selected-label">
-                    GMT
-                </span>
-
-                <strong
-                    id="modalTime"
-                    class="mh-selected-value">
-                    04:00 – 04:10
-                </strong>
-
-            </div>
-
-
-            <div class="mh-modal-fields">
-
-                <div class="mh-field">
-
-                    <label
-                        class="mh-label"
-                        for="workOrder">
-                        WORK ORDER
-                    </label>
-
-                    <input
-                        class="mh-input"
-                        id="workOrder"
-                        type="text"
-                        placeholder="WO-12345"
-                        autocomplete="off">
-
-                </div>
-
-
-                <div class="mh-field">
-
-                    <label
-                        class="mh-label"
-                        for="taskCard">
-                        TASK CARD
-                    </label>
-
-                    <input
-                        class="mh-input"
-                        id="taskCard"
-                        type="text"
-                        placeholder="32-41-00"
-                        autocomplete="off">
-
-                </div>
-
-
-                <div class="mh-field">
-
-                    <label
-                        class="mh-label"
-                        for="technicians">
-                        TECHNICIANS
-                    </label>
-
-                    <select
-                        class="mh-select"
-                        id="technicians">
-
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="mh-field">
-
-                    <label
-                        class="mh-label"
-                        for="duration">
-                        DURATION
-                    </label>
-
-                    <select
-                        class="mh-select"
-                        id="duration">
-
-                        <option value="10">
-                            10 min
-                        </option>
-
-                        <option value="20">
-                            20 min
-                        </option>
-
-                        <option value="30">
-                            30 min
-                        </option>
-
-                        <option value="40">
-                            40 min
-                        </option>
-
-                        <option value="50">
-                            50 min
-                        </option>
-
-                        <option value="60">
-                            1 hour
-                        </option>
-
-                        <option value="90">
-                            1h 30m
-                        </option>
-
-                        <option value="120">
-                            2 hours
-                        </option>
-
-                        <option value="180">
-                            3 hours
-                        </option>
-
-                        <option value="240">
-                            4 hours
-                        </option>
-
-                        <option value="480">
-                            Entire Shift
-                        </option>
-
-                    </select>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="mh-modal-footer">
-
-            <button
-                id="cancelWork"
-                class="mh-action"
-                type="button">
-                CANCEL
-            </button>
-
-            <button
-                id="saveWork"
-                class="mh-action"
-                type="button">
-                SAVE
-            </button>
-
-        </div>
-
-    </div>
-
 </div>
 
 
 <script src="theme.js"></script>
+
 <script src="manhour.js"></script>
 
+
 </body>
+
 </html>
