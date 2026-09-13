@@ -4,53 +4,47 @@
 
 
     /*
-     * ============================================================
+     * =========================================================
      * A330 MAN-HOUR / SHIFT PLANNER
-     * ============================================================
      *
-     * All data is stored in localStorage.
-     *
-     * Nothing is uploaded to GitHub or any server.
-     *
-     * Data therefore belongs only to this browser/device.
-     *
-     * ============================================================
+     * Data is stored only in this browser/device.
+     * No server or cloud storage is used.
+     * =========================================================
      */
 
 
-    const STORAGE_KEY = "a330ManHourPlanner_v1";
+    const STORAGE_KEY =
+        "a330_manhour_data_v1";
 
+
+    /*
+     * SHIFT DEFINITIONS
+     *
+     * Minutes from midnight.
+     */
 
     const SHIFTS = {
 
         "07-15": {
             start: 7 * 60,
-            end: 15 * 60,
-            label: "07:00 – 15:00"
+            end: 15 * 60
         },
 
         "15-23": {
             start: 15 * 60,
-            end: 23 * 60,
-            label: "15:00 – 23:00"
+            end: 23 * 60
         },
 
         "23-07": {
             start: 23 * 60,
-            end: 7 * 60,
-            label: "23:00 – 07:00"
+            end: 7 * 60
         }
 
     };
 
 
-    let database = loadDatabase();
-
-    let selectedSlot = null;
-
-
     /*
-     * DOM
+     * ELEMENTS
      */
 
     const workDate =
@@ -59,26 +53,20 @@
     const shiftSelect =
         document.getElementById("shiftSelect");
 
-    const localShift =
-        document.getElementById("localShift");
+    const gmtInfo =
+        document.getElementById("gmtInfo");
 
     const gmtShift =
         document.getElementById("gmtShift");
 
+    const tableCard =
+        document.getElementById("tableCard");
+
     const timeline =
         document.getElementById("timeline");
 
-    const totalWO =
-        document.getElementById("totalWO");
-
-    const totalTC =
-        document.getElementById("totalTC");
-
-    const totalTime =
-        document.getElementById("totalTime");
-
-    const totalMH =
-        document.getElementById("totalMH");
+    const actions =
+        document.getElementById("actions");
 
     const saveBtn =
         document.getElementById("saveBtn");
@@ -89,98 +77,88 @@
     const saveStatus =
         document.getElementById("saveStatus");
 
-    const savedShifts =
-        document.getElementById("savedShifts");
+    const totalTime =
+        document.getElementById("totalTime");
 
 
     /*
-     * MODAL
+     * DATABASE
      */
 
-    const workModal =
-        document.getElementById("workModal");
-
-    const closeModal =
-        document.getElementById("closeModal");
-
-    const cancelWork =
-        document.getElementById("cancelWork");
-
-    const saveWork =
-        document.getElementById("saveWork");
-
-    const modalTime =
-        document.getElementById("modalTime");
-
-    const workOrder =
-        document.getElementById("workOrder");
-
-    const taskCard =
-        document.getElementById("taskCard");
-
-    const technicians =
-        document.getElementById("technicians");
-
-    const duration =
-        document.getElementById("duration");
+    let database =
+        loadDatabase();
 
 
     /*
-     * INITIAL DATE
+     * TODAY
      */
 
     function getToday() {
 
-        const now = new Date();
+        const now =
+            new Date();
 
         const year =
             now.getFullYear();
 
         const month =
-            String(now.getMonth() + 1)
-                .padStart(2, "0");
+            String(
+                now.getMonth() + 1
+            ).padStart(2, "0");
 
         const day =
-            String(now.getDate())
-                .padStart(2, "0");
+            String(
+                now.getDate()
+            ).padStart(2, "0");
 
-        return `${year}-${month}-${day}`;
+        return (
+            year +
+            "-" +
+            month +
+            "-" +
+            day
+        );
 
     }
 
 
-    workDate.value = getToday();
+    workDate.value =
+        getToday();
 
 
     /*
-     * STORAGE
+     * LOAD
      */
 
     function loadDatabase() {
 
         try {
 
-            const raw =
-                localStorage.getItem(STORAGE_KEY);
+            const saved =
+                localStorage.getItem(
+                    STORAGE_KEY
+                );
 
-            if (!raw) {
+            if (!saved) {
                 return {};
             }
 
             const parsed =
-                JSON.parse(raw);
+                JSON.parse(saved);
 
             if (
                 parsed &&
                 typeof parsed === "object"
             ) {
+
                 return parsed;
+
             }
 
         } catch (error) {
 
             console.error(
-                "Unable to load Man-Hour data:",
+                "Man-Hour load error:",
                 error
             );
 
@@ -191,7 +169,13 @@
     }
 
 
-    function saveDatabase() {
+    /*
+     * SAVE DATABASE
+     */
+
+    function saveDatabase(
+        showMessage = true
+    ) {
 
         try {
 
@@ -200,19 +184,23 @@
                 JSON.stringify(database)
             );
 
-            showSaveStatus(
-                "✓ Saved on this device"
-            );
+            if (showMessage) {
+
+                showStatus(
+                    "Saved"
+                );
+
+            }
 
         } catch (error) {
 
             console.error(
-                "Unable to save Man-Hour data:",
+                "Man-Hour save error:",
                 error
             );
 
-            showSaveStatus(
-                "Unable to save data"
+            showStatus(
+                "Unable to save"
             );
 
         }
@@ -221,22 +209,51 @@
 
 
     /*
-     * KEY
+     * RECORD KEY
+     *
+     * Every date + shift has its own record.
      */
 
-    function getRecordKey() {
+    function getKey() {
 
-        return `${workDate.value}_${shiftSelect.value}`;
+        if (
+            !workDate.value ||
+            !shiftSelect.value
+        ) {
+
+            return null;
+
+        }
+
+        return (
+            workDate.value +
+            "_" +
+            shiftSelect.value
+        );
 
     }
 
 
-    function getCurrentRecord() {
+    /*
+     * GET CURRENT RECORD
+     */
+
+    function getRecord(
+        create = false
+    ) {
 
         const key =
-            getRecordKey();
+            getKey();
 
-        if (!database[key]) {
+        if (!key) {
+            return null;
+        }
+
+
+        if (
+            !database[key] &&
+            create
+        ) {
 
             database[key] = {
                 date: workDate.value,
@@ -246,18 +263,22 @@
 
         }
 
-        return database[key];
+
+        return database[key] || null;
 
     }
 
 
     /*
-     * TIME HELPERS
+     * NORMALIZE TIME
      */
 
-    function normalizeMinutes(minutes) {
+    function normalizeMinutes(
+        minutes
+    ) {
 
-        minutes %= 1440;
+        minutes =
+            minutes % 1440;
 
         if (minutes < 0) {
             minutes += 1440;
@@ -268,714 +289,18 @@
     }
 
 
-    function formatMinutes(minutes) {
-
-        minutes =
-            normalizeMinutes(minutes);
-
-        const hours =
-            Math.floor(minutes / 60);
-
-        const mins =
-            minutes % 60;
-
-        return (
-            String(hours).padStart(2, "0") +
-            ":" +
-            String(mins).padStart(2, "0")
-        );
-
-    }
-
-
-    function getTimezoneOffsetForDate(dateString) {
-
-        const date =
-            new Date(
-                `${dateString}T12:00:00`
-            );
-
-        return date.getTimezoneOffset();
-
-    }
-
-
-    function localToGMT(minutes, dateString) {
-
-        const offset =
-            getTimezoneOffsetForDate(
-                dateString
-            );
-
-        return normalizeMinutes(
-            minutes + offset
-        );
-
-    }
-
-
     /*
-     * SHIFT INFO
+     * FORMAT HH:MM
      */
 
-    function updateShiftInfo() {
-
-        const shift =
-            SHIFTS[shiftSelect.value];
-
-        if (!shift) {
-            return;
-        }
-
-
-        localShift.textContent =
-            shift.label;
-
-
-        const gmtStart =
-            localToGMT(
-                shift.start,
-                workDate.value
-            );
-
-
-        let localEnd =
-            shift.end;
-
-        if (localEnd <= shift.start) {
-            localEnd += 1440;
-        }
-
-
-        const gmtEnd =
-            localToGMT(
-                localEnd,
-                workDate.value
-            );
-
-
-        gmtShift.textContent =
-            `${formatMinutes(gmtStart)} – ${formatMinutes(gmtEnd)}`;
-
-    }
-
-
-    /*
-     * BUILD TIMELINE
-     */
-
-    function renderTimeline() {
-
-        timeline.innerHTML = "";
-
-
-        const shift =
-            SHIFTS[shiftSelect.value];
-
-        if (!shift) {
-            return;
-        }
-
-
-        let start =
-            shift.start;
-
-        let end =
-            shift.end;
-
-
-        if (end <= start) {
-            end += 1440;
-        }
-
-
-        const record =
-            getCurrentRecord();
-
-
-        let slotIndex = 0;
-
-
-        for (
-            let localStart = start;
-            localStart < end;
-            localStart += 10
-        ) {
-
-            const localEnd =
-                localStart + 10;
-
-
-            const gmtStart =
-                localToGMT(
-                    localStart,
-                    workDate.value
-                );
-
-
-            const gmtEnd =
-                localToGMT(
-                    localEnd,
-                    workDate.value
-                );
-
-
-            const slot =
-                record.slots[slotIndex];
-
-
-            const row =
-                document.createElement("button");
-
-
-            row.type = "button";
-
-            row.className =
-                "timeline-row";
-
-
-            if (slot) {
-                row.classList.add(
-                    "timeline-row-filled"
-                );
-            }
-
-
-            /*
-             * TIME
-             */
-
-            const time =
-                document.createElement("div");
-
-            time.className =
-                "timeline-time";
-
-
-            const timeLabel =
-                document.createElement("strong");
-
-            timeLabel.textContent =
-                `${formatMinutes(gmtStart)} – ${formatMinutes(gmtEnd)}`;
-
-
-            time.appendChild(
-                timeLabel
-            );
-
-
-            /*
-             * WORK INFO
-             */
-
-            const info =
-                document.createElement("div");
-
-            info.className =
-                "timeline-info";
-
-
-            if (slot) {
-
-                const wo =
-                    document.createElement("span");
-
-                wo.className =
-                    "timeline-wo";
-
-                wo.textContent =
-                    slot.wo || "—";
-
-
-                const tc =
-                    document.createElement("span");
-
-                tc.className =
-                    "timeline-tc";
-
-                tc.textContent =
-                    slot.tc || "—";
-
-
-                const tech =
-                    document.createElement("span");
-
-                tech.className =
-                    "timeline-tech";
-
-                tech.textContent =
-                    `${slot.people || 1} TECH`;
-
-
-                info.appendChild(wo);
-                info.appendChild(tc);
-                info.appendChild(tech);
-
-            } else {
-
-                const empty =
-                    document.createElement("span");
-
-                empty.className =
-                    "timeline-empty";
-
-                empty.textContent =
-                    "Tap to add work";
-
-
-                info.appendChild(
-                    empty
-                );
-
-            }
-
-
-            /*
-             * ARROW
-             */
-
-            const arrow =
-                document.createElement("div");
-
-            arrow.className =
-                "timeline-arrow";
-
-            arrow.textContent =
-                "›";
-
-
-            row.appendChild(time);
-            row.appendChild(info);
-            row.appendChild(arrow);
-
-
-            row.addEventListener(
-                "click",
-                () => {
-
-                    openWorkModal(
-                        slotIndex,
-                        gmtStart
-                    );
-
-                }
-            );
-
-
-            timeline.appendChild(row);
-
-
-            slotIndex++;
-
-        }
-
-    }
-
-
-    /*
-     * MODAL
-     */
-
-    function openWorkModal(
-        slotIndex,
-        gmtStart
+    function formatTime(
+        minutes
     ) {
 
-        selectedSlot =
-            slotIndex;
-
-
-        const record =
-            getCurrentRecord();
-
-        const existing =
-            record.slots[slotIndex];
-
-
-        const shift =
-            SHIFTS[shiftSelect.value];
-
-
-        let localStart =
-            shift.start +
-            slotIndex * 10;
-
-
-        const gmtEnd =
-            localToGMT(
-                localStart + 10,
-                workDate.value
+        minutes =
+            normalizeMinutes(
+                minutes
             );
-
-
-        modalTime.textContent =
-            `${formatMinutes(gmtStart)} – ${formatMinutes(gmtEnd)}`;
-
-
-        workOrder.value =
-            existing?.wo || "";
-
-
-        taskCard.value =
-            existing?.tc || "";
-
-
-        technicians.value =
-            existing?.people || "1";
-
-
-        duration.value =
-            existing?.duration || "10";
-
-
-        workModal.classList.add(
-            "modal-open"
-        );
-
-
-        setTimeout(
-            () => workOrder.focus(),
-            50
-        );
-
-    }
-
-
-    function closeWorkModal() {
-
-        workModal.classList.remove(
-            "modal-open"
-        );
-
-        selectedSlot = null;
-
-    }
-
-
-    /*
-     * SAVE WORK
-     */
-
-    saveWork.addEventListener(
-        "click",
-        () => {
-
-            if (
-                selectedSlot === null
-            ) {
-                return;
-            }
-
-
-            const record =
-                getCurrentRecord();
-
-
-            const wo =
-                workOrder.value.trim();
-
-            const tc =
-                taskCard.value.trim();
-
-            const people =
-                Number(
-                    technicians.value
-                ) || 1;
-
-            const workDuration =
-                Number(
-                    duration.value
-                ) || 10;
-
-
-            /*
-             * If everything is empty,
-             * remove the slot.
-             */
-
-            if (!wo && !tc) {
-
-                delete record.slots[
-                    selectedSlot
-                ];
-
-            } else {
-
-                /*
-                 * Number of 10-minute slots
-                 */
-
-                const slotCount =
-                    Math.ceil(
-                        workDuration / 10
-                    );
-
-
-                for (
-                    let i = 0;
-                    i < slotCount;
-                    i++
-                ) {
-
-                    const index =
-                        selectedSlot + i;
-
-
-                    record.slots[index] = {
-
-                        wo: wo,
-
-                        tc: tc,
-
-                        people: people,
-
-                        duration: 10
-
-                    };
-
-                }
-
-            }
-
-
-            saveDatabase();
-
-            closeWorkModal();
-
-            renderAll();
-
-        }
-    );
-
-
-    /*
-     * MODAL BUTTONS
-     */
-
-    closeModal.addEventListener(
-        "click",
-        closeWorkModal
-    );
-
-
-    cancelWork.addEventListener(
-        "click",
-        closeWorkModal
-    );
-
-
-    workModal.addEventListener(
-        "click",
-        (event) => {
-
-            if (
-                event.target === workModal
-            ) {
-                closeWorkModal();
-            }
-
-        }
-    );
-
-
-    /*
-     * SAVE CURRENT SHIFT
-     */
-
-    saveBtn.addEventListener(
-        "click",
-        () => {
-
-            /*
-             * Simply touching the record
-             * ensures it exists.
-             */
-
-            getCurrentRecord();
-
-            saveDatabase();
-
-            renderSavedShifts();
-
-        }
-    );
-
-
-    /*
-     * CLEAR CURRENT SHIFT
-     */
-
-    clearBtn.addEventListener(
-        "click",
-        () => {
-
-            const key =
-                getRecordKey();
-
-
-            if (!database[key]) {
-
-                showSaveStatus(
-                    "Nothing to clear"
-                );
-
-                return;
-
-            }
-
-
-            const confirmed =
-                confirm(
-                    "Clear all data for this shift?"
-                );
-
-
-            if (!confirmed) {
-                return;
-            }
-
-
-            delete database[key];
-
-
-            try {
-
-                localStorage.setItem(
-                    STORAGE_KEY,
-                    JSON.stringify(database)
-                );
-
-            } catch (error) {
-
-                console.error(error);
-
-            }
-
-
-            renderAll();
-
-
-            showSaveStatus(
-                "✓ Shift cleared"
-            );
-
-        }
-    );
-
-
-    /*
-     * DATE / SHIFT CHANGE
-     */
-
-    workDate.addEventListener(
-        "change",
-        () => {
-
-            updateShiftInfo();
-
-            renderAll();
-
-        }
-    );
-
-
-    shiftSelect.addEventListener(
-        "change",
-        () => {
-
-            updateShiftInfo();
-
-            renderAll();
-
-        }
-    );
-
-
-    /*
-     * SUMMARY
-     */
-
-    function updateSummary() {
-
-        const record =
-            database[getRecordKey()];
-
-
-        if (
-            !record ||
-            !record.slots
-        ) {
-
-            totalWO.textContent =
-                "0";
-
-            totalTC.textContent =
-                "0";
-
-            totalTime.textContent =
-                "0h 00m";
-
-            totalMH.textContent =
-                "0.00";
-
-            return;
-
-        }
-
-
-        const slots =
-            Object.values(
-                record.slots
-            );
-
-
-        const woSet =
-            new Set();
-
-        const tcSet =
-            new Set();
-
-
-        let minutes = 0;
-
-        let manHours = 0;
-
-
-        slots.forEach(
-            slot => {
-
-                if (slot.wo) {
-                    woSet.add(
-                        slot.wo
-                    );
-                }
-
-                if (slot.tc) {
-                    tcSet.add(
-                        slot.tc
-                    );
-                }
-
-
-                minutes += 10;
-
-
-                manHours +=
-                    10 / 60 *
-                    (Number(
-                        slot.people
-                    ) || 1);
-
-            }
-        );
-
-
-        totalWO.textContent =
-            woSet.size;
-
-
-        totalTC.textContent =
-            tcSet.size;
 
 
         const hours =
@@ -987,55 +312,72 @@
             minutes % 60;
 
 
-        totalTime.textContent =
-            `${hours}h ${String(mins).padStart(2, "0")}m`;
-
-
-        totalMH.textContent =
-            manHours.toFixed(2);
+        return (
+            String(hours)
+                .padStart(2, "0") +
+            ":" +
+            String(mins)
+                .padStart(2, "0")
+        );
 
     }
 
 
     /*
-     * SAVED SHIFTS
+     * TIMEZONE OFFSET
+     *
+     * Converts device local time to GMT.
      */
 
-    function renderSavedShifts() {
+    function getOffset(
+        dateString
+    ) {
 
-        savedShifts.innerHTML = "";
-
-
-        const entries =
-            Object.entries(
-                database
-            )
-            .sort(
-                ([, a], [, b]) => {
-
-                    return (
-                        b.date.localeCompare(
-                            a.date
-                        )
-                    );
-
-                }
+        const date =
+            new Date(
+                dateString +
+                "T12:00:00"
             );
 
+        return date.getTimezoneOffset();
 
-        if (!entries.length) {
+    }
 
-            const empty =
-                document.createElement("div");
 
-            empty.className =
-                "saved-empty";
+    /*
+     * LOCAL → GMT
+     */
 
-            empty.textContent =
-                "No saved shifts";
+    function localToGMT(
+        minutes
+    ) {
 
-            savedShifts.appendChild(
-                empty
+        return normalizeMinutes(
+            minutes +
+            getOffset(
+                workDate.value
+            )
+        );
+
+    }
+
+
+    /*
+     * UPDATE GMT INFORMATION
+     */
+
+    function updateGMT() {
+
+        const shift =
+            SHIFTS[
+                shiftSelect.value
+            ];
+
+
+        if (!shift) {
+
+            gmtInfo.classList.remove(
+                "visible"
             );
 
             return;
@@ -1043,128 +385,614 @@
         }
 
 
-        entries.forEach(
-            ([key, record]) => {
-
-                const card =
-                    document.createElement("button");
+        let end =
+            shift.end;
 
 
-                card.type =
-                    "button";
+        if (
+            end <= shift.start
+        ) {
 
-                card.className =
-                    "saved-shift";
+            end += 1440;
 
-
-                const date =
-                    document.createElement("strong");
-
-                date.textContent =
-                    formatDate(
-                        record.date
-                    );
+        }
 
 
-                const shift =
-                    document.createElement("span");
+        const startGMT =
+            localToGMT(
+                shift.start
+            );
 
-                shift.textContent =
-                    SHIFTS[
-                        record.shift
-                    ]?.label ||
-                    record.shift;
-
-
-                const count =
-                    Object.keys(
-                        record.slots || {}
-                    ).length;
-
-
-                const details =
-                    document.createElement("small");
-
-                details.textContent =
-                    `${count} time slots`;
-
-
-                card.appendChild(
-                    date
-                );
-
-                card.appendChild(
-                    shift
-                );
-
-                card.appendChild(
-                    details
-                );
-
-
-                card.addEventListener(
-                    "click",
-                    () => {
-
-                        workDate.value =
-                            record.date;
-
-                        shiftSelect.value =
-                            record.shift;
-
-                        updateShiftInfo();
-
-                        renderAll();
-
-                        window.scrollTo({
-                            top: 0,
-                            behavior: "smooth"
-                        });
-
-                    }
-                );
-
-
-                savedShifts.appendChild(
-                    card
-                );
-
-            }
-        );
-
-    }
-
-
-    function formatDate(
-        dateString
-    ) {
-
-        const date =
-            new Date(
-                `${dateString}T12:00:00`
+        const endGMT =
+            localToGMT(
+                end
             );
 
 
-        return date.toLocaleDateString(
-            "en-GB",
-            {
-                day: "2-digit",
-                month: "short",
-                year: "numeric"
-            }
+        gmtShift.textContent =
+            formatTime(startGMT) +
+            " – " +
+            formatTime(endGMT);
+
+
+        gmtInfo.classList.add(
+            "visible"
         );
 
     }
 
 
     /*
-     * STATUS
+     * RENDER
+     */
+
+    function render() {
+
+        /*
+         * No shift selected.
+         *
+         * Hide everything below.
+         */
+
+        if (
+            !workDate.value ||
+            !shiftSelect.value
+        ) {
+
+            tableCard.classList.remove(
+                "visible"
+            );
+
+            actions.classList.remove(
+                "visible"
+            );
+
+            totalTime.classList.remove(
+                "visible"
+            );
+
+            timeline.innerHTML = "";
+
+            updateGMT();
+
+            return;
+
+        }
+
+
+        updateGMT();
+
+
+        const shift =
+            SHIFTS[
+                shiftSelect.value
+            ];
+
+
+        if (!shift) {
+            return;
+        }
+
+
+        let end =
+            shift.end;
+
+
+        /*
+         * Night shift:
+         * 23:00 → 07:00
+         */
+
+        if (
+            end <= shift.start
+        ) {
+
+            end += 1440;
+
+        }
+
+
+        const record =
+            getRecord(false);
+
+
+        timeline.innerHTML =
+            "";
+
+
+        /*
+         * 10 MINUTE ROWS
+         */
+
+        let slotIndex = 0;
+
+
+        for (
+            let localStart = shift.start;
+            localStart < end;
+            localStart += 10
+        ) {
+
+
+            const localEnd =
+                localStart + 10;
+
+
+            const gmtStart =
+                localToGMT(
+                    localStart
+                );
+
+            const gmtEnd =
+                localToGMT(
+                    localEnd
+                );
+
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+
+            /*
+             * TIME
+             */
+
+            const timeCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            const time =
+                document.createElement(
+                    "span"
+                );
+
+
+            time.className =
+                "mh-time";
+
+
+            time.textContent =
+                formatTime(gmtStart) +
+                "–" +
+                formatTime(gmtEnd);
+
+
+            timeCell.appendChild(
+                time
+            );
+
+
+            /*
+             * WORK ORDER
+             */
+
+            const woCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            const woInput =
+                document.createElement(
+                    "input"
+                );
+
+
+            woInput.type =
+                "text";
+
+            woInput.className =
+                "mh-cell-input";
+
+            woInput.placeholder =
+                "WO";
+
+
+            /*
+             * TASK CARD
+             */
+
+            const tcCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            const tcInput =
+                document.createElement(
+                    "input"
+                );
+
+
+            tcInput.type =
+                "text";
+
+            tcInput.className =
+                "mh-cell-input";
+
+            tcInput.placeholder =
+                "TC";
+
+
+            /*
+             * LOAD EXISTING DATA
+             */
+
+            if (
+                record &&
+                record.slots &&
+                record.slots[slotIndex]
+            ) {
+
+                const saved =
+                    record.slots[
+                        slotIndex
+                    ];
+
+
+                woInput.value =
+                    saved.wo || "";
+
+
+                tcInput.value =
+                    saved.tc || "";
+
+            }
+
+
+            /*
+             * SAVE ON EVERY CHANGE
+             *
+             * This means the user does not
+             * lose data if Safari is closed.
+             */
+
+            woInput.addEventListener(
+                "input",
+                () => {
+
+                    updateSlot(
+                        slotIndex,
+                        woInput.value,
+                        tcInput.value
+                    );
+
+                }
+            );
+
+
+            tcInput.addEventListener(
+                "input",
+                () => {
+
+                    updateSlot(
+                        slotIndex,
+                        woInput.value,
+                        tcInput.value
+                    );
+
+                }
+            );
+
+
+            woCell.appendChild(
+                woInput
+            );
+
+            tcCell.appendChild(
+                tcInput
+            );
+
+
+            tr.appendChild(
+                timeCell
+            );
+
+            tr.appendChild(
+                woCell
+            );
+
+            tr.appendChild(
+                tcCell
+            );
+
+
+            timeline.appendChild(
+                tr
+            );
+
+
+            slotIndex++;
+
+        }
+
+
+        /*
+         * SHOW TABLE
+         */
+
+        tableCard.classList.add(
+            "visible"
+        );
+
+        actions.classList.add(
+            "visible"
+        );
+
+        totalTime.classList.add(
+            "visible"
+        );
+
+
+        updateTotal();
+
+    }
+
+
+    /*
+     * UPDATE SLOT
+     */
+
+    function updateSlot(
+        index,
+        wo,
+        tc
+    ) {
+
+        const record =
+            getRecord(true);
+
+
+        if (!record) {
+            return;
+        }
+
+
+        wo =
+            String(wo || "")
+                .trim();
+
+        tc =
+            String(tc || "")
+                .trim();
+
+
+        /*
+         * If row is empty,
+         * remove it from storage.
+         */
+
+        if (!wo && !tc) {
+
+            delete record.slots[
+                index
+            ];
+
+        } else {
+
+            record.slots[index] = {
+
+                wo: wo,
+
+                tc: tc
+
+            };
+
+        }
+
+
+        /*
+         * Save immediately.
+         */
+
+        saveDatabase(false);
+
+
+        updateTotal();
+
+    }
+
+
+    /*
+     * TOTAL WORK TIME
+     *
+     * Each filled row = 10 minutes.
+     */
+
+    function updateTotal() {
+
+        const record =
+            getRecord(false);
+
+
+        if (
+            !record ||
+            !record.slots
+        ) {
+
+            totalTime.innerHTML =
+                "Work time: <strong>0h 00m</strong>";
+
+            return;
+
+        }
+
+
+        let count = 0;
+
+
+        Object.values(
+            record.slots
+        ).forEach(
+            slot => {
+
+                if (
+                    slot &&
+                    (
+                        slot.wo ||
+                        slot.tc
+                    )
+                ) {
+
+                    count++;
+
+                }
+
+            }
+        );
+
+
+        const minutes =
+            count * 10;
+
+
+        const hours =
+            Math.floor(
+                minutes / 60
+            );
+
+        const mins =
+            minutes % 60;
+
+
+        totalTime.innerHTML =
+            "Work time: <strong>" +
+            hours +
+            "h " +
+            String(mins)
+                .padStart(2, "0") +
+            "m</strong>";
+
+    }
+
+
+    /*
+     * MANUAL SAVE
+     */
+
+    saveBtn.addEventListener(
+        "click",
+        () => {
+
+            if (
+                !getKey()
+            ) {
+
+                return;
+
+            }
+
+
+            getRecord(true);
+
+            saveDatabase(true);
+
+        }
+    );
+
+
+    /*
+     * CLEAR
+     */
+
+    clearBtn.addEventListener(
+        "click",
+        () => {
+
+            const key =
+                getKey();
+
+
+            if (!key) {
+                return;
+            }
+
+
+            const record =
+                database[key];
+
+
+            if (!record) {
+
+                showStatus(
+                    "Nothing to clear"
+                );
+
+                return;
+
+            }
+
+
+            const confirmed =
+                window.confirm(
+                    "Clear this shift?"
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            delete database[key];
+
+
+            saveDatabase(
+                false
+            );
+
+
+            render();
+
+
+            showStatus(
+                "Cleared"
+            );
+
+        }
+    );
+
+
+    /*
+     * DATE CHANGE
+     */
+
+    workDate.addEventListener(
+        "change",
+        () => {
+
+            render();
+
+        }
+    );
+
+
+    /*
+     * SHIFT CHANGE
+     */
+
+    shiftSelect.addEventListener(
+        "change",
+        () => {
+
+            render();
+
+        }
+    );
+
+
+    /*
+     * STATUS MESSAGE
      */
 
     let statusTimer = null;
 
 
-    function showSaveStatus(
+    function showStatus(
         message
     ) {
 
@@ -1185,56 +1013,16 @@
                         "";
 
                 },
-                2500
+                2000
             );
 
     }
 
 
     /*
-     * RENDER EVERYTHING
-     */
-
-    function renderAll() {
-
-        updateShiftInfo();
-
-        renderTimeline();
-
-        updateSummary();
-
-        renderSavedShifts();
-
-    }
-
-
-    /*
-     * KEYBOARD
-     */
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key === "Escape" &&
-                workModal.classList.contains(
-                    "modal-open"
-                )
-            ) {
-
-                closeWorkModal();
-
-            }
-
-        }
-    );
-
-
-    /*
      * START
      */
 
-    renderAll();
+    render();
 
 })();
