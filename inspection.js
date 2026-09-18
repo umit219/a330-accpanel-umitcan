@@ -2721,3 +2721,291 @@ window.addEventListener(
 
     }
 );
+/* =========================================================
+   ADD PHOTOS - iPHONE / SAFARI FIX
+========================================================= */
+
+(function setupAddPhotosFix() {
+
+    /*
+     * iOS Safari bazı durumlarda tamamen hidden olan
+     * <input type="file"> elementinin programmatic click()
+     * çağrısını düzgün çalıştırmayabiliyor.
+     *
+     * Bu yüzden input'u görünmez ama DOM'da gerçek bir
+     * input olarak bırakıyoruz.
+     */
+
+    const addPhotosInput =
+        document.getElementById(
+            "addPhotosInput"
+        );
+
+
+    if (!addPhotosInput) {
+
+        console.error(
+            "ADD PHOTOS FIX: addPhotosInput bulunamadı."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * iPhone / Safari için input ayarı
+     */
+
+    addPhotosInput.hidden = false;
+
+    addPhotosInput.multiple = true;
+
+    addPhotosInput.accept =
+        "image/*";
+
+
+    addPhotosInput.style.position =
+        "fixed";
+
+    addPhotosInput.style.left =
+        "0";
+
+    addPhotosInput.style.top =
+        "0";
+
+    addPhotosInput.style.width =
+        "1px";
+
+    addPhotosInput.style.height =
+        "1px";
+
+    addPhotosInput.style.opacity =
+        "0.01";
+
+    addPhotosInput.style.pointerEvents =
+        "none";
+
+    addPhotosInput.style.zIndex =
+        "-1";
+
+
+    /*
+     * ---------------------------------------------------------
+     * FILE RESULT
+     * ---------------------------------------------------------
+     */
+
+    addPhotosInput.onchange =
+        async event => {
+
+            const files =
+                event.target.files;
+
+
+            if (
+                !files ||
+                files.length === 0
+            ) {
+
+                event.target.value = "";
+
+                return;
+
+            }
+
+
+            try {
+
+                console.log(
+                    "ADD PHOTOS:",
+                    files.length,
+                    "photo(s) selected"
+                );
+
+
+                await addPhotosToFinding(
+                    files
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "ADD PHOTOS ERROR:",
+                    error
+                );
+
+
+                alert(
+                    "Fotoğraf eklenirken bir hata oluştu."
+                );
+
+            }
+
+
+            /*
+             * Aynı fotoğrafı tekrar seçebilmek için
+             * input'u temizle.
+             */
+
+            event.target.value = "";
+
+        };
+
+
+    /*
+     * ---------------------------------------------------------
+     * BUTTON BIND
+     * ---------------------------------------------------------
+     */
+
+    function bindAddPhotoButtons() {
+
+        document
+            .querySelectorAll(
+                ".add-photos"
+            )
+            .forEach(button => {
+
+
+                /*
+                 * Eski onclick handler'ını tamamen
+                 * kaldırıyoruz.
+                 */
+
+                button.onclick =
+                    null;
+
+
+                /*
+                 * Yeni handler
+                 */
+
+                button.onclick =
+                    event => {
+
+                        event.preventDefault();
+
+                        event.stopPropagation();
+
+
+                        const findingId =
+                            button.dataset.id;
+
+
+                        if (!findingId) {
+
+                            console.error(
+                                "ADD PHOTOS: finding ID yok."
+                            );
+
+                            return;
+
+                        }
+
+
+                        /*
+                         * En önemli kısım:
+                         *
+                         * addPhotosToFinding()
+                         * currentFindingId kullanıyor.
+                         */
+
+                        currentFindingId =
+                            findingId;
+
+
+                        /*
+                         * Input'u sıfırla.
+                         */
+
+                        addPhotosInput.value =
+                            "";
+
+
+                        /*
+                         * Native iPhone photo picker.
+                         *
+                         * Bu çağrı doğrudan kullanıcı
+                         * tıklamasından geliyor.
+                         */
+
+                        addPhotosInput.click();
+
+                    };
+
+            });
+
+    }
+
+
+    /*
+     * ---------------------------------------------------------
+     * showInspectionDetail SONRASI TEKRAR BIND
+     * ---------------------------------------------------------
+     *
+     * Inspection detail ekranı her yenilendiğinde
+     * finding kartları yeniden oluşturuluyor.
+     *
+     * Bu nedenle her render sonrasında ADD PHOTOS
+     * butonlarını tekrar bağlıyoruz.
+     */
+
+    const originalShowInspectionDetail =
+        showInspectionDetail;
+
+
+    showInspectionDetail =
+        async function(id) {
+
+            await originalShowInspectionDetail(
+                id
+            );
+
+
+            bindAddPhotoButtons();
+
+        };
+
+
+    /*
+     * İlk yükleme için
+     */
+
+    bindAddPhotoButtons();
+
+
+    /*
+     * DOM değişikliklerini de takip et.
+     *
+     * Böylece finding kartları yeniden oluşturulursa
+     * buton yine çalışır.
+     */
+
+    const observer =
+        new MutationObserver(
+            () => {
+
+                bindAddPhotoButtons();
+
+            }
+        );
+
+
+    observer.observe(
+        document.body,
+        {
+            childList: true,
+            subtree: true
+        }
+    );
+
+
+    console.log(
+        "A330 Inspection: Add Photos fix loaded."
+    );
+
+})();
+
+
