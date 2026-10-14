@@ -316,6 +316,41 @@
             .mh-page .card { padding: 16px; }
         }
 
+    
+        /* Final mobile layout correction: prevent date/select overflow */
+        .mh-page { width: 100%; max-width: 560px; min-width: 0; }
+        .mh-page .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+        .mh-page .page-header .back-link { flex: 0 1 auto; min-width: 0; }
+        .mh-page .page-header .page-title { flex: 1 1 auto; min-width: 0; text-align: center; }
+        .mh-page .card { width: 100%; min-width: 0; overflow: hidden; }
+        .mh-form, .mh-field { width: 100%; min-width: 0; }
+        .mh-input, .mh-select {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        .mh-select {
+            appearance: auto;
+            -webkit-appearance: menulist;
+        }
+        #workDate { max-width: 100%; }
+        .mh-table-wrap { overflow-x: auto; }
+        @media (max-width: 480px) {
+            .mh-page .page-header .page-title { font-size: 16px; }
+            .mh-page .page-header .back-link { font-size: 12px; }
+            .mh-page .card { padding: 14px; }
+        }
+
     </style>
 
 </head>
@@ -339,16 +374,7 @@
         <h1 class="page-title">
             Adam/Saat
         </h1>
-
-        <button
-            id="themeBtn"
-            class="theme-btn"
-            type="button"
-            onclick="toggleTheme()">
-            🌙
-        </button>
-
-    </header>
+</header>
 
 
     <!-- DATE / SHIFT -->
