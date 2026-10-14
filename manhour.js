@@ -80,6 +80,14 @@
     const totalTime =
         document.getElementById("totalTime");
 
+    const rangeStart = document.getElementById("rangeStart");
+    const rangeEnd = document.getElementById("rangeEnd");
+    const rangeWO = document.getElementById("rangeWO");
+    const rangeTC = document.getElementById("rangeTC");
+    const applyRangeBtn = document.getElementById("applyRangeBtn");
+    const rangeStatus = document.getElementById("rangeStatus");
+
+
 
     /*
      * DATABASE
@@ -533,6 +541,7 @@
                 document.createElement(
                     "tr"
                 );
+            tr.dataset.slotIndex = String(slotIndex);
 
 
             /*
@@ -644,8 +653,9 @@
             }
 
 
-            /*
-             * SAVE ON EVERY CHANGE
+            const currentSlotIndex = slotIndex;
+
+            /* SAVE ON EVERY CHANGE
              *
              * This means the user does not
              * lose data if Safari is closed.
@@ -703,9 +713,9 @@
         }
 
 
-        /*
-         * SHOW TABLE
-         */
+        populateRangeOptions();
+
+        /* SHOW TABLE */
 
         tableCard.classList.add(
             "visible"
@@ -725,9 +735,66 @@
     }
 
 
-    /*
-     * UPDATE SLOT
-     */
+    
+    function populateRangeOptions() {
+        const rows = Array.from(timeline.querySelectorAll("tr[data-slot-index]"));
+        if (!rows.length) return;
+        const options = rows.map((row, index) => {
+            const timeText = row.querySelector(".mh-time")?.textContent || "";
+            return { value: index, label: timeText.split("–")[0].trim() };
+        });
+        const lastText = rows[rows.length - 1].querySelector(".mh-time")?.textContent || "";
+        options.push({ value: rows.length, label: lastText.split("–")[1]?.trim() || "" });
+
+        function fill(select, defaultValue) {
+            const previous = select.value;
+            select.innerHTML = "";
+            options.forEach(option => {
+                const node = document.createElement("option");
+                node.value = String(option.value);
+                node.textContent = option.label;
+                select.appendChild(node);
+            });
+            select.value = options.some(o => String(o.value) === previous) ? previous : String(defaultValue);
+        }
+        fill(rangeStart, 0);
+        fill(rangeEnd, Math.min(6, rows.length));
+        if (Number(rangeEnd.value) <= Number(rangeStart.value)) {
+            rangeEnd.value = String(Math.min(Number(rangeStart.value) + 1, rows.length));
+        }
+    }
+
+    applyRangeBtn.addEventListener("click", () => {
+        const startIndex = Number(rangeStart.value);
+        const endIndex = Number(rangeEnd.value);
+        if (!Number.isInteger(startIndex) || !Number.isInteger(endIndex) || endIndex <= startIndex) {
+            rangeStatus.textContent = "Bitiş saati başlangıçtan sonra olmalı.";
+            return;
+        }
+        const wo = rangeWO.value.trim();
+        const tc = rangeTC.value.trim();
+        if (!wo && !tc) {
+            rangeStatus.textContent = "Work Order veya Task Card gir.";
+            return;
+        }
+        const rows = Array.from(timeline.querySelectorAll("tr[data-slot-index]"));
+        let applied = 0;
+        rows.forEach((row, index) => {
+            if (index < startIndex || index >= endIndex) return;
+            const inputs = row.querySelectorAll("input.mh-cell-input");
+            if (inputs.length !== 2) return;
+            inputs[0].value = wo;
+            inputs[1].value = tc;
+            inputs[0].dispatchEvent(new Event("input", { bubbles: true }));
+            inputs[1].dispatchEvent(new Event("input", { bubbles: true }));
+            applied++;
+        });
+        rangeStatus.textContent = applied + " adet 10 dakikalık aralığa uygulandı.";
+        showStatus("Aralık dolduruldu");
+    });
+
+
+    /* UPDATE SLOT */
 
     function updateSlot(
         index,
