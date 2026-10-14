@@ -1,4 +1,4 @@
-const cbData = [
+window.cbData = [
   { fin: "1HG1", desc: "L RECIRC FAN", panel: "715VU", loc: "B54" },
   { fin: "1HC", desc: "BULK FAN", panel: "718VU", loc: "C60" },
   { fin: "1HU", desc: "LAV+GALY EXTC FAN", panel: "721VU", loc: "A02" },
