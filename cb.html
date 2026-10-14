@@ -228,6 +228,7 @@
 
         .modal-close {
             position: fixed !important;
+            position: fixed;
             top: calc(env(safe-area-inset-top, 0px) + 10px) !important;
             right: 14px !important;
             left: auto !important;
@@ -246,13 +247,14 @@
             font-size: 30px;
             line-height: 1;
             cursor: pointer;
-            z-index: 10001;
+            z-index: 2147483647;
             -webkit-appearance: none;
             appearance: none;
             box-shadow: 0 6px 24px rgba(0,0,0,.30);
             backdrop-filter: blur(18px) saturate(160%);
             -webkit-backdrop-filter: blur(18px) saturate(160%);
         }
+        .modal-close[hidden] { display: none !important; }
 
         #modalWrapper {
             width: 100%;
@@ -397,14 +399,16 @@
 
 </div>
 
-<div id="imgModal" class="modal" onclick="closeImg()">
-    <button
-        type="button"
-        class="modal-close"
-        onclick="closeImg()"
-        aria-label="Görseli kapat"
-    >&times;</button>
+<button
+    type="button"
+    id="modalCloseButton"
+    class="modal-close"
+    onclick="closeImg()"
+    aria-label="Görseli kapat"
+    hidden
+>&times;</button>
 
+<div id="imgModal" class="modal" onclick="closeImg()">
     <div id="modalWrapper" onclick="event.stopPropagation()"></div>
 </div>
 
@@ -560,11 +564,13 @@
 
         const modal = document.getElementById('imgModal');
         modal.style.display = 'flex';
+        document.getElementById('modalCloseButton').hidden = false;
         document.body.style.overflow = 'hidden';
     }
 
     window.closeImg = function () {
         document.getElementById('imgModal').style.display = 'none';
+        document.getElementById('modalCloseButton').hidden = true;
         document.body.style.overflow = '';
     };
 
