@@ -375,6 +375,27 @@
             .mh-page .card { padding: 14px; }
         }
 
+    
+        /* Bulk-fill a time range in one action */
+        .mh-range-fill {
+            padding: 14px;
+            margin: 0 0 14px;
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            background: color-mix(in srgb, var(--surface) 68%, transparent);
+        }
+        .mh-range-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+        .mh-range-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .mh-range-grid .mh-field { min-width: 0; }
+        .mh-range-grid .mh-label { font-size: 10px; }
+        .mh-range-grid .mh-input, .mh-range-grid .mh-select { height: 46px; min-width: 0; }
+        .mh-apply-range { width: 100%; margin-top: 12px; background: var(--accent); color: #fff; border-color: transparent; }
+        #rangeStatus { margin-bottom: 0; }
+        @media (max-width: 380px) {
+            .mh-range-fill { padding: 11px; }
+            .mh-range-grid { gap: 8px; }
+        }
+
     </style>
 
 </head>
@@ -485,6 +506,31 @@
     <section
         id="tableCard"
         class="card mh-table-wrap">
+
+        
+        <div id="rangeFill" class="mh-range-fill">
+            <div class="mh-range-title">İş saat aralığını doldur</div>
+            <div class="mh-range-grid">
+                <label class="mh-field">
+                    <span class="mh-label">BAŞLANGIÇ (GMT)</span>
+                    <select id="rangeStart" class="mh-select"></select>
+                </label>
+                <label class="mh-field">
+                    <span class="mh-label">BİTİŞ (GMT)</span>
+                    <select id="rangeEnd" class="mh-select"></select>
+                </label>
+                <label class="mh-field">
+                    <span class="mh-label">WORK ORDER</span>
+                    <input id="rangeWO" class="mh-input" type="text" placeholder="WO">
+                </label>
+                <label class="mh-field">
+                    <span class="mh-label">TASK CARD</span>
+                    <input id="rangeTC" class="mh-input" type="text" placeholder="TC">
+                </label>
+            </div>
+            <button id="applyRangeBtn" class="mh-button mh-apply-range" type="button">Seçilen aralığa uygula</button>
+            <div id="rangeStatus" class="mh-status" aria-live="polite"></div>
+        </div>
 
         <table class="mh-table">
 
