@@ -1,123 +1,502 @@
+
 <!DOCTYPE html>
 <html lang="tr" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f1117">
+
     <title>A330 - Circuit Breakers</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="theme.css">
+
     <style>
-        details {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 10px; margin-bottom: 8px; overflow: hidden;
+        * {
+            box-sizing: border-box;
         }
-        details[open] { border-color: var(--accent); }
-        summary {
-            padding: 14px 16px; font-weight: 600; font-size: 13px;
-            cursor: pointer; color: var(--text); list-style: none;
-            display: flex; align-items: center; justify-content: space-between;
+
+        body {
+            padding-bottom: 30px;
         }
-        summary::after { content: '›'; color: var(--text-muted); font-size: 18px; }
-        details[open] summary::after { transform: rotate(90deg); display: inline-block; }
-        .cb-box { padding: 12px 16px 16px; font-size: 13px; color: var(--text); line-height: 1.7; border-top: 1px solid var(--border); }
+
+        .page-wrap {
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .page-title {
+            flex: 1;
+            font-weight: 700;
+        }
+
+        .back-link {
+            white-space: nowrap;
+        }
+
+        .search-wrap {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .search-input {
+            width: 100%;
+            min-height: 50px;
+            padding: 14px 44px 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--surface);
+            color: var(--text);
+            outline: none;
+            font-size: 16px;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border: 0;
+            border-radius: 50%;
+            background: var(--border);
+            color: var(--text);
+            font-size: 20px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .btn-group {
+            margin: 12px 0 16px;
+        }
+
+        .map-button {
+            width: 100%;
+            min-height: 48px;
+            border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+            border-radius: 14px;
+            background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .info-text {
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.6;
+            margin: 12px 2px;
+        }
+
+        #cb-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        #cb-list-container details {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--card-border-left);
+            border-radius: 14px;
+            overflow: hidden;
+            margin: 0;
+            transition: border-color .2s;
+        }
+
+        #cb-list-container details[open] {
+            border-color: var(--accent);
+        }
+
+        #cb-list-container summary {
+            padding: 15px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            color: var(--text);
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        #cb-list-container summary::-webkit-details-marker {
+            display: none;
+        }
+
+        #cb-list-container summary::after {
+            content: '›';
+            color: var(--text-muted);
+            font-size: 22px;
+            flex-shrink: 0;
+            transition: transform .2s;
+        }
+
+        #cb-list-container details[open] summary::after {
+            transform: rotate(90deg);
+        }
+
+        .cb-box {
+            padding: 14px 15px 15px;
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.8;
+            border-top: 1px solid var(--border);
+        }
+
         .location-tag {
-            display: block; margin-top: 10px; padding: 8px 12px;
-            background: var(--bg); border: 1px solid var(--border);
-            border-radius: 8px; color: var(--danger); font-weight: 600; font-size: 12px;
+            display: block;
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .cb-action {
+            display: block;
+            width: 100%;
+            min-height: 44px;
+            margin-top: 12px;
+            padding: 10px;
+            border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+            border-radius: 12px;
+            background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            display: none;
+            padding: 28px 16px;
+            text-align: center;
+            color: var(--text-muted);
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            inset: 0;
+            padding: 65px 14px 20px;
+            overflow: auto;
+            background: rgba(0, 0, 0, .88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .modal-close {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            right: 18px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 50%;
+            background: rgba(255,255,255,.12);
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        #modalWrapper {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        #modalWrapper img {
+            width: 100%;
+            height: auto;
+            margin: 0 auto 16px;
+            border-radius: 10px;
+            display: block;
+            background: white;
+        }
+
+        #modalWrapper img.image-error {
+            min-height: 80px;
+            padding: 20px;
+            color: #333;
+        }
+
+        @media (max-width: 480px) {
+            .page-wrap {
+                width: 100%;
+            }
+
+            #cb-list-container summary {
+                padding: 14px;
+            }
         }
     </style>
 </head>
+
 <body>
 <div class="page-wrap">
+
     <div class="page-header">
         <a href="index.html" class="back-link">← Ana Menü</a>
         <span class="page-title">Circuit Breakers</span>
-        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" aria-label="Temayı değiştir">🌙</button>
     </div>
 
-    <input type="text" id="search" class="search-input" onkeyup="renderList()" placeholder="FIN, Tanım veya Panel ara..." autocomplete="off">
-
-    <div class="btn-group" style="margin-bottom:16px;">
-        <button class="btn" onclick="openAllPanels()">🗺️ Tüm Panel Konumları (10 Görsel)</button>
+    <div class="search-wrap">
+        <input
+            type="search"
+            id="search"
+            class="search-input"
+            placeholder="FIN, tanım, panel veya konum ara..."
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            aria-label="Circuit Breakers ara"
+        >
+        <button
+            type="button"
+            id="clearSearch"
+            class="clear-search"
+            aria-label="Aramayı temizle"
+        >×</button>
     </div>
 
-    <p id="counter" class="info-text">En az 2 karakter yazın.</p>
+    <div class="btn-group">
+        <button class="map-button" onclick="openAllPanels()">
+            🗺️ Tüm Panel Konumları (10 Görsel)
+        </button>
+    </div>
+
+    <p id="counter" class="info-text">Aramak için en az 2 karakter yazın.</p>
+
     <div id="cb-list-container"></div>
+
+    <div id="emptyState" class="empty-state">
+        <strong>Sonuç bulunamadı.</strong><br>
+        Farklı bir FIN, tanım, panel veya konum deneyin.
+    </div>
+
 </div>
 
 <div id="imgModal" class="modal" onclick="closeImg()">
-    <span class="modal-close" onclick="closeImg()">&times;</span>
+    <button
+        type="button"
+        class="modal-close"
+        onclick="closeImg()"
+        aria-label="Görseli kapat"
+    >&times;</button>
+
     <div id="modalWrapper" onclick="event.stopPropagation()"></div>
 </div>
 
 <div class="offline-bar" id="offlineBar">📡 Çevrimdışı mod</div>
 
 <script src="data.js"></script>
-<script>
-const allPanelImages = ['all1','all2','all3','all4','all5','all6','all7','all8','all9','all10'];
 
-function renderList() {
-    const q = document.getElementById('search').value.toLowerCase();
+<script>
+(function () {
+    const allPanelImages = [
+        'all1', 'all2', 'all3', 'all4', 'all5',
+        'all6', 'all7', 'all8', 'all9', 'all10'
+    ];
+
+    const searchInput = document.getElementById('search');
+    const clearButton = document.getElementById('clearSearch');
     const container = document.getElementById('cb-list-container');
     const counter = document.getElementById('counter');
-    container.innerHTML = '';
-    if (q.length < 2) { counter.innerText = 'En az 2 karakter yazın.'; return; }
+    const emptyState = document.getElementById('emptyState');
 
-    const filtered = cbData.filter(item =>
-        item.fin.toLowerCase().includes(q) ||
-        item.desc.toLowerCase().includes(q) ||
-        item.panel.toLowerCase().includes(q)
-    );
-
-    counter.innerText = filtered.length + ' sonuç listelendi.';
-    filtered.forEach(item => {
-        container.insertAdjacentHTML('beforeend', `
-        <details>
-            <summary>${item.fin} — ${item.desc}</summary>
-            <div class="cb-box">
-                <b>FIN:</b> ${item.fin}<br>
-                <b>Tanım:</b> ${item.desc}<br>
-                <span class="location-tag">📍 Panel: ${item.panel} | Konum: ${item.loc}</span>
-                <button class="btn" style="margin-top:12px;width:100%;" onclick="openSingleImg('${item.panel}')">🖼️ ${item.panel} Şemasını Gör</button>
-            </div>
-        </details>`);
-    });
-}
-
-function openSingleImg(panel) {
-    showModal([panel.toLowerCase().replace(/\s+/g,'') + '.png']);
-}
-
-function openAllPanels() {
-    showModal(allPanelImages.map(f => f + '.png'));
-}
-
-function showModal(files) {
-    const wrapper = document.getElementById('modalWrapper');
-    wrapper.innerHTML = files.map(f =>
-        `<img src="cbs/${f}" style="max-width:100%;border-radius:10px;display:block;">`
-    ).join('');
-    document.getElementById('imgModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeImg() {
-    document.getElementById('imgModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-window.onload = function() {
-    const q = new URLSearchParams(window.location.search).get('search');
-    if (q) {
-        setTimeout(() => {
-            const el = document.getElementById('search');
-            el.value = q;
-            renderList();
-        }, 200);
+    function normalize(value) {
+        return String(value ?? '')
+            .toLocaleLowerCase('tr-TR')
+            .trim();
     }
-};
+
+    function escapeHTML(value) {
+        return String(value ?? '').replace(/[&<>"']/g, function (char) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char];
+        });
+    }
+
+    function getFilteredItems(query) {
+        if (!Array.isArray(window.cbData)) {
+            return [];
+        }
+
+        return window.cbData.filter(function (item) {
+            return [
+                item.fin,
+                item.desc,
+                item.panel,
+                item.loc
+            ].some(function (value) {
+                return normalize(value).includes(query);
+            });
+        });
+    }
+
+    function renderList() {
+        const query = normalize(searchInput.value);
+
+        clearButton.style.display = query ? 'block' : 'none';
+        container.innerHTML = '';
+
+        if (!Array.isArray(window.cbData)) {
+            counter.textContent = 'data.js yüklenemedi. Dosya adını ve konumunu kontrol edin.';
+            emptyState.style.display = 'block';
+            return;
+        }
+
+        if (query.length < 2) {
+            counter.textContent = 'Aramak için en az 2 karakter yazın.';
+            emptyState.style.display = 'none';
+            return;
+        }
+
+        const filtered = getFilteredItems(query);
+
+        counter.textContent = filtered.length + ' sonuç listelendi.';
+        emptyState.style.display = filtered.length === 0 ? 'block' : 'none';
+
+        filtered.forEach(function (item) {
+            const fin = escapeHTML(item.fin);
+            const desc = escapeHTML(item.desc);
+            const panel = escapeHTML(item.panel);
+            const loc = escapeHTML(item.loc);
+
+            const details = document.createElement('details');
+            details.innerHTML = `
+                <summary>${fin} — ${desc}</summary>
+
+                <div class="cb-box">
+                    <b>FIN:</b> ${fin}<br>
+                    <b>Tanım:</b> ${desc}
+
+                    <span class="location-tag">
+                        📍 Panel: ${panel}<br>
+                        Konum: ${loc}
+                    </span>
+
+                    <button
+                        type="button"
+                        class="cb-action"
+                        data-panel="${panel}"
+                    >🖼️ ${panel} Şemasını Gör</button>
+                </div>
+            `;
+
+            details.querySelector('.cb-action').addEventListener('click', function () {
+                openSingleImg(item.panel);
+            });
+
+            container.appendChild(details);
+        });
+    }
+
+    searchInput.addEventListener('input', renderList);
+
+    clearButton.addEventListener('click', function () {
+        searchInput.value = '';
+        renderList();
+        searchInput.focus();
+    });
+
+    window.openSingleImg = function (panel) {
+        const filename = normalize(panel).replace(/\s+/g, '') + '.png';
+        showModal([filename]);
+    };
+
+    window.openAllPanels = function () {
+        showModal(allPanelImages.map(function (name) {
+            return name + '.png';
+        }));
+    };
+
+    function showModal(files) {
+        const wrapper = document.getElementById('modalWrapper');
+        wrapper.innerHTML = '';
+
+        files.forEach(function (filename) {
+            const image = document.createElement('img');
+            image.alt = filename.replace('.png', '') + ' panel şeması';
+            image.loading = 'lazy';
+            image.src = 'cbs/' + filename;
+
+            image.onerror = function () {
+                image.alt = filename + ' yüklenemedi. Görsel dosyasının konumunu kontrol edin.';
+                image.classList.add('image-error');
+                image.style.display = 'block';
+                image.style.minHeight = '70px';
+                image.style.background = '#fff';
+            };
+
+            wrapper.appendChild(image);
+        });
+
+        const modal = document.getElementById('imgModal');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    window.closeImg = function () {
+        document.getElementById('imgModal').style.display = 'none';
+        document.body.style.overflow = '';
+    };
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            window.closeImg();
+        }
+    });
+
+    // Ana ekrandan cb.html?search=... ile gelindiğinde aramayı otomatik başlat.
+    const params = new URLSearchParams(window.location.search);
+    const initialQuery = params.get('search');
+
+    if (initialQuery) {
+        searchInput.value = initialQuery;
+        renderList();
+    }
+})();
 </script>
+
 <script src="theme.js"></script>
 </body>
 </html>
