@@ -1,7 +1,11 @@
-// Tema düğmesi yalnızca ana sayfada bulunur; seçilen tema tüm sayfalarda korunur.
+// Ana sayfada seçilen tema tüm sayfalarda ortak kullanılır.
 (function() {
-    var saved = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
+    try {
+        var saved = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+    } catch (error) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
 })();
 
 function toggleTheme() {
