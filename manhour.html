@@ -265,6 +265,57 @@
 
         }
 
+    
+        /* Adam/Saat — balanced iOS layout */
+        body.liquid-page { padding: max(14px, env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom)); }
+        .mh-page { max-width: 560px; margin: 0 auto; }
+        .mh-page .page-header {
+            display: grid;
+            grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
+            align-items: center;
+            gap: 8px;
+            min-height: 56px;
+            margin-bottom: 22px;
+            padding: 8px 10px;
+        }
+        .mh-page .page-header .back-link { justify-self: start; font-size: 14px; }
+        .mh-page .page-header .page-title { justify-self: center; text-align: center; font-size: 18px; white-space: nowrap; }
+        .mh-page .page-header .theme-btn { justify-self: end; width: 40px; height: 40px; }
+        .mh-page .card {
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 1px solid var(--glass-border);
+            border-left: 3px solid var(--accent);
+            border-radius: 23px;
+            background: var(--glass-bg);
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(24px) saturate(155%);
+            -webkit-backdrop-filter: blur(24px) saturate(155%);
+        }
+        .mh-form { gap: 18px; }
+        .mh-field { gap: 8px; }
+        .mh-label { font-size: 13px; letter-spacing: .04em; }
+        .mh-input, .mh-select {
+            height: 54px;
+            padding: 0 14px;
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            background: color-mix(in srgb, var(--surface) 78%, transparent);
+        }
+        .mh-table-wrap { padding: 14px; }
+        .mh-table { min-width: 420px; }
+        .mh-table th { font-size: 11px; padding: 10px 6px; }
+        .mh-table td { padding: 6px 4px; }
+        .mh-cell-input { height: 40px; border-radius: 10px; background: color-mix(in srgb, var(--surface) 80%, transparent); }
+        .mh-button { height: 46px; border-radius: 14px; background: var(--icon-bg); }
+        @media (max-width: 480px) {
+            body.liquid-page { padding-left: 14px; padding-right: 14px; }
+            .mh-page .page-header { gap: 5px; padding: 8px 7px; }
+            .mh-page .page-header .back-link { font-size: 12px; }
+            .mh-page .page-header .page-title { font-size: 17px; }
+            .mh-page .card { padding: 16px; }
+        }
+
     </style>
 
 </head>
