@@ -1,186 +1,905 @@
+
 <!DOCTYPE html>
 <html lang="tr" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A330 - A BKM GG B EKİBİ</title>
-    <link rel="manifest" href="manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0f1117">
-    <link rel="apple-touch-icon" href="images/icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="A330 Panel">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <title>A330 — A BKM GG B</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="images/icon.png">
     <link rel="stylesheet" href="theme.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        body { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
+        /* ==================================================
+           A330 LIQUID GLASS HOME
+           Existing shared theme variables are preserved.
+        ================================================== */
 
-        .header-row {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 28px;
+        :root {
+            --glass-bg: rgba(255,255,255,.57);
+            --glass-border: rgba(255,255,255,.68);
+            --glass-shadow: 0 12px 35px rgba(20,30,60,.09);
+            --dock-bg: rgba(245,247,252,.78);
+            --icon-bg: rgba(65,112,220,.12);
         }
-        .app-logo { width: 44px; height: 44px; border-radius: 10px; object-fit: contain; }
-        .app-title { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: 0.2px; }
-        .header-right { display: flex; gap: 8px; align-items: center; }
 
-        .menu-grid {
+        [data-theme="dark"] {
+            --glass-bg: rgba(31,35,48,.62);
+            --glass-border: rgba(255,255,255,.10);
+            --glass-shadow: 0 14px 38px rgba(0,0,0,.24);
+            --dock-bg: rgba(22,25,35,.80);
+            --icon-bg: rgba(85,139,255,.16);
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            min-height: 100%;
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        body.home-body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            margin: 0;
+            padding: max(18px, env(safe-area-inset-top)) 20px
+                     calc(120px + env(safe-area-inset-bottom));
+            font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+            background:
+                radial-gradient(ellipse at 0% 0%, rgba(83,131,255,.10), transparent 42%),
+                radial-gradient(ellipse at 100% 45%, rgba(143,112,255,.07), transparent 38%),
+                var(--bg);
+            color: var(--text);
+            transition: background .25s, color .25s;
+        }
+
+        .home-shell {
+            width: 100%;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        /* TOP BAR */
+
+        .home-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 27px;
+        }
+
+        .home-brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+        }
+
+        .home-logo {
+            width: 43px;
+            height: 43px;
+            object-fit: contain;
+            flex: 0 0 auto;
+            filter: drop-shadow(0 4px 10px rgba(60,110,220,.15));
+        }
+
+        .home-brand-copy {
+            min-width: 0;
+        }
+
+        .home-eyebrow {
+            margin-bottom: 3px;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+        }
+
+        .home-brand-title {
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: -.3px;
+        }
+
+        .home-theme {
+            width: 42px;
+            height: 42px;
+            flex: 0 0 auto;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .menu-item {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px 10px;
-            text-decoration: none;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            gap: 8px;
-            transition: border-color 0.2s, transform 0.15s;
-            min-height: 80px;
+            place-items: center;
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            background: var(--glass-bg);
+            color: var(--text);
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(22px) saturate(160%);
+            -webkit-backdrop-filter: blur(22px) saturate(160%);
+            font-size: 18px;
             cursor: pointer;
         }
-        .menu-item:hover { border-color: var(--accent); transform: translateY(-1px); }
-        .menu-item.full-width { grid-column: 1 / -1; flex-direction: row; justify-content: center; gap: 10px; }
-        .menu-item.disabled { opacity: 0.45; pointer-events: none; }
 
-        .menu-icon { font-size: 20px; line-height: 1; }
-        .menu-label { font-size: 11px; font-weight: 600; color: var(--text); text-align: center; letter-spacing: 0.1px; line-height: 1.3; }
-        .soon-badge {
-            font-size: 9px; font-weight: 700; color: var(--warning);
-            border: 1px solid var(--warning); border-radius: 4px;
-            padding: 1px 5px; letter-spacing: 0.5px;
+        /* WELCOME */
+
+        .home-welcome {
+            margin: 0 0 19px;
         }
 
-        .warning-box {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-left: 3px solid var(--danger);
-            border-radius: 10px;
-            padding: 12px 14px;
-            margin-top: 12px;
-            font-size: 11px;
+        .home-welcome h1 {
+            margin: 0;
+            font-size: clamp(25px, 7vw, 32px);
+            line-height: 1.15;
+            letter-spacing: -1.1px;
+            font-weight: 800;
+        }
+
+        .home-welcome p {
+            margin: 8px 0 0;
             color: var(--text-muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .home-section-label {
+            margin: 0 0 11px 2px;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        /* APP GRID */
+
+        .home-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 11px;
+        }
+
+        .home-tool {
+            position: relative;
+            min-width: 0;
+            min-height: 104px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 13px;
+            overflow: hidden;
+            text-decoration: none;
+            color: var(--text);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 22px;
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(24px) saturate(160%);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            transition: transform .18s ease, border-color .18s ease, background .18s ease;
+            isolation: isolate;
+        }
+
+        .home-tool::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background: linear-gradient(
+                145deg,
+                rgba(255,255,255,.20),
+                transparent 48%
+            );
+            opacity: .7;
+        }
+
+        .home-tool:active {
+            transform: scale(.975);
+        }
+
+        .home-tool:hover {
+            border-color: rgba(79,142,247,.48);
+        }
+
+        .home-tool-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: var(--icon-bg);
+            color: var(--accent);
+            font-size: 19px;
+            flex: 0 0 auto;
+        }
+
+        .home-tool-bottom {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .home-tool-name {
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.35;
+            letter-spacing: -.15px;
+        }
+
+        .home-tool-arrow {
+            flex: 0 0 auto;
+            color: var(--text-muted);
+            font-size: 20px;
+            font-weight: 400;
+        }
+
+        .home-tool[hidden] {
+            display: none !important;
+        }
+
+        /* SEARCH RESULTS */
+
+        .home-search-results {
+            display: none;
+            margin-top: 14px;
+            padding: 12px;
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            background: var(--glass-bg);
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(26px) saturate(160%);
+            -webkit-backdrop-filter: blur(26px) saturate(160%);
+        }
+
+        .home-search-results.visible {
+            display: block;
+        }
+
+        .home-results-heading {
+            padding: 3px 4px 10px;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .home-result {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 11px 8px;
+            color: var(--text);
+            background: transparent;
+            border: 0;
+            border-top: 1px solid var(--glass-border);
+            text-align: left;
+            text-decoration: none;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .home-result-icon {
+            width: 35px;
+            height: 35px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: var(--icon-bg);
+            font-size: 17px;
+            flex: 0 0 auto;
+        }
+
+        .home-result-copy {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .home-result-title {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .home-result-subtitle {
+            display: block;
+            margin-top: 3px;
+            color: var(--text-muted);
+            font-size: 10px;
+            line-height: 1.4;
+            overflow-wrap: anywhere;
+        }
+
+        .home-result-arrow {
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .home-empty {
+            padding: 14px 6px;
+            color: var(--text-muted);
+            font-size: 12px;
             line-height: 1.6;
         }
-        .warning-box strong { color: var(--danger); display: block; margin-bottom: 3px; }
 
-        .footer {
+        /* DISCLAIMER AND FOOTER */
+
+        .home-warning {
+            margin-top: 20px;
+            padding: 14px 15px;
+            border: 1px solid var(--glass-border);
+            border-left: 3px solid var(--danger);
+            border-radius: 17px;
+            background: var(--glass-bg);
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .home-warning-title {
+            margin-bottom: 5px;
+            color: var(--danger);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .home-warning p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .home-footer {
             margin-top: 16px;
             text-align: center;
-            font-size: 11px;
             color: var(--text-muted);
+            font-size: 10px;
+            line-height: 1.9;
         }
-        .footer a { color: var(--accent); text-decoration: none; }
+
+        .home-footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* FLOATING SEARCH DOCK */
+
+        .home-dock-wrap {
+            position: fixed;
+            z-index: 500;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        .home-dock {
+            width: 100%;
+            max-width: 520px;
+            min-height: 58px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 9px 7px 17px;
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            background: var(--dock-bg);
+            box-shadow:
+                0 12px 36px rgba(0,0,0,.13),
+                inset 0 1px 0 rgba(255,255,255,.20);
+            backdrop-filter: blur(32px) saturate(180%);
+            -webkit-backdrop-filter: blur(32px) saturate(180%);
+            pointer-events: auto;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .home-dock:focus-within {
+            border-color: rgba(79,142,247,.65);
+            box-shadow:
+                0 12px 38px rgba(0,0,0,.15),
+                0 0 0 3px rgba(79,142,247,.10);
+        }
+
+        .home-search-icon {
+            flex: 0 0 auto;
+            color: var(--text-muted);
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .home-search-input {
+            width: 100%;
+            min-width: 0;
+            height: 40px;
+            padding: 0;
+            border: 0 !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            color: var(--text) !important;
+            font-family: inherit;
+            font-size: 16px !important;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .home-search-input::placeholder {
+            color: var(--text-muted);
+            opacity: .9;
+        }
+
+        .home-search-clear {
+            display: none;
+            width: 35px;
+            height: 35px;
+            flex: 0 0 auto;
+            place-items: center;
+            border: 0;
+            border-radius: 50%;
+            background: var(--icon-bg);
+            color: var(--text);
+            font-size: 19px;
+            cursor: pointer;
+        }
+
+        .home-search-clear.visible {
+            display: grid;
+        }
+
+        .home-dock-hint {
+            display: none;
+        }
+
+        /* SEARCH MODE */
+
+        body.searching .home-welcome,
+        body.searching .home-section-label,
+        body.searching .home-warning,
+        body.searching .home-footer {
+            display: none;
+        }
+
+        body.searching .home-grid {
+            margin-top: 12px;
+        }
+
+        body.searching .home-tool {
+            min-height: 90px;
+        }
+
+        /* SMALL SCREEN */
+
+        @media (max-width: 370px) {
+            body.home-body {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
+            .home-grid {
+                gap: 9px;
+            }
+
+            .home-tool {
+                min-height: 96px;
+                padding: 12px;
+                border-radius: 19px;
+            }
+
+            .home-tool-name {
+                font-size: 11px;
+            }
+
+            .home-dock-wrap {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
     </style>
 
     <script>
-    // Şifre kontrolü
-    (function() {
-        if (sessionStorage.getItem("girisYapildi") !== "evet") {
+        (function () {
+            if (sessionStorage.getItem("girisYapildi") === "evet") return;
+
             var ok = false;
+
             while (!ok) {
-                var v = prompt("Lütfen giriş şifresini yazınız:");
-                if (v === null) {
-                    document.documentElement.innerHTML = "<body style='background:#0f1117;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;color:#fff;'><h2>Erişim Engellendi.</h2></body>";
-                    throw new Error("İptal");
+                var value = prompt("Lütfen giriş şifresini yazınız:");
+
+                if (value === null) {
+                    document.documentElement.innerHTML =
+                        "<body style='background:#0f1117;color:#fff;font-family:sans-serif;padding:40px'>Erişim engellendi.</body>";
+                    throw new Error("Giriş iptal edildi.");
                 }
-                if (v.trim() === "1283") { sessionStorage.setItem("girisYapildi","evet"); ok=true; }
-                else alert("Hatalı şifre!");
+
+                if (value.trim() === "1283") {
+                    sessionStorage.setItem("girisYapildi", "evet");
+                    ok = true;
+                } else {
+                    alert("Hatalı şifre!");
+                }
             }
-        }
-    })();
+        })();
     </script>
 </head>
-<body>
-<div class="page-wrap">
 
-    <div class="header-row">
-        <img src="330.png" alt="A330" class="app-logo">
-        <span class="app-title">A330 — A BKM GG B</span>
-        <div class="header-right">
-            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+<body class="home-body">
+
+<div class="home-shell">
+
+    <header class="home-topbar">
+        <div class="home-brand">
+            <img src="330.png" alt="A330" class="home-logo">
+            <div class="home-brand-copy">
+                <div class="home-eyebrow">TECHNICAL TOOLS</div>
+                <div class="home-brand-title">A330 — A BKM GG B</div>
+            </div>
         </div>
+
+        <button
+            class="home-theme"
+            id="themeBtn"
+            type="button"
+            onclick="toggleTheme()"
+            aria-label="Temayı değiştir">
+            🌙
+        </button>
+    </header>
+
+    <section class="home-welcome">
+        <h1>Merhaba.</h1>
+        <p>A330 bakım araçlarına hızlı erişim.</p>
+    </section>
+
+    <div class="home-section-label" id="toolsHeading">
+        Araçlar
     </div>
 
-    <div class="menu-grid">
-        <a href="fleet.html" class="menu-item">
-            <span class="menu-icon">✈️</span>
-            <span class="menu-label">A330 Filosu</span>
-      
+    <nav class="home-grid" id="homeGrid" aria-label="A330 araçları">
+
+        <a href="fleet.html" class="home-tool" data-search="a330 filosu uçak filo aircraft fleet">
+            <span class="home-tool-icon">✈</span>
+            <span class="home-tool-bottom">
+                <span class="home-tool-name">A330 Filosu</span>
+                <span class="home-tool-arrow">›</span>
+            </span>
         </a>
 
- <a href="inspection.html" class="menu-item">
-            <span class="menu-icon">🕵️</span>
-            <span class="menu-label">Inspection Recorder</span>
-      
+        <a href="inspection.html" class="home-tool" data-search="inspection recorder inspection kayıt fotoğraf bulgu finding">
+            <span class="home-tool-icon">⌕</span>
+            <span class="home-tool-bottom">
+                <span class="home-tool-name">Inspection Recorder</span>
+                <span class="home-tool-arrow">›</span>
+            </span>
         </a>
 
- <a href="unit.html" class="menu-item">
-            <span class="menu-icon">🔄</span>
-            <span class="menu-label">Unit Converter</span>
-     
+        <a href="unit.html" class="home-tool" data-search="unit converter birim dönüştürücü conversion">
+            <span class="home-tool-icon">⇄</span>
+            <span class="home-tool-bottom">
+                <span class="home-tool-name">Unit Converter</span>
+                <span class="home-tool-arrow">›</span>
+            </span>
         </a>
-        <a href="reset.html" class="menu-item">
-            <span class="menu-icon">⚠️</span>
-            <span class="menu-label">ECAM Warning Reset</span>
-        </a>
-        <a href="borescope.html" class="menu-item">
-            <span class="menu-icon">📍</span>
-            <span class="menu-label">Borescope Tapaları</span>
-        </a>
-        <a href="cb.html" class="menu-item">
-            <span class="menu-icon">⚡</span>
-            <span class="menu-label">Circuit Breakers</span>
-        </a>
-        <a href="sematik.html" class="menu-item">
-            <span class="menu-icon">📐</span>
-            <span class="menu-label">Sistem Şematikleri</span>
-        </a>
-        <a href="kisaltmalar.html" class="menu-item">
-            <span class="menu-icon">📖</span>
-            <span class="menu-label">Havacılık Kısaltmaları</span>
-        </a>
-        <a href="manhour.html" class="menu-item full-width">
-    <span class="menu-icon">🕒</span>
-    <span class="menu-label">Adam/Saat</span>
-</a>
-        <a href="panels.html" class="menu-item full-width">
-            <span class="menu-icon">🔍</span>
-            <span class="menu-label">Access Panels</span>
-        </a>
-    </div>
 
-    <div class="warning-box">
-        <strong>⚠️ Bu içerik teknik doküman yerine geçmez!</strong>
-        Yapılacak tüm işlemler, ilgili uçağın güncel ve yetkili teknik dokümanları referans alınarak teyit edilmelidir.
-    </div>
+        <a href="reset.html" class="home-tool" data-search="ecam warning reset uyarı reset">
+            <span class="home-tool-icon">⚠</span>
+            <span class="home-tool-bottom">
+                <span class="home-tool-name">ECAM Warning Reset</span>
+                <span class="home-tool-arrow">›</span>
+            </span>
+        </a>
 
-    <div class="footer">
+        <a href="borescope.html" class="home-tool" data-search="borescope tapaları borescope plugs">
+            <span class="home-tool-icon">◎</span>
+            <span class="home-tool-bottom">
+                <span class="home-tool-name">Borescope Tapaları</span>
+                <span class="home-tool-arrow">›</span>
+            </span>
+        </a>
+
+        <a href="cb.html" class="home-tool" data-search="circuit breakers cb fin breaker devre kesici">
+            <span class="home-tool-icon">ϟ</span>
+            <span class="home-tool-bottom">
+                <span class="home-tool-name">Circuit Breakers</span>
+                <span class="home-tool-arrow">›</span>
+            </span>
+        </a>
+
+        <a href="sematik.html" class="home-tool" data-search="sistem şematikleri schematics diagrams">
+            <span class="home-tool-icon">⌘</span>
+            <span class="home-tool-bottom">
+                <span class="home-tool-name">Sistem Şematikleri</span>
+                <span class="home-tool-arrow">›</span>
+            </span>
+        </a>
+
+        <a href="kisaltmalar.html" class="home-tool" data-search="havacılık kısaltmaları aviation abbreviations">
+            <span class="home-tool-icon">Aa</span>
+            <span class="home-tool-bottom">
+                <span class="home-tool-name">Havacılık Kısaltmaları</span>
+                <span class="home-tool-arrow">›</span>
+            </span>
+        </a>
+
+        <a href="manhour.html" class="home-tool" data-search="adam saat manhour man-hour shift vardiya work order task card">
+            <span class="home-tool-icon">◷</span>
+            <span class="home-tool-bottom">
+                <span class="home-tool-name">Adam/Saat</span>
+                <span class="home-tool-arrow">›</span>
+            </span>
+        </a>
+
+        <a href="panels.html" class="home-tool" data-search="access panels panel erişim paneli zone bölge panel numarası">
+            <span class="home-tool-icon">⌕</span>
+            <span class="home-tool-bottom">
+                <span class="home-tool-name">Access Panels</span>
+                <span class="home-tool-arrow">›</span>
+            </span>
+        </a>
+
+    </nav>
+
+    <section
+        id="homeSearchResults"
+        class="home-search-results"
+        aria-live="polite">
+    </section>
+
+    <aside class="home-warning">
+        <div class="home-warning-title">⚠ Teknik doküman uyarısı</div>
+        <p>
+            Bu içerik teknik doküman yerine geçmez. Yapılacak tüm işlemler,
+            ilgili uçağın güncel ve yetkili teknik dokümanları referans alınarak
+            teyit edilmelidir.
+        </p>
+    </aside>
+
+    <footer class="home-footer">
         <p>Hata veya güncelleme: <a href="mailto:umit219@gmail.com">umit219@gmail.com</a></p>
         <p>Ümitcan ERDOĞAN</p>
-    </div>
+    </footer>
+
+</div>
+
+<!-- Floating Liquid Glass Search Dock -->
+<div class="home-dock-wrap">
+    <form class="home-dock" id="homeSearchForm" role="search">
+        <span class="home-search-icon" aria-hidden="true">⌕</span>
+
+        <input
+            id="homeSearch"
+            class="home-search-input"
+            type="search"
+            placeholder="Araç, panel, zone ara..."
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            aria-label="Tüm uygulamada ara">
+
+        <button
+            id="homeSearchClear"
+            class="home-search-clear"
+            type="button"
+            aria-label="Aramayı temizle">
+            ×
+        </button>
+    </form>
 </div>
 
 <div class="offline-bar" id="offlineBar">📡 Çevrimdışı mod</div>
+
 <script src="theme.js"></script>
+
 <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(reg => {
-            reg.addEventListener('updatefound', () => {
-                const newWorker = reg.installing;
-                newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'activated') {
-                        window.location.reload();
-                    }
-                });
+(function () {
+    "use strict";
+
+    const input = document.getElementById("homeSearch");
+    const clearButton = document.getElementById("homeSearchClear");
+    const grid = document.getElementById("homeGrid");
+    const results = document.getElementById("homeSearchResults");
+    const cards = Array.from(grid.querySelectorAll(".home-tool"));
+
+    function normalize(value) {
+        return String(value || "")
+            .toLocaleLowerCase("tr-TR")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
+    }
+
+    function makeResult(title, subtitle, icon, url) {
+        const a = document.createElement("a");
+        a.className = "home-result";
+        a.href = url;
+
+        const iconEl = document.createElement("span");
+        iconEl.className = "home-result-icon";
+        iconEl.textContent = icon;
+
+        const copy = document.createElement("span");
+        copy.className = "home-result-copy";
+
+        const titleEl = document.createElement("span");
+        titleEl.className = "home-result-title";
+        titleEl.textContent = title;
+
+        const subtitleEl = document.createElement("span");
+        subtitleEl.className = "home-result-subtitle";
+        subtitleEl.textContent = subtitle;
+
+        const arrow = document.createElement("span");
+        arrow.className = "home-result-arrow";
+        arrow.textContent = "›";
+
+        copy.append(titleEl, subtitleEl);
+        a.append(iconEl, copy, arrow);
+        return a;
+    }
+
+    function renderSearch() {
+        const raw = input.value.trim();
+        const query = normalize(raw);
+
+        document.body.classList.toggle("searching", !!query);
+        clearButton.classList.toggle("visible", !!raw);
+        results.innerHTML = "";
+
+        if (!query) {
+            cards.forEach(card => card.hidden = false);
+            results.classList.remove("visible");
+            return;
+        }
+
+        const matched = [];
+
+        cards.forEach(card => {
+            const searchable = normalize(
+                card.innerText + " " + (card.dataset.search || "")
+            );
+            const isMatch = searchable.includes(query);
+            card.hidden = !isMatch;
+
+            if (isMatch) {
+                matched.push(card);
+            }
+        });
+
+        results.classList.add("visible");
+
+        const heading = document.createElement("div");
+        heading.className = "home-results-heading";
+        heading.textContent = "Araç sonuçları";
+        results.appendChild(heading);
+
+        if (matched.length) {
+            matched.forEach(card => {
+                const clone = makeResult(
+                    card.querySelector(".home-tool-name").textContent.trim(),
+                    "Aracı aç",
+                    card.querySelector(".home-tool-icon").textContent.trim(),
+                    card.href
+                );
+                results.appendChild(clone);
             });
+        } else {
+            const empty = document.createElement("div");
+            empty.className = "home-empty";
+            empty.textContent = "Araç adı eşleşmedi. Panel numarası veya bölge araması için aşağıdaki aramayı kullan.";
+            results.appendChild(empty);
+        }
+
+        const divider = document.createElement("div");
+        divider.className = "home-results-heading";
+        divider.style.marginTop = "8px";
+        divider.textContent = "Teknik veri araması";
+        results.appendChild(divider);
+
+        results.appendChild(
+            makeResult(
+                "Access Panels içinde ara",
+                raw + " — panel numarası veya bölge",
+                "⌕",
+                "panels.html?search=" + encodeURIComponent(raw)
+            )
+        );
+
+        results.appendChild(
+            makeResult(
+                "Circuit Breakers içinde ara",
+                raw + " — FIN, açıklama veya panel",
+                "ϟ",
+                "cb.html?search=" + encodeURIComponent(raw)
+            )
+        );
+    }
+
+    input.addEventListener("input", renderSearch);
+
+    document.getElementById("homeSearchForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const query = input.value.trim();
+        if (!query) return;
+
+        window.location.href =
+            "panels.html?search=" + encodeURIComponent(query);
+    });
+
+    clearButton.addEventListener("click", function () {
+        input.value = "";
+        renderSearch();
+        input.focus();
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (
+            (event.metaKey || event.ctrlKey) &&
+            event.key.toLowerCase() === "k"
+        ) {
+            event.preventDefault();
+            input.focus();
+        }
+
+        if (event.key === "Escape" && input.value) {
+            input.value = "";
+            renderSearch();
+            input.blur();
+        }
+    });
+
+    // Preserve current theme.js and update the browser theme color.
+    function updateThemeColor() {
+        const dark = document.documentElement.getAttribute("data-theme") !== "light";
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", dark ? "#0f1117" : "#f5f6fa");
+    }
+
+    const themeButton = document.getElementById("themeBtn");
+    if (themeButton) {
+        themeButton.addEventListener("click", function () {
+            setTimeout(updateThemeColor, 0);
         });
     }
+
+    updateThemeColor();
+
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js").catch(function (error) {
+            console.warn("Service worker registration failed:", error);
+        });
+    }
+})();
 </script>
+
 </body>
 </html>
