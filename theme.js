@@ -1,6 +1,8 @@
-// Tema yükle
+// Tema seçimi yalnızca ana sayfada kullanılır.
+// Diğer sayfalarda görünüm sabit açık modda kalır.
 (function() {
-    var saved = localStorage.getItem('theme') || 'dark';
+    var isHome = document.body && document.body.classList.contains('home-body');
+    var saved = isHome ? (localStorage.getItem('theme') || 'dark') : 'light';
     document.documentElement.setAttribute('data-theme', saved);
 })();
 
