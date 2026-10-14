@@ -351,6 +351,30 @@
             .mh-page .card { padding: 14px; }
         }
 
+    
+        /* Mobile layout correction: keep form fields inside the card */
+        .mh-page { width: 100%; max-width: 560px; min-width: 0; margin: 0 auto; }
+        .mh-page .page-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-width: 0; }
+        .mh-page .page-header .back-link { flex: 0 1 auto; min-width: 0; font-size: 13px; }
+        .mh-page .page-header .page-title { flex: 1 1 auto; min-width: 0; text-align: center; font-size: 17px; }
+        .mh-page .card { width: 100%; min-width: 0; overflow: hidden; }
+        .mh-form, .mh-field { width: 100%; min-width: 0; }
+        .mh-input, .mh-select {
+            display: block; width: 100%; max-width: 100%; min-width: 0;
+            box-sizing: border-box; height: 54px; border-radius: 15px;
+            padding: 0 14px; border: 1px solid var(--glass-border);
+            background: color-mix(in srgb, var(--surface) 78%, transparent);
+        }
+        #workDate { max-width: 100%; }
+        .mh-table-wrap { overflow-x: auto; }
+        @media (max-width: 480px) {
+            body.liquid-page { padding-left: 14px; padding-right: 14px; }
+            .mh-page .page-header { gap: 6px; }
+            .mh-page .page-header .back-link { font-size: 12px; }
+            .mh-page .page-header .page-title { font-size: 16px; }
+            .mh-page .card { padding: 14px; }
+        }
+
     </style>
 
 </head>
