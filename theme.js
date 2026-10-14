@@ -1,8 +1,6 @@
-// Tema seçimi yalnızca ana sayfada kullanılır.
-// Diğer sayfalarda görünüm sabit açık modda kalır.
+// Tema düğmesi yalnızca ana sayfada bulunur; seçilen tema tüm sayfalarda korunur.
 (function() {
-    var isHome = document.body && document.body.classList.contains('home-body');
-    var saved = isHome ? (localStorage.getItem('theme') || 'dark') : 'light';
+    var saved = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
 })();
 
