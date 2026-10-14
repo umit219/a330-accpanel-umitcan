@@ -266,3 +266,151 @@ select,
 textarea {
     font-size: 16px !important;
 }
+
+
+/* ===== iOS Liquid Glass — shared page system ===== */
+body.liquid-page {
+  --glass-bg: rgba(255,255,255,.58);
+  --glass-border: rgba(255,255,255,.66);
+  --glass-shadow: 0 12px 35px rgba(20,30,60,.09);
+  --dock-bg: rgba(245,247,252,.80);
+  --icon-bg: rgba(65,112,220,.12);
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(83,131,255,.10), transparent 42%),
+    radial-gradient(ellipse at 100% 45%, rgba(143,112,255,.07), transparent 38%),
+    var(--bg);
+}
+html[data-theme="dark"] body.liquid-page,
+body.liquid-page[data-theme="dark"] {
+  --glass-bg: rgba(31,35,48,.66);
+  --glass-border: rgba(255,255,255,.11);
+  --glass-shadow: 0 14px 38px rgba(0,0,0,.24);
+  --dock-bg: rgba(22,25,35,.84);
+  --icon-bg: rgba(85,139,255,.16);
+}
+body.liquid-page.has-bottom-search {
+  padding-bottom: calc(112px + env(safe-area-inset-bottom)) !important;
+}
+body.liquid-page .page-wrap { max-width: 650px; }
+body.liquid-page .page-header {
+  padding: 10px 12px;
+  border: 1px solid var(--glass-border);
+  border-radius: 21px;
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+}
+body.liquid-page .back-link {
+  text-decoration: none;
+  transition: opacity .2s, transform .2s;
+}
+body.liquid-page .back-link:active { transform: scale(.97); }
+body.liquid-page .theme-btn {
+  border-color: var(--glass-border);
+  border-radius: 12px;
+  background: var(--icon-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+body.liquid-page .card,
+body.liquid-page .fleet-card,
+body.liquid-page .unit-card,
+body.liquid-page .chapter-item,
+body.liquid-page .panel-item,
+body.liquid-page .engine-section,
+body.liquid-page .inspection-card,
+body.liquid-page .result-card,
+body.liquid-page #results > *,
+body.liquid-page #chapterList > * {
+  border-radius: 19px;
+  border-color: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+}
+body.liquid-page input:not([type="checkbox"]):not([type="radio"]),
+body.liquid-page select,
+body.liquid-page textarea {
+  border-radius: 15px;
+}
+body.liquid-page.has-bottom-search .search-input {
+  position: fixed !important;
+  z-index: 501;
+  left: 50% !important;
+  right: auto !important;
+  bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+  transform: translateX(-50%) !important;
+  width: calc(100% - 32px) !important;
+  max-width: 520px;
+  min-height: 58px;
+  margin: 0 !important;
+  padding: 12px 18px;
+  border: 1px solid var(--glass-border);
+  border-radius: 25px;
+  background: var(--dock-bg);
+  box-shadow: 0 12px 36px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.18);
+  color: var(--text);
+  font-size: 16px;
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+}
+body.liquid-page.has-bottom-search .search-wrap .search-input {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  width: 100% !important;
+  max-width: none;
+  padding-left: 48px;
+}
+body.liquid-page.has-bottom-search .search-wrap {
+  position: fixed;
+  z-index: 500;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 20px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, var(--bg) 35%, transparent);
+}
+body.liquid-page.has-bottom-search .search-wrap::before {
+  content: "⌕";
+  position: absolute;
+  left: 36px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  color: var(--text-muted);
+  font-size: 24px;
+  pointer-events: none;
+}
+body.liquid-page.has-bottom-search .clear-search {
+  z-index: 3;
+  right: 28px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--icon-bg);
+  color: var(--text);
+}
+body.liquid-page.has-bottom-search .offline-bar {
+  bottom: calc(82px + env(safe-area-inset-bottom));
+}
+@media (max-width: 480px) {
+  body.liquid-page { padding-left: 14px; padding-right: 14px; }
+  body.liquid-page.has-bottom-search .search-input { width: calc(100% - 24px) !important; }
+  body.liquid-page.has-bottom-search .search-wrap { padding-left: 12px; padding-right: 12px; }
+  body.liquid-page.has-bottom-search .search-wrap::before { left: 28px; }
+  body.liquid-page.has-bottom-search .clear-search { right: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.liquid-page *, body.liquid-page *::before, body.liquid-page *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
