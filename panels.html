@@ -861,10 +861,12 @@
     const panels = Array.from(document.querySelectorAll('.panel-item'));
 
     function normalize(value) {
+        // Boşluk ve ayraçlardan bağımsız arama: 197FB, 197 FB ve 197FB, eşleşir.
         return String(value || '')
-            .toLowerCase()
-            .replace(/\s+/g, ' ')
-            .trim();
+            .toLocaleLowerCase('tr-TR')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]/g, '');
     }
 
     function filterPanels() {
