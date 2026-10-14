@@ -655,11 +655,7 @@
                 "input",
                 () => {
 
-                    updateSlot(
-                        slotIndex,
-                        woInput.value,
-                        tcInput.value
-                    );
+                    updateSlot(currentSlotIndex, woInput.value, tcInput.value);
 
                 }
             );
@@ -669,11 +665,7 @@
                 "input",
                 () => {
 
-                    updateSlot(
-                        slotIndex,
-                        woInput.value,
-                        tcInput.value
-                    );
+                    updateSlot(currentSlotIndex, woInput.value, tcInput.value);
 
                 }
             );
