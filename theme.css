@@ -26,6 +26,9 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* iOS: prevent accidental double-tap zoom while keeping pinch-to-zoom */
+html { touch-action: manipulation; }
+
 body {
     font-family: 'Inter', sans-serif;
     background: var(--bg);
