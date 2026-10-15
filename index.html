@@ -748,6 +748,7 @@
 <div class="offline-bar" id="offlineBar">📡 Çevrimdışı mod</div>
 
 <script src="theme.js"></script>
+<script src="fleet.js"></script>
 
 <script>
 (function () {
@@ -934,6 +935,31 @@
                 "cb.html?search=" + encodeURIComponent(raw)
             )
         );
+
+        // Search aircraft registrations as well as tool names.
+        const fleetQuery = normalizeCode(raw);
+        if (fleetQuery.length >= 2 && Array.isArray(fleetData)) {
+            const aircraftMatches = fleetData.filter(item =>
+                normalizeCode(item.registration || "").includes(fleetQuery)
+            ).slice(0, 8);
+
+            if (aircraftMatches.length) {
+                const fleetHeading = document.createElement("div");
+                fleetHeading.className = "home-results-heading";
+                fleetHeading.style.marginTop = "8px";
+                fleetHeading.textContent = "A330 Filo sonuçları";
+                results.appendChild(fleetHeading);
+
+                aircraftMatches.forEach(item => {
+                    results.appendChild(makeResult(
+                        item.registration,
+                        [item.aircraft, item.name].filter(Boolean).join(" · ") || "A330 uçak kaydı",
+                        "✈",
+                        "fleet.html?search=" + encodeURIComponent(item.registration)
+                    ));
+                });
+            }
+        }
 
         renderPanelMatches(raw, query);
     }
