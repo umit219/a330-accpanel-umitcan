@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'dark')}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saat Toplama</title><link rel="stylesheet" href="theme.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body.timecalc-page{min-height:100vh;min-height:100dvh;background:radial-gradient(ellipse at 0% 0%,rgba(83,131,255,.12),transparent 42%),var(--bg);padding:18px 16px calc(24px + env(safe-area-inset-bottom))}
+.timecalc-wrap{max-width:440px;margin:0 auto}.timecalc-header{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.timecalc-back{width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--border);border-radius:14px;color:var(--text);text-decoration:none;background:var(--surface);font-size:23px}
+.timecalc-title{font-size:20px;font-weight:800;letter-spacing:-.5px}.timecalc-subtitle{margin-top:4px;color:var(--text-muted);font-size:12px}
+.timecalc-card{padding:16px;border:1px solid var(--border);border-radius:24px;background:var(--surface);box-shadow:0 14px 38px rgba(0,0,0,.12)}
+.timecalc-label{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--text-muted);margin-bottom:9px}
+#timeExpression{width:100%;height:68px;border:1px solid var(--border);border-radius:17px;background:var(--bg);color:var(--text);padding:0 15px;font:700 24px Inter,sans-serif;letter-spacing:.3px;outline:none}
+#timeExpression:focus{border-color:var(--accent)}.timecalc-result{margin-top:13px;padding:16px;border-radius:17px;background:rgba(79,142,247,.10);border:1px solid rgba(79,142,247,.22)}
+.timecalc-result-label{font-size:11px;color:var(--text-muted);margin-bottom:6px}#timeResult{font-size:34px;font-weight:800;letter-spacing:-1px;overflow-wrap:anywhere}
+#timeDetails{margin-top:6px;color:var(--text-muted);font-size:12px}.timecalc-keypad{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:16px}
+.timekey{min-height:56px;border:1px solid var(--border);border-radius:15px;background:var(--bg);color:var(--text);font:600 18px Inter,sans-serif;cursor:pointer;touch-action:manipulation}
+.timekey:active{transform:scale(.97);background:var(--surface)}.timekey.operator{color:var(--accent);background:rgba(79,142,247,.09)}.timekey.action{font-size:14px}.timekey.equals{background:var(--accent);color:white;border-color:var(--accent);font-size:22px}
+.timecalc-help{margin:15px 3px 0;color:var(--text-muted);font-size:12px;line-height:1.7}.timecalc-example{display:inline-block;margin-top:8px;padding:7px 10px;border:1px solid var(--border);border-radius:10px;color:var(--text);background:var(--bg)}
+</style></head>
+<body class="timecalc-page liquid-page"><main class="timecalc-wrap">
+<header class="timecalc-header"><a class="timecalc-back" href="index.html" aria-label="Ana sayfa">‹</a><div><div class="timecalc-title">Saat Toplama</div><div class="timecalc-subtitle">Saat ve dakika hesap makinesi</div></div></header>
+<section class="timecalc-card"><div class="timecalc-label">İşlem</div>
+<input id="timeExpression" type="text" inputmode="none" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="15:05+16:24" aria-label="Saat toplama işlemi">
+<div class="timecalc-result" aria-live="polite"><div class="timecalc-result-label">Toplam süre</div><div id="timeResult">—</div><div id="timeDetails">Örnek: 15:05 + 16:24 = 31:29</div></div>
+<div class="timecalc-keypad">
+<button class="timekey" data-key="7">7</button><button class="timekey" data-key="8">8</button><button class="timekey" data-key="9">9</button><button class="timekey operator" data-key="+">+</button>
+<button class="timekey" data-key="4">4</button><button class="timekey" data-key="5">5</button><button class="timekey" data-key="6">6</button><button class="timekey operator" data-key=":">:</button>
+<button class="timekey" data-key="1">1</button><button class="timekey" data-key="2">2</button><button class="timekey" data-key="3">3</button><button class="timekey action" data-action="backspace">⌫</button>
+<button class="timekey action" data-action="clear">AC</button><button class="timekey" data-key="0">0</button><button class="timekey action" data-action="calculate">Hesapla</button><button class="timekey equals" data-action="calculate">=</button>
+</div><div class="timecalc-help">Saatleri <b>SS:DD</b> biçiminde gir ve aralarına <b>+</b> koy. Birden fazla süreyi toplayabilirsin.<br><span class="timecalc-example">15:05 + 16:24 → 31:29</span></div>
+</section></main>
+<script>
+(function(){
+const input=document.getElementById('timeExpression'),result=document.getElementById('timeResult'),details=document.getElementById('timeDetails');
+function calculate(){const raw=input.value.replace(/\s+/g,'');if(!raw){result.textContent='—';details.textContent='Toplamak istediğin saatleri gir.';return;}const parts=raw.split('+');if(parts.some(p=>!/^\d{1,4}:\d{1,2}$/.test(p))){result.textContent='Hatalı format';details.textContent='Örnek: 15:05+16:24';return;}let total=0;for(const p of parts){const [h,m]=p.split(':').map(Number);if(m>59){result.textContent='Hatalı dakika';details.textContent='Dakika 00–59 arasında olmalı.';return;}total+=h*60+m;}result.textContent=String(Math.floor(total/60)).padStart(2,'0')+':'+String(total%60).padStart(2,'0');details.textContent=parts.length+' süre toplandı · '+total+' dakika';}
+document.querySelectorAll('[data-key]').forEach(b=>b.addEventListener('click',()=>{const s=input.selectionStart??input.value.length,e=input.selectionEnd??s;input.setRangeText(b.dataset.key,s,e,'end');input.focus();calculate();}));
+document.querySelector('[data-action="backspace"]').addEventListener('click',()=>{const s=input.selectionStart??input.value.length,e=input.selectionEnd??s;if(s===e&&s>0)input.setRangeText('',s-1,s,'end');else input.setRangeText('',s,e,'end');input.focus();calculate();});
+document.querySelector('[data-action="clear"]').addEventListener('click',()=>{input.value='';input.focus();calculate();});
+document.querySelectorAll('[data-action="calculate"]').forEach(b=>b.addEventListener('click',calculate));input.addEventListener('input',calculate);input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();calculate();}});calculate();
+})();
+</script></body></html>
