@@ -754,7 +754,7 @@
                     const doc = new DOMParser().parseFromString(html, "text/html");
                     return Array.from(doc.querySelectorAll(".panel-item")).map(panel => ({
                         title: panel.querySelector("summary")?.textContent.trim() || "Access Panel",
-                        text: panel.innerText || panel.textContent || ""
+                        text: panel.textContent || ""
                     }));
                 });
         }
