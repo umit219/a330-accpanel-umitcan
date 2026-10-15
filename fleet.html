@@ -877,6 +877,13 @@ searchInput.addEventListener(
     }
 );
 
+/* Open a searched aircraft directly from the homepage. */
+const initialSearch = new URLSearchParams(window.location.search).get("search");
+if (initialSearch) {
+    searchInput.value = initialSearch;
+    searchFleet(initialSearch);
+}
+
 </script>
 
 
