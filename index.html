@@ -388,7 +388,7 @@
             z-index: 500;
             left: 0;
             right: 0;
-            bottom: 0;
+            bottom: var(--home-keyboard-offset, 0px);
             padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
             pointer-events: none;
             display: flex;
@@ -907,6 +907,36 @@
 
         renderPanelMatches(raw, query);
     }
+
+    // Keep the floating search dock above the on-screen keyboard (especially iOS).
+    const dock = document.querySelector(".home-dock-wrap");
+    const visualViewport = window.visualViewport;
+
+    function updateHomeKeyboardOffset() {
+        if (!dock) return;
+        if (document.activeElement !== input || !visualViewport) {
+            document.documentElement.style.setProperty("--home-keyboard-offset", "0px");
+            return;
+        }
+        const keyboardOverlap = Math.max(
+            0,
+            window.innerHeight - visualViewport.height - visualViewport.offsetTop
+        );
+        document.documentElement.style.setProperty(
+            "--home-keyboard-offset",
+            keyboardOverlap + "px"
+        );
+    }
+
+    input.addEventListener("focus", updateHomeKeyboardOffset);
+    input.addEventListener("blur", function () {
+        document.documentElement.style.setProperty("--home-keyboard-offset", "0px");
+    });
+    if (visualViewport) {
+        visualViewport.addEventListener("resize", updateHomeKeyboardOffset);
+        visualViewport.addEventListener("scroll", updateHomeKeyboardOffset);
+    }
+    window.addEventListener("resize", updateHomeKeyboardOffset);
 
     input.addEventListener("input", renderSearch);
 
