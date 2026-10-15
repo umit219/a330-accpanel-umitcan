@@ -948,7 +948,7 @@
         let firstMatch = null;
 
         panels.forEach(function (panel) {
-            const matches = normalize(panel.innerText).includes(query);
+            const matches = normalize(panel.textContent).includes(query);
 
             panel.style.display = matches ? '' : 'none';
 
