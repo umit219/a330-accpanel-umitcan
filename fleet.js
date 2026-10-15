@@ -600,4 +600,130 @@ const fleetData = [
         seats: 289
     }
 
+    /* =====================================================
+       A330 FREIGHTERS — THY Cargo
+       Registration/type verified against current fleet listings.
+       Unknown MSN and cabin data intentionally left null.
+       ===================================================== */
+
+    {
+        registration: "TC-JCI",
+        aircraft: "A330-243F",
+        family: "A330-200F",
+        engine: "Trent 772B-60",
+        manufacturer: "Rolls-Royce",
+        name: null,
+        msn: null,
+        seatConfig: null,
+        seats: null
+    },
+
+    {
+        registration: "TC-JDO",
+        aircraft: "A330-243F",
+        family: "A330-200F",
+        engine: "Trent 772B-60",
+        manufacturer: "Rolls-Royce",
+        name: null,
+        msn: null,
+        seatConfig: null,
+        seats: null
+    },
+
+    {
+        registration: "TC-JDP",
+        aircraft: "A330-243F",
+        family: "A330-200F",
+        engine: "Trent 772B-60",
+        manufacturer: "Rolls-Royce",
+        name: null,
+        msn: null,
+        seatConfig: null,
+        seats: null
+    },
+
+    {
+        registration: "TC-JDR",
+        aircraft: "A330-243F",
+        family: "A330-200F",
+        engine: "Trent 772B-60",
+        manufacturer: "Rolls-Royce",
+        name: null,
+        msn: null,
+        seatConfig: null,
+        seats: null
+    },
+
+    {
+        registration: "TC-JDS",
+        aircraft: "A330-243F",
+        family: "A330-200F",
+        engine: "Trent 772B-60",
+        manufacturer: "Rolls-Royce",
+        name: null,
+        msn: null,
+        seatConfig: null,
+        seats: null
+    },
+
+    {
+        registration: "TC-JOO",
+        aircraft: "A330-223F",
+        family: "A330-200F",
+        engine: "PW4168A",
+        manufacturer: "Pratt & Whitney",
+        name: null,
+        msn: "1164",
+        seatConfig: null,
+        seats: null
+    },
+
+    {
+        registration: "TC-JOU",
+        aircraft: "A330-243F",
+        family: "A330-200F",
+        engine: "Trent 772B-60",
+        manufacturer: "Rolls-Royce",
+        name: null,
+        msn: "1550",
+        seatConfig: null,
+        seats: null
+    },
+
+    {
+        registration: "TC-JOV",
+        aircraft: "A330-243F",
+        family: "A330-200F",
+        engine: "Trent 772B-60",
+        manufacturer: "Rolls-Royce",
+        name: null,
+        msn: "1722",
+        seatConfig: null,
+        seats: null
+    },
+
+    {
+        registration: "TC-JOY",
+        aircraft: "A330-243F",
+        family: "A330-200F",
+        engine: "Trent 772B-60",
+        manufacturer: "Rolls-Royce",
+        name: null,
+        msn: "1750",
+        seatConfig: null,
+        seats: null
+    },
+
+    {
+        registration: "TC-JOZ",
+        aircraft: "A330-243F",
+        family: "A330-200F",
+        engine: "Trent 772B-60",
+        manufacturer: "Rolls-Royce",
+        name: null,
+        msn: "1768",
+        seatConfig: null,
+        seats: null
+    }
+
 ];
