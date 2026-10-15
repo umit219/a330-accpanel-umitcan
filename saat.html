@@ -18,7 +18,7 @@ body.timecalc-page{min-height:100vh;min-height:100dvh;background:radial-gradient
 .timecalc-result-label{font-size:11px;color:var(--text-muted);margin-bottom:6px}#timeResult{font-size:34px;font-weight:800;letter-spacing:-1px;overflow-wrap:anywhere}
 #timeDetails{margin-top:6px;color:var(--text-muted);font-size:12px}.timecalc-keypad{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:16px}
 .timekey{min-height:56px;border:1px solid var(--border);border-radius:15px;background:var(--bg);color:var(--text);font:600 18px Inter,sans-serif;cursor:pointer;touch-action:manipulation}
-.timekey:active{transform:scale(.97);background:var(--surface)}.timekey.operator{color:var(--accent);background:rgba(79,142,247,.09)}.timekey.action{font-size:14px}.timekey.equals{background:var(--accent);color:white;border-color:var(--accent);font-size:22px}
+.timekey:active{transform:scale(.97);background:var(--surface)}.timekey.backspace-key{display:grid;place-items:center}.backspace-key svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.timekey.operator{color:var(--accent);background:rgba(79,142,247,.09)}.timekey.action{font-size:14px}.timekey.equals{background:var(--accent);color:white;border-color:var(--accent);font-size:22px}
 .timecalc-help{margin:15px 3px 0;color:var(--text-muted);font-size:12px;line-height:1.7}.timecalc-example{display:inline-block;margin-top:8px;padding:7px 10px;border:1px solid var(--border);border-radius:10px;color:var(--text);background:var(--bg)}
 </style></head>
 <body class="timecalc-page liquid-page"><main class="timecalc-wrap">
@@ -29,7 +29,7 @@ body.timecalc-page{min-height:100vh;min-height:100dvh;background:radial-gradient
 <div class="timecalc-keypad">
 <button class="timekey" data-key="7">7</button><button class="timekey" data-key="8">8</button><button class="timekey" data-key="9">9</button><button class="timekey operator" data-key="+">+</button>
 <button class="timekey" data-key="4">4</button><button class="timekey" data-key="5">5</button><button class="timekey" data-key="6">6</button><button class="timekey operator" data-key=":">:</button><button class="timekey operator" data-key="*">×</button>
-<button class="timekey" data-key="1">1</button><button class="timekey" data-key="2">2</button><button class="timekey" data-key="3">3</button><button class="timekey action" data-action="backspace">⌫</button>
+<button class="timekey" data-key="1">1</button><button class="timekey" data-key="2">2</button><button class="timekey" data-key="3">3</button><button class="timekey action backspace-key" data-action="backspace" aria-label="Son karakteri sil" title="Son karakteri sil"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 5H20a1.5 1.5 0 0 1 1.5 1.5v11A1.5 1.5 0 0 1 20 19H9l-6.5-7L9 5Z"/><path d="m12 9 5 6m0-6-5 6"/></svg></button>
 <button class="timekey action" data-action="clear">AC</button><button class="timekey" data-key="0">0</button><button class="timekey operator" data-key="-">−</button><button class="timekey operator" data-key="/">÷</button><button class="timekey equals" data-action="calculate">=</button>
 </div><div class="timecalc-help">Saatleri <b>SS:DD</b> biçiminde gir. İşlemler: <b>+</b> toplama, <b>−</b> çıkarma, <b>×</b> çarpma, <b>÷</b> bölme. Çarpma ve bölmede saat süresini bir sayıyla kullanabilirsin.<br><span class="timecalc-example">15:05 + 16:24 → 31:29</span><br><span class="timecalc-example">15:05 ÷ 2 → 07:33</span></div>
 </section></main>
