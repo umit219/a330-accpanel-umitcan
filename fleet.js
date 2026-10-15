@@ -598,7 +598,7 @@ const fleetData = [
         msn: null,
         seatConfig: "C28Y261",
         seats: 289
-    }
+    },
 
     /* =====================================================
        A330 FREIGHTERS — THY Cargo
