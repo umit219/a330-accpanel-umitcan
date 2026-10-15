@@ -1,4 +1,4 @@
-const CACHE = 'a330-v6.5';
+const CACHE = 'a330-v6.6';
 
 const FILES = [
     '/',
@@ -11,6 +11,7 @@ const FILES = [
 
     '/fleet.html',
     '/unit.html',
+    '/saat.html',
     '/inspection.html',
 
     '/manhour.html',
