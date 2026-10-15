@@ -737,6 +737,69 @@
             .trim();
     }
 
+    let panelIndexPromise = null;
+
+    function normalizeCode(value) {
+        return normalize(value).replace(/[^a-z0-9]/g, "");
+    }
+
+    function loadPanelIndex() {
+        if (!panelIndexPromise) {
+            panelIndexPromise = fetch("panels.html")
+                .then(response => {
+                    if (!response.ok) throw new Error("Access Panels verisi yüklenemedi");
+                    return response.text();
+                })
+                .then(html => {
+                    const doc = new DOMParser().parseFromString(html, "text/html");
+                    return Array.from(doc.querySelectorAll(".panel-item")).map(panel => ({
+                        title: panel.querySelector("summary")?.textContent.trim() || "Access Panel",
+                        text: panel.innerText || panel.textContent || ""
+                    }));
+                });
+        }
+        return panelIndexPromise;
+    }
+
+    async function renderPanelMatches(raw, query) {
+        if (normalizeCode(query).length < 2) return;
+
+        try {
+            const panelItems = await loadPanelIndex();
+            // Kullanıcı aramayı değiştirdiyse eski sonuçları ekleme.
+            if (normalize(input.value) !== query) return;
+
+            const compactQuery = normalizeCode(query);
+            const matches = panelItems.filter(item =>
+                normalizeCode(item.title + " " + item.text).includes(compactQuery)
+            ).slice(0, 8);
+
+            const heading = document.createElement("div");
+            heading.className = "home-results-heading";
+            heading.style.marginTop = "8px";
+            heading.textContent = "Access Panel sonuçları";
+            results.appendChild(heading);
+
+            if (matches.length) {
+                matches.forEach(item => {
+                    results.appendChild(makeResult(
+                        item.title,
+                        raw + " — panel kodu / bölge eşleşmesi",
+                        "⌕",
+                        "panels.html?search=" + encodeURIComponent(raw)
+                    ));
+                });
+            } else {
+                const empty = document.createElement("div");
+                empty.className = "home-empty";
+                empty.textContent = "Access Panels içinde eşleşme bulunamadı.";
+                results.appendChild(empty);
+            }
+        } catch (error) {
+            console.warn("Ana sayfa panel araması başarısız:", error);
+        }
+    }
+
     function makeResult(title, subtitle, icon, url) {
         const a = document.createElement("a");
         a.className = "home-result";
@@ -841,6 +904,8 @@
                 "cb.html?search=" + encodeURIComponent(raw)
             )
         );
+
+        renderPanelMatches(raw, query);
     }
 
     input.addEventListener("input", renderSearch);
