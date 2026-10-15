@@ -731,6 +731,11 @@ function searchFleet(value) {
     const query =
         normalize(value);
 
+    if (!Array.isArray(fleetData)) {
+        results.innerHTML = '<div class="fleet-message">Filo verileri yüklenemedi. Sayfayı yenileyin.</div>';
+        return;
+    }
+
 
     /* -----------------------------------------------
        EMPTY
@@ -781,11 +786,10 @@ function searchFleet(value) {
 
     const aircraft =
         fleetData.find(item => {
-
-            return normalize(
-                item.registration
-            ).includes(query);
-
+            const registration = normalize(item.registration || "");
+            return registration === query ||
+                   registration.includes(query) ||
+                   query.includes(registration);
         });
 
 
