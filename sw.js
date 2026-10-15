@@ -1,4 +1,4 @@
-const CACHE = 'a330-v6.3';
+const CACHE = 'a330-v6.4';
 
 const FILES = [
     '/',
