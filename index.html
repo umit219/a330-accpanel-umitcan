@@ -171,6 +171,31 @@
             gap: 11px;
         }
 
+        .home-tool-fleet {
+            grid-column: 1 / -1;
+            min-height: 76px;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 14px;
+            padding: 16px 18px;
+        }
+
+        .home-tool-fleet .home-tool-icon {
+            width: 44px;
+            height: 44px;
+            font-size: 22px;
+        }
+
+        .home-tool-fleet .home-tool-bottom {
+            flex: 1;
+            width: auto;
+        }
+
+        .home-tool-fleet .home-tool-name {
+            font-size: 14px;
+        }
+
         .home-tool {
             position: relative;
             min-width: 0;
@@ -586,7 +611,7 @@
 
     <nav class="home-grid" id="homeGrid" aria-label="A330 araçları">
 
-        <a href="fleet.html" class="home-tool" data-search="a330 filosu uçak filo aircraft fleet">
+        <a href="fleet.html" class="home-tool home-tool-fleet" data-search="a330 filosu uçak filo aircraft fleet">
             <span class="home-tool-icon">✈</span>
             <span class="home-tool-bottom">
                 <span class="home-tool-name">A330 Filosu</span>
