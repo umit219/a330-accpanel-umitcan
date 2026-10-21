@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          npm install --no-save @capacitor/android@^8.5.2
+          npm install --no-save @capacitor/android@^8.5.2 @capacitor/assets
 
       - name: Update bundled web app
         run: |
@@ -46,6 +46,12 @@ jobs:
               cp -R "$d" www/
             fi
           done
+
+      - name: Generate Android app icon
+        run: |
+          mkdir -p assets
+          cp app-icon.png assets/icon.png
+          npx capacitor-assets generate --android
 
       - name: Add Android platform
         run: npx cap add android
