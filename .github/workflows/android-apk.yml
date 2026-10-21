@@ -1,0 +1,83 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install --no-save @capacitor/android@^8.5.2
+
+      - name: Update bundled web app
+        run: |
+          mkdir -p www
+          for f in *.html *.js *.css *.json *.png; do
+            [ -f "$f" ] || continue
+            case "$f" in
+              package.json|package-lock.json|capacitor.config.json) continue ;;
+            esac
+            cp "$f" www/
+          done
+          for d in boro cbs images sematik; do
+            if [ -d "$d" ]; then
+              rm -rf "www/$d"
+              cp -R "$d" www/
+            fi
+          done
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build installable APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: A330-A-BKM-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Publish latest APK to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-latest
+          name: A330 A BKM — Android APK
+          body: |
+            Android yükleme dosyası (APK).
+
+            İndirmek için A330-A-BKM.apk dosyasına dokunun. Android, GitHub dışından uygulama yüklemek için izin isteyebilir.
+            Bu sürüm GitHub Actions üzerinden otomatik oluşturulmuştur.
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+          overwrite_files: true
+          prerelease: true
+          make_latest: false
